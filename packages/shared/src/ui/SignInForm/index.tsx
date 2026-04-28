@@ -297,11 +297,11 @@ const SignInForm = ({
                     className={cn('bg-muted/30 flex items-center gap-2 border border-dashed p-2')}
                   >
                     <ShieldCheck className={cn('text-foreground h-5 w-5 flex-shrink-0')} />
-                    <div className={cn('flex items-end gap-1')}>
-                      <p className={cn('text-foreground block flex text-lg font-semibold')}>
+                    <div className={cn('flex items-baseline gap-2')}>
+                      <p className={cn('text-foreground text-lg font-semibold')}>
                         {x.applicationName}
                       </p>
-                      <p className={cn('text-muted-foreground mb-0.5 block text-sm leading-tight')}>
+                      <p className={cn('text-muted-foreground text-sm')}>
                         {x.description}
                       </p>
                     </div>
