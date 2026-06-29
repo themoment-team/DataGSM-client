@@ -26,6 +26,8 @@ export const metadata = { title: '서드파티 권한 범위' }
 
 ### 권한 범위 형식
 
+DataGSM OAuth의 기본 사용자 정보 조회 권한 범위는 `self:read`입니다. 이 기본 scope는 DataGSM 사용자 본인 정보를 조회하기 위한 권한이며, 서드파티 Application ID를 붙여서 사용하지 않습니다.
+
 서드파티 권한 범위는 `{applicationId}:{scopeName}` 형식의 문자열로 표현됩니다.
 
 ```
@@ -33,6 +35,11 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890:profile
 ```
 
 위 예시에서 `a1b2c3d4-e5f6-7890-abcd-ef1234567890`은 Application ID이고, `profile`은 해당 Application에서 정의한 권한 범위 이름입니다.
+
+| 구분 | 형식 | 사용 목적 |
+| --- | --- | --- |
+| DataGSM 기본 scope | `self:read` | DataGSM 사용자 기본 정보 및 학생 상세 데이터 조회 |
+| 서드파티 scope | `{applicationId}:{scopeName}` | 외부 애플리케이션이 직접 정의한 권한 범위 요청 |
 
 #### scopeName 제약 조건
 
@@ -95,7 +102,8 @@ GET /v1/oauth/authorize?client_id=your-client-id&redirect_uri=https://your-app.c
 GET /v1/oauth/authorize?client_id=your-client-id&redirect_uri=https://your-app.com/callback&scope=a1b2c3d4:profile%20a1b2c3d4:email
 ```
 
-- `scope` 파라미터를 지정하지 않으면 Client에 등록된 **모든 권한 범위**가 사용됩니다.
+- DataGSM 사용자 본인 정보만 필요하다면 `scope` 파라미터를 생략하거나 `self:read`를 전달합니다.
+- 서드파티 권한 범위를 요청할 때는 `{applicationId}:{scopeName}` 형식을 사용합니다.
 - 요청한 권한범위가  Client의 허용 목록에 포함되지 않으면 `400 Bad Request` 오류가 발생합니다.
 - 권한 범위 정보는 Authorization Code → Access Token까지 전파되며, Refresh Token 갱신 시에도 원래 권한 범위가 유지됩니다.
 

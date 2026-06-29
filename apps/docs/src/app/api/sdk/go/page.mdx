@@ -1,0 +1,352 @@
+import { AlertTriangle } from 'lucide-react'
+
+export const metadata = { title: 'Go SDK' }
+
+# DataGSM OpenAPI SDK for Go
+
+<div className="border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded my-4">
+  <div className="flex items-start gap-3">
+    <AlertTriangle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+    <div>
+      <div className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
+        Go SDK — 비공식 패키지
+      </div>
+      <div className="text-yellow-800 dark:text-yellow-200 text-sm">
+        Go SDK는 공식 지원 패키지가 아닌 커뮤니티 기여 비공식 패키지입니다. 기능 및 업데이트 지원이 공식 SDK와 다를 수 있으므로 사용 시 유의하시기 바랍니다.
+      </div>
+    </div>
+  </div>
+</div>
+
+### 개요
+
+**DataGSM OpenAPI SDK for Go**는 DataGSM API를 Go 애플리케이션에서 쉽고 안전하게 사용할 수 있도록 설계된 비공식 커뮤니티 기여 SDK입니다.
+
+복잡한 HTTP 요청을 직접 작성할 필요 없이, 타입 안전한 인터페이스를 통해 학생, 동아리, 프로젝트, NEIS(급식, 학사일정, 시간표) 데이터에 효율적으로 접근할 수 있습니다.
+
+### 주요 특징
+
+| 특징                | 설명                                                                  |
+|:------------------|:--------------------------------------------------------------------|
+| **타입 안전성**        | Go의 정적 타입 시스템을 활용하여 컴파일 타임에 오류를 검출하고 런타임 에러를 방지합니다.               |
+| **함수형 옵션 패턴**     | `WithBaseURL`, `WithTimeout`, `WithHTTPClient` 등 유연한 클라이언트 설정을 지원합니다. |
+| **context 지원**    | 모든 API 호출에 `context.Context`를 지원하여 타임아웃 및 취소 제어가 가능합니다.            |
+| **구체적인 에러 처리**    | `*APIError` 타입으로 HTTP 상태 코드별 명확한 에러 핸들링을 지원합니다.                    |
+| **자동 리소스 관리**     | `defer client.Close()` 패턴으로 유휴 HTTP 연결을 자동으로 정리합니다.                 |
+| **Ptr 헬퍼**        | 선택적 필드에 인라인 포인터 생성을 지원하는 제네릭 헬퍼 함수를 제공합니다.                        |
+
+### 시스템 요구사항
+
+| 항목      | 최소 버전    | 권장 버전    |
+|:--------|:---------|:---------|
+| **Go** | 1.21 이상 | 최신 버전   |
+
+## 설치
+
+```bash
+go get github.com/jihoonwjj/datagsm-openapi-sdk-go
+```
+
+## 빠른 시작
+
+### 1. 클라이언트 초기화
+
+`NewClient`로 클라이언트를 생성합니다. API 키는 필수 파라미터입니다.
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
+
+    datagsm "github.com/jihoonwjj/datagsm-openapi-sdk-go"
+)
+
+func main() {
+    client, err := datagsm.NewClient("your-api-key")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Close()
+
+    ctx := context.Background()
+
+    resp, err := client.Students().List(ctx, datagsm.StudentQuery{
+        Grade: datagsm.Ptr(1),
+        Page:  0,
+        Size:  20,
+    })
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("학생 수: %d명\n", resp.TotalElements)
+    for _, s := range resp.Students {
+        fmt.Printf("  %s (%d학년 %d반)\n", s.Name, s.Grade, s.ClassNum)
+    }
+}
+```
+
+상세 설정이 필요한 경우 함수형 옵션을 사용하세요.
+
+```go
+import "time"
+
+client, err := datagsm.NewClient("your-api-key",
+    datagsm.WithBaseURL("https://openapi.datagsm.kr"), // 기본값
+    datagsm.WithTimeout(10 * time.Second),             // 기본값: 30초
+    datagsm.WithHTTPClient(myHTTPClient),              // 커스텀 http.Client 주입
+)
+```
+
+### 2. API 호출 예제
+
+#### 학생 데이터 조회
+
+```go
+// 학생 목록 조회 (2학년, AI 전공)
+resp, err := client.Students().List(ctx, datagsm.StudentQuery{
+    Grade:   datagsm.Ptr(2),
+    Major:   datagsm.Ptr(datagsm.MajorAI),
+    SortBy:  datagsm.StudentSortByName,
+    SortDir: datagsm.SortDirASC,
+    Page:    0,
+    Size:    50,
+})
+
+// 학생 단건 조회
+student, err := client.Students().Get(ctx, 123)
+```
+
+#### 급식 데이터 조회
+
+```go
+// 오늘 급식
+today := time.Now()
+meals, err := client.NEIS().Meals(ctx, datagsm.MealQuery{Date: &today})
+
+// 결과 출력
+for _, meal := range meals {
+    fmt.Printf("[%s]\n", meal.MealType)
+    for _, menu := range meal.MealMenu {
+        fmt.Printf("  - %s\n", menu)
+    }
+}
+```
+
+## API 레퍼런스
+
+### 학생 API
+
+**`client.Students()`** — 학생 데이터 조회
+
+| 메서드               | 설명            | 반환 타입                              |
+|:------------------|:--------------|:-----------------------------------|
+| `List(ctx, query)` | 조건에 맞는 학생 목록 조회 | `(*StudentResponse, error)` |
+| `Get(ctx, id)`    | 학생 단건 조회      | `(*Student, error)`                |
+
+#### StudentQuery 파라미터
+
+| 파라미터               | 타입               | 설명        |
+|:-------------------|:-----------------|:----------|
+| `StudentID`        | `*int`           | 학생 ID     |
+| `Name`             | `*string`        | 이름        |
+| `Email`            | `*string`        | 이메일       |
+| `Grade`            | `*int`           | 학년        |
+| `ClassNum`         | `*int`           | 반         |
+| `Number`           | `*int`           | 번호        |
+| `Sex`              | `*Sex`           | 성별        |
+| `Role`             | `*StudentRole`   | 학생 역할     |
+| `DormitoryRoom`    | `*int`           | 기숙사 호실    |
+| `Specialty`        | `*string`        | 특기 분야     |
+| `Major`            | `*Major`         | 전공        |
+| `GithubID`         | `*string`        | GitHub ID |
+| `IncludeGraduates` | `bool`           | 졸업생 포함 여부 |
+| `IncludeWithdrawn` | `bool`           | 자퇴생 포함 여부 |
+| `OnlyEnrolled`     | `bool`           | 재학생만 조회   |
+| `Page`             | `int`            | 페이지 번호    |
+| `Size`             | `int`            | 페이지 크기    |
+| `SortBy`           | `StudentSortBy`  | 정렬 기준     |
+| `SortDir`          | `SortDirection`  | 정렬 방향     |
+
+### 동아리 API
+
+**`client.Clubs()`** — 동아리 데이터 조회
+
+| 메서드               | 설명              | 반환 타입                           |
+|:------------------|:----------------|:--------------------------------|
+| `List(ctx, query)` | 조건에 맞는 동아리 목록 조회 | `(*ClubResponse, error)` |
+| `Get(ctx, id)`    | 동아리 상세 조회       | `(*ClubDetail, error)`          |
+
+#### ClubQuery 파라미터
+
+| 파라미터                          | 타입          | 설명              |
+|:------------------------------|:------------|:----------------|
+| `ClubID`                      | `*int`      | 동아리 ID          |
+| `ClubName`                    | `*string`   | 동아리 이름          |
+| `ClubType`                    | `*ClubType` | 동아리 유형          |
+| `Status`                      | `*ClubStatus` | 동아리 상태        |
+| `FoundedYear`                 | `*int`      | 설립 연도           |
+| `Page`                        | `int`       | 페이지 번호          |
+| `Size`                        | `int`       | 페이지 크기          |
+| `IncludeLeaderInParticipants` | `bool`      | 참여자 목록에 부장 포함   |
+| `SortBy`                      | `ClubSortBy` | 정렬 기준          |
+| `SortDir`                     | `SortDirection` | 정렬 방향       |
+
+### 프로젝트 API
+
+**`client.Projects()`** — 프로젝트 데이터 조회
+
+| 메서드               | 설명               | 반환 타입                              |
+|:------------------|:-----------------|:-----------------------------------|
+| `List(ctx, query)` | 조건에 맞는 프로젝트 목록 조회 | `(*ProjectResponse, error)` |
+| `Get(ctx, id)`    | 프로젝트 단건 조회       | `(*Project, error)`                |
+
+### NEIS API
+
+**`client.NEIS()`** — 급식·학사일정·시간표 조회
+
+| 메서드                      | 설명         | 반환 타입                      |
+|:-------------------------|:-----------|:---------------------------|
+| `Meals(ctx, query)`      | 급식 데이터 조회  | `([]Meal, error)`          |
+| `Schedules(ctx, query)`  | 학사일정 조회    | `([]Schedule, error)`      |
+| `Timetables(ctx, query)` | 시간표 데이터 조회 | `([]Timetable, error)`     |
+
+#### NEIS 쿼리 파라미터
+
+| 타입               | 파라미터       | 설명         |
+|:-----------------|:-----------|:-----------|
+| `MealQuery`      | `Date`     | `*time.Time` — 조회 날짜 |
+| `MealQuery`      | `FromDate` | `*time.Time` — 조회 시작 날짜 |
+| `MealQuery`      | `ToDate`   | `*time.Time` — 조회 종료 날짜 |
+| `ScheduleQuery`  | `Date`     | `*time.Time` — 조회 날짜 |
+| `ScheduleQuery`  | `FromDate` | `*time.Time` — 조회 시작 날짜 |
+| `ScheduleQuery`  | `ToDate`   | `*time.Time` — 조회 종료 날짜 |
+| `TimetableQuery` | `Grade`    | `int` — 학년 (필수) |
+| `TimetableQuery` | `ClassNum` | `int` — 반 (필수) |
+| `TimetableQuery` | `Date`     | `*time.Time` — 조회 날짜 |
+| `TimetableQuery` | `FromDate` | `*time.Time` — 조회 시작 날짜 |
+| `TimetableQuery` | `ToDate`   | `*time.Time` — 조회 종료 날짜 |
+
+```go
+// 학사일정 조회
+from := time.Date(2026, 3, 1, 0, 0, 0, 0, time.Local)
+to   := time.Date(2026, 3, 31, 0, 0, 0, 0, time.Local)
+schedules, err := client.NEIS().Schedules(ctx, datagsm.ScheduleQuery{
+    FromDate: &from,
+    ToDate:   &to,
+})
+
+// 시간표 조회 (Grade, ClassNum 필수)
+timetables, err := client.NEIS().Timetables(ctx, datagsm.TimetableQuery{
+    Grade:    2,
+    ClassNum: 3,
+    Date:     datagsm.Ptr(time.Now()),
+})
+```
+
+## 에러 처리
+
+SDK는 `*APIError` 타입으로 HTTP 오류를 반환합니다. `errors.As`를 사용하여 상태 코드를 확인하세요.
+
+### 에러 코드
+
+| 상태 코드 | 의미                   |
+|:--------|:---------------------|
+| 400     | 잘못된 요청 파라미터          |
+| 401     | 유효하지 않거나 만료된 API 키   |
+| 403     | 권한 부족                |
+| 429     | 요청 속도 제한 초과          |
+| 5xx     | 서버 오류                |
+
+### 에러 처리 예제
+
+```go
+import "errors"
+
+resp, err := client.Students().List(ctx, query)
+if err != nil {
+    var apiErr *datagsm.APIError
+    if errors.As(err, &apiErr) {
+        switch apiErr.StatusCode {
+        case 401:
+            fmt.Println("API 키가 유효하지 않거나 만료되었습니다")
+        case 403:
+            fmt.Println("권한이 없습니다. API 키의 권한 범위를 확인하세요")
+        case 429:
+            fmt.Println("요청 속도 제한 초과. 잠시 후 재시도하세요")
+        default:
+            fmt.Printf("API 오류 %d: %s\n", apiErr.StatusCode, apiErr.Message)
+        }
+    } else {
+        fmt.Println("네트워크 오류:", err)
+    }
+}
+```
+
+## Ptr 헬퍼
+
+선택적 필드는 포인터 타입(`*int`, `*string` 등)을 사용합니다. `Ptr` 헬퍼로 인라인 포인터를 간결하게 생성할 수 있습니다.
+
+```go
+datagsm.Ptr(1)       // *int
+datagsm.Ptr("hello") // *string
+datagsm.Ptr(true)    // *bool
+```
+
+## 보안 가이드
+
+API 키는 환경 변수로 관리하고 소스 코드에 직접 포함하지 마세요.
+
+```bash
+# .env
+DATAGSM_API_KEY=your_secret_api_key
+```
+
+```go
+import "os"
+
+client, err := datagsm.NewClient(os.Getenv("DATAGSM_API_KEY"))
+```
+
+## 문제 해결
+
+### 자주 발생하는 문제
+
+#### 401 Unauthorized 오류
+
+**원인**: API 키가 유효하지 않거나 만료됨
+
+**해결 방법**:
+
+- API 키가 올바르게 설정되었는지 확인
+- API 키가 만료되지 않았는지 확인
+- 필요시 새로운 API 키 발급
+
+#### 403 Forbidden 오류
+
+**원인**: 요청한 API에 대한 권한 범위 부족
+
+**해결 방법**:
+
+- API 키의 권한 범위 확인
+- 필요한 권한 범위가 부여되었는지 확인
+- 권한 범위 추가가 필요한 경우 관리자에게 문의
+
+#### 타임아웃 오류
+
+**원인**: 네트워크 연결 불안정 또는 서버 응답 지연
+
+**해결 방법**:
+
+- 네트워크 상태 확인
+- `WithTimeout` 옵션으로 타임아웃 값을 늘려 재시도 (기본값: 30초)
+- 서버 상태 확인
+
+## 추가 리소스
+
+- **GitHub 저장소**: [DataGSM OpenAPI SDK Go](https://github.com/jihoonwjj/datagsm-openapi-sdk-go)
+- **이슈 트래커**: [GitHub Issues](https://github.com/jihoonwjj/datagsm-openapi-sdk-go/issues)
+
+문의사항이나 버그 리포트는 GitHub Issues를 통해 제출해 주세요.

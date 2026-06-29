@@ -36,7 +36,7 @@ export const metadata = { title: 'Java / Kotlin SDK' }
 
 <CodeTabs>
   <CodeTab label="Gradle (Kotlin DSL)" language="kotlin" code={`dependencies {
-    implementation("com.github.themoment-team:datagsm-oauth-sdk-java:1.4.1")
+    implementation("com.github.themoment-team:datagsm-oauth-sdk-java:1.5.0")
 }
 
 repositories {
@@ -44,7 +44,7 @@ repositories {
 }`} />
 
   <CodeTab label="Gradle (Groovy)" language="groovy" code={`dependencies {
-    implementation 'com.github.themoment-team:datagsm-oauth-sdk-java:1.4.1'
+    implementation 'com.github.themoment-team:datagsm-oauth-sdk-java:1.5.0'
 }
 
 repositories {
@@ -62,7 +62,7 @@ repositories {
     <dependency>
         <groupId>com.github.themoment-team</groupId>
         <artifactId>datagsm-oauth-sdk-java</artifactId>
-        <version>1.4.1</version>
+        <version>1.5.0</version>
     </dependency>
 </dependencies>`} />
 </CodeTabs>
@@ -472,6 +472,8 @@ Authorization URL 빌더 모델
 | `dormitoryRoom`  | `Integer`     | 기숙사 호실    |
 | `majorClub`      | `ClubInfo`    | 전공동아리 데이터 |
 | `autonomousClub` | `ClubInfo`    | 창체동아리 데이터 |
+| `githubId`       | `String`      | GitHub 아이디  |
+| `githubUrl`      | `String`      | GitHub 프로필 URL |
 
 ### ClubInfo
 
@@ -482,6 +484,9 @@ Authorization URL 빌더 모델
 | `id`   | `Long`     | 동아리 고유 ID |
 | `name` | `String`   | 동아리 이름    |
 | `type` | `ClubType` | 동아리 유형    |
+| `status` | `ClubStatus` | 동아리 상태    |
+| `foundedYear` | `Integer` | 동아리 개설 연도 |
+| `abolishedYear` | `Integer` | 동아리 폐지 연도 |
 
 ### Enum 타입
 
@@ -525,6 +530,13 @@ Authorization URL 빌더 모델
 |-------------------|--------|
 | `MAJOR_CLUB`      | 전공동아리  |
 | `AUTONOMOUS_CLUB` | 창체동아리  |
+
+#### ClubStatus
+
+| 값                 | 설명     |
+|-------------------|--------|
+| `ACTIVE`          | 운영 중  |
+| `ABOLISHED`       | 폐지됨  |
 
 ## 예외 처리
 

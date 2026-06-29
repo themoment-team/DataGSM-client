@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'DataGSM',
     description: '광주소프트웨어마이스터고등학교 OpenAPI & OAuth 플랫폼',
-    url: 'https://datagsm-front-client.vercel.app/',
+    url: 'https://www.datagsm.kr/',
     siteName: 'DataGSM',
-    images: 'https://datagsm-front-client.vercel.app/og-image.png',
+    images: 'https://www.datagsm.kr/images/og-image.png',
     type: 'website',
   },
 };

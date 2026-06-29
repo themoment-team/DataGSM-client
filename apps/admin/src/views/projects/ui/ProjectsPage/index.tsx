@@ -9,7 +9,6 @@ import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Project } from '@repo/shared/types';
 import { CommonPagination, PageHeader } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -26,7 +25,7 @@ import { ProjectFilter, ProjectFormDialog, ProjectList } from '@/widgets/project
 
 import { useDeleteProject, useGetProjects } from '../../model';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 const ProjectsPage = () => {
   const queryClient = useQueryClient();
@@ -165,7 +164,7 @@ const ProjectsPage = () => {
         </div>
 
         {/* Table */}
-        <div className={cn('border-2 border-foreground pixel-shadow')}>
+        <div className={cn('border-foreground pixel-shadow border-2')}>
           <ProjectList
             projects={projectList}
             isLoading={isLoadingProjects}

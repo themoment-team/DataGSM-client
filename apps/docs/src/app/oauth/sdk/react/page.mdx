@@ -31,18 +31,18 @@ export const metadata = { title: 'React SDK' }
 
 ### 주요 특징
 
-| 특징 | 설명 |
-| --- | --- |
-| **간편한 연동** | `OAuthProvider`와 `OAuthLoginButton` 컴포넌트만으로 빠르게 로그인 UI를 구성할 수 있습니다. |
-| **PKCE 지원** | 추가적인 설정 없이 `authMode` 변경만으로 PKCE 인증 방식을 적용할 수 있습니다. |
-| **React Hook 지원** | `useOAuth` Hook을 제공하여 커스텀 로그인 버튼이나 로직을 유연하게 작성할 수 있습니다. |
-| **TypeScript 지원** | 모든 컴포넌트와 Hook은 TypeScript로 작성되어 타입 안정성을 보장합니다. |
+| 특징                | 설명                                                                  |
+|-------------------|---------------------------------------------------------------------|
+| **간편한 연동**        | `OAuthProvider`와 `OAuthLoginButton` 컴포넌트만으로 빠르게 로그인 UI를 구성할 수 있습니다. |
+| **PKCE 지원**       | 추가적인 설정 없이 `authMode` 변경만으로 PKCE 인증 방식을 적용할 수 있습니다.                 |
+| **React Hook 지원** | `useOAuth` Hook을 제공하여 커스텀 로그인 버튼이나 로직을 유연하게 작성할 수 있습니다.             |
+| **TypeScript 지원** | 모든 컴포넌트와 Hook은 TypeScript로 작성되어 타입 안정성을 보장합니다.                      |
 
 ### 시스템 요구사항
 
-| 항목 | 최소 버전 | 권장 버전 |
-| --- | --- | --- |
-| **React** | 18 | 19 이상 |
+| 항목        | 최소 버전 | 권장 버전 |
+|-----------|-------|-------|
+| **React** | 18    | 19 이상 |
 
 ## 설치
 
@@ -59,7 +59,7 @@ export const metadata = { title: 'React SDK' }
 ### 1. OAuthProvider 설정
 
 애플리케이션의 최상단 (예: `App.js`)을 `OAuthProvider`로 감싸고,
-[DataGSM](https://datagsm-front-client.vercel.app/clients)에서 발급받은 `clientId`와 로그인 성공 후 리다이렉트될 `redirectUri`를 props로 전달합니다.
+[DataGSM](https://www.datagsm.kr/clients)에서 발급받은 `clientId`와 로그인 성공 후 리다이렉트될 `redirectUri`를 props로 전달합니다.
 
 ```javascript
 // src/main.jsx

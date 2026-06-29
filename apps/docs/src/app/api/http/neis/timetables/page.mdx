@@ -41,9 +41,9 @@ GET /v1/neis/timetables
 
 ### data 객체
 
-| 필드           | 타입      | 설명            |
-|--------------|---------|---------------|
-| `timetables` | `Array` | 시간표 데이터 목록 배열 |
+| 필드           | 타입      | 설명            | 예시 |
+|--------------|---------|---------------|----|
+| `timetables` | `Array` | 시간표 데이터 목록 배열 | -  |
 
 ### timetables 배열
 
@@ -68,11 +68,11 @@ GET /v1/neis/timetables
 
 ```bash
 # 특정 날짜 조회
-curl -X GET "https://api.datagsm.com/v1/neis/timetables?grade=2&classNum=3&date=2025-12-15" \
+curl -X GET "https://openapi.datagsm.kr/v1/neis/timetables?grade=2&classNum=3&date=2025-12-15" \
   -H "X-API-KEY: your-api-key-here"
 
 # 기간 범위 조회
-curl -X GET "https://api.datagsm.com/v1/neis/timetables?grade=2&classNum=3&fromDate=2025-12-01&toDate=2025-12-31" \
+curl -X GET "https://openapi.datagsm.kr/v1/neis/timetables?grade=2&classNum=3&fromDate=2025-12-01&toDate=2025-12-31" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -136,7 +136,7 @@ curl -X GET "https://api.datagsm.com/v1/neis/timetables?grade=2&classNum=3&fromD
 
 async function getTimetables(grade, classNum, date) {
   try {
-    const response = await axios.get('https://api.datagsm.com/v1/neis/timetables', {
+    const response = await axios.get('https://openapi.datagsm.kr/v1/neis/timetables', {
       headers: {
         'X-API-KEY': 'your-api-key-here',
       },
@@ -158,7 +158,7 @@ async function getTimetables(grade, classNum, date) {
 def get_timetables(grade, class_num, date):
     try:
         response = requests.get(
-            'https://api.datagsm.com/v1/neis/timetables',
+            'https://openapi.datagsm.kr/v1/neis/timetables',
             headers={'X-API-KEY': 'your-api-key-here'},
             params={'grade': grade, 'classNum': class_num, 'date': date}
         )
@@ -176,7 +176,7 @@ public class NeisAPI {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(
-                "https://api.datagsm.com/v1/neis/timetables?grade=" + grade +
+                "https://openapi.datagsm.kr/v1/neis/timetables?grade=" + grade +
                 "&classNum=" + classNum + "&date=" + date
             ))
             .header("X-API-KEY", "your-api-key-here")
@@ -198,7 +198,7 @@ fun getTimetables(grade: Int, classNum: Int, date: String): String {
     val client = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
         .uri(URI.create(
-            "https://api.datagsm.com/v1/neis/timetables?grade=\${grade}&classNum=\${classNum}&date=\${date}"
+            "https://openapi.datagsm.kr/v1/neis/timetables?grade=\${grade}&classNum=\${classNum}&date=\${date}"
         ))
         .header("X-API-KEY", "your-api-key-here")
         .GET()

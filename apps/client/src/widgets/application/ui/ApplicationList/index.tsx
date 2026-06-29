@@ -39,6 +39,7 @@ interface ApplicationListItemProps {
   onEdit: (application: Application) => void;
   onDelete: (id: string) => void;
   isOwner: boolean;
+  showActions: boolean;
 }
 
 const ApplicationListItem = ({
@@ -46,10 +47,14 @@ const ApplicationListItem = ({
   onEdit,
   onDelete,
   isOwner,
+  showActions,
 }: ApplicationListItemProps) => {
   return (
     <TableRow>
       <TableCell className={cn('font-medium')}>{application.applicationName}</TableCell>
+      <TableCell className={cn('font-mono text-xs break-all')} title={application.id}>
+        {application.id}
+      </TableCell>
       <TableCell>
         <div className={cn('flex flex-wrap gap-1')}>
           {application.applicationScopes.map((scope, index) => (
@@ -65,43 +70,45 @@ const ApplicationListItem = ({
           ))}
         </div>
       </TableCell>
-      <TableCell>
-        {isOwner && (
-          <div className={cn('flex items-center gap-1')}>
-            <PixelIconButton onClick={() => onEdit(application)}>
-              <Pencil className={cn('h-3.5 w-3.5')} />
-            </PixelIconButton>
+      {showActions && (
+        <TableCell>
+          {isOwner && (
+            <div className={cn('flex items-center gap-1')}>
+              <PixelIconButton onClick={() => onEdit(application)}>
+                <Pencil className={cn('h-3.5 w-3.5')} />
+              </PixelIconButton>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <PixelIconButton variant="destructive">
-                  <Trash2 className={cn('h-3.5 w-3.5')} />
-                </PixelIconButton>
-              </AlertDialogTrigger>
-              <AlertDialogContent className={cn('border-foreground pixel-shadow border-2')}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="font-pixel text-[12px] leading-[1.8]">
-                    애플리케이션 삭제
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    정말로 &apos;{application.applicationName}&apos; 애플리케이션을
-                    삭제하시겠습니까?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => onDelete(application.id)}
-                    className={cn('bg-destructive hover:bg-destructive/90 text-white')}
-                  >
-                    삭제
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
-      </TableCell>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <PixelIconButton variant="destructive">
+                    <Trash2 className={cn('h-3.5 w-3.5')} />
+                  </PixelIconButton>
+                </AlertDialogTrigger>
+                <AlertDialogContent className={cn('border-foreground pixel-shadow border-2')}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="font-pixel text-[12px] leading-[1.8]">
+                      애플리케이션 삭제
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      정말로 &apos;{application.applicationName}&apos; 애플리케이션을
+                      삭제하시겠습니까?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>취소</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(application.id)}
+                      className={cn('bg-destructive hover:bg-destructive/90 text-white')}
+                    >
+                      삭제
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </TableCell>
+      )}
     </TableRow>
   );
 };
@@ -124,13 +131,17 @@ const ApplicationList = ({ applications, isLoading, onEdit, myId }: ApplicationL
     deleteApplication(id);
   };
 
+  const showActions = Boolean(applications?.some((app) => app.accountId === myId));
+  const columnCount = showActions ? 4 : 3;
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>애플리케이션 이름</TableHead>
+          <TableHead>애플리케이션 ID</TableHead>
           <TableHead>권한 범위 (Scopes)</TableHead>
-          <TableHead className={cn('w-24')}>작업</TableHead>
+          {showActions && <TableHead className={cn('w-24')}>작업</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -141,11 +152,16 @@ const ApplicationList = ({ applications, isLoading, onEdit, myId }: ApplicationL
                 <Skeleton className={cn('h-4 w-48')} />
               </TableCell>
               <TableCell>
-                <Skeleton className={cn('h-4 w-64')} />
+                <Skeleton className={cn('h-4 w-56')} />
               </TableCell>
               <TableCell>
-                <Skeleton className={cn('h-7 w-16')} />
+                <Skeleton className={cn('h-4 w-64')} />
               </TableCell>
+              {showActions && (
+                <TableCell>
+                  <Skeleton className={cn('h-7 w-16')} />
+                </TableCell>
+              )}
             </TableRow>
           ))
         ) : applications && applications.length > 0 ? (
@@ -156,12 +172,13 @@ const ApplicationList = ({ applications, isLoading, onEdit, myId }: ApplicationL
               onEdit={onEdit}
               onDelete={handleDelete}
               isOwner={app.accountId === myId}
+              showActions={showActions}
             />
           ))
         ) : (
           <TableRow>
             <TableCell
-              colSpan={3}
+              colSpan={columnCount}
               className={cn('text-muted-foreground h-24 text-center font-mono')}
             >
               {'>'} 등록된 애플리케이션이 없습니다.

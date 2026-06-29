@@ -123,7 +123,7 @@ GET /v1/students
 ### 요청 예시
 
 ```bash
-curl -X GET "https://api.datagsm.com/v1/students?grade=1&classNum=1&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/students?grade=1&classNum=1&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -131,11 +131,11 @@ curl -X GET "https://api.datagsm.com/v1/students?grade=1&classNum=1&page=0&size=
 
 ```bash
 # 학번 순으로 정렬
-curl -X GET "https://api.datagsm.com/v1/students?sortBy=STUDENT_NUMBER&sortDirection=ASC&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/students?sortBy=STUDENT_NUMBER&sortDirection=ASC&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 
 # 이름 역순으로 정렬
-curl -X GET "https://api.datagsm.com/v1/students?sortBy=NAME&sortDirection=DESC&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/students?sortBy=NAME&sortDirection=DESC&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -196,7 +196,7 @@ curl -X GET "https://api.datagsm.com/v1/students?sortBy=NAME&sortDirection=DESC&
 
 async function getStudents(studentId) {
   try {
-    const response = await axios.get('https://api.datagsm.com/v1/students', {
+    const response = await axios.get('https://openapi.datagsm.kr/v1/students', {
       headers: {
         'X-API-KEY': 'your-api-key-here',
       },
@@ -215,7 +215,7 @@ async function getStudents(studentId) {
 def get_student(student_id):
     try:
         response = requests.get(
-            'https://api.datagsm.com/v1/students',
+            'https://openapi.datagsm.kr/v1/students',
             headers={'X-API-KEY': 'your-api-key-here'},
             params={'studentId': student_id}
         )
@@ -231,7 +231,7 @@ public class StudentAPI {
     public static String getStudents(Long studentId) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.datagsm.com/v1/students?studentId=" + studentId))
+            .uri(URI.create("https://openapi.datagsm.kr/v1/students?studentId=" + studentId))
             .header("X-API-KEY", "your-api-key-here")
             .GET()
             .build();
@@ -249,7 +249,7 @@ import java.net.URI
 fun getStudents(studentId: Long): String {
     val client = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.datagsm.com/v1/students?studentId=\${studentId}"))
+        .uri(URI.create("https://openapi.datagsm.kr/v1/students?studentId=\${studentId}"))
         .header("X-API-KEY", "your-api-key-here")
         .GET()
         .build()

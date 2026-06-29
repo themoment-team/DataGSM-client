@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -392,12 +391,13 @@ const ResetPasswordForm = () => {
           </button>
 
           <p className={cn('text-muted-foreground text-center text-xs')}>
-            <Link
-              href="/signin"
+            <button
+              type="button"
+              onClick={() => window.close()}
               className={cn('text-foreground font-semibold underline underline-offset-2')}
             >
-              로그인으로 돌아가기
-            </Link>
+              창을 닫고 로그인으로 돌아가기
+            </button>
           </p>
         </div>
       </form>

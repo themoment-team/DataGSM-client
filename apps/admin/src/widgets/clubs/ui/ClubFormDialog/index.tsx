@@ -136,7 +136,7 @@ const ClubFormDialog = ({
           type: club.type,
           status: club.status,
           foundedYear: club.foundedYear,
-          abolishedYear: club.abolishedYear,
+          abolishedYear: club.abolishedYear ?? undefined,
           leaderId: club.leader?.id,
           participantIds: club.participants?.map((p) => p.id) ?? [],
         });
@@ -186,10 +186,26 @@ const ClubFormDialog = ({
     }
   };
 
-  const isPending = mode === 'create' ? isCreating : isUpdating;
   const title = mode === 'create' ? '동아리 추가' : '동아리 데이터 수정';
-  const submitText = mode === 'create' ? '추가' : '수정';
-  const loadingText = mode === 'create' ? '추가 중...' : '수정 중...';
+
+  const getPendingState = () => {
+    if (mode === 'create') return isCreating;
+    return isUpdating;
+  };
+
+  const getSubmitText = () => {
+    if (mode === 'create') return '추가';
+    return '수정';
+  };
+
+  const getLoadingText = () => {
+    if (mode === 'create') return '추가 중...';
+    return '수정 중...';
+  };
+
+  const isPending = getPendingState();
+  const submitText = getSubmitText();
+  const loadingText = getLoadingText();
 
   const defaultTrigger =
     mode === 'create' ? (
@@ -212,9 +228,7 @@ const ClubFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent
-        className={cn('max-w-2xl p-0 max-h-[90vh] overflow-y-auto')}
-      >
+      <DialogContent className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}>
         <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
           <DialogTitle className={cn('font-pixel text-foreground text-[14px] leading-none')}>
             {title}
@@ -249,11 +263,7 @@ const ClubFormDialog = ({
                 name="type"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      className={cn(
-                        'border-foreground rounded-none font-mono',
-                      )}
-                    >
+                    <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
                       <SelectValue placeholder="타입 선택" />
                     </SelectTrigger>
                     <SelectContent>
@@ -277,11 +287,7 @@ const ClubFormDialog = ({
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      className={cn(
-                        'border-foreground rounded-none font-mono',
-                      )}
-                    >
+                    <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
                       <SelectValue placeholder="상태 선택" />
                     </SelectTrigger>
                     <SelectContent>
@@ -528,96 +534,99 @@ const ClubFormDialog = ({
               className={cn('bg-background')}
             >
               <div className={cn('flex flex-col gap-5 p-4')}>
-              <Controller
-                control={control}
-                name="participantIds"
-                render={({ field }) => {
-                  const selectedIds = Array.isArray(field.value) ? field.value : [];
-                  const selectedStudents =
-                    students?.filter((student) => selectedIds.includes(student.id)) || [];
-                  const grades = [1, 2, 3];
+                <Controller
+                  control={control}
+                  name="participantIds"
+                  render={({ field }) => {
+                    const selectedIds = Array.isArray(field.value) ? field.value : [];
+                    const selectedStudents =
+                      students?.filter((student) => selectedIds.includes(student.id)) || [];
+                    const grades = [1, 2, 3];
 
-                  return (
-                    <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
-                      {grades.map((grade) => (
-                        <div
-                          key={grade}
-                          className={cn(
-                            'border-foreground bg-background flex min-h-[240px] flex-col border',
-                          )}
-                        >
+                    return (
+                      <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
+                        {grades.map((grade) => (
                           <div
+                            key={grade}
                             className={cn(
-                              'border-foreground flex items-center justify-between border-b px-3 py-2',
+                              'border-foreground bg-background flex min-h-[240px] flex-col border',
                             )}
                           >
-                            <span className={cn('font-pixel text-foreground text-[11px]')}>
-                              GRADE {grade}
-                            </span>
-                            <span className={cn('text-muted-foreground font-mono text-[11px]')}>
-                              {selectedStudents.filter((student) => student.grade === grade).length}
-                            </span>
-                          </div>
-                          <div
-                            className={cn(
-                              '[&::-webkit-scrollbar-thumb]:bg-foreground/30 flex max-h-[300px] flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
-                            )}
-                          >
-                            {selectedStudents
-                              .filter((student) => student.grade === grade)
-                              .map((student) => (
-                                <button
-                                  key={student.id}
-                                  type="button"
-                                  className={cn(
-                                    'border-foreground hover:bg-foreground hover:text-background group flex w-full items-center justify-between gap-3 border px-3 py-2 text-left transition-colors',
-                                  )}
-                                  onClick={() =>
-                                    field.onChange(
-                                      field.value.filter((id: number) => id !== student.id),
-                                    )
-                                  }
-                                >
-                                  <span className={cn('min-w-0 flex-1')}>
-                                    <span
-                                      className={cn(
-                                        'text-muted-foreground group-hover:text-background/80 block font-mono text-[11px] uppercase transition-colors',
-                                      )}
-                                    >
-                                      {student.studentNumber}
-                                    </span>
-                                    <span
-                                      className={cn(
-                                        'text-foreground group-hover:text-background block truncate font-mono text-xs transition-colors',
-                                      )}
-                                    >
-                                      {student.name}
-                                    </span>
-                                  </span>
-                                  <X
+                            <div
+                              className={cn(
+                                'border-foreground flex items-center justify-between border-b px-3 py-2',
+                              )}
+                            >
+                              <span className={cn('font-pixel text-foreground text-[11px]')}>
+                                GRADE {grade}
+                              </span>
+                              <span className={cn('text-muted-foreground font-mono text-[11px]')}>
+                                {
+                                  selectedStudents.filter((student) => student.grade === grade)
+                                    .length
+                                }
+                              </span>
+                            </div>
+                            <div
+                              className={cn(
+                                '[&::-webkit-scrollbar-thumb]:bg-foreground/30 flex max-h-[300px] flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
+                              )}
+                            >
+                              {selectedStudents
+                                .filter((student) => student.grade === grade)
+                                .map((student) => (
+                                  <button
+                                    key={student.id}
+                                    type="button"
                                     className={cn(
-                                      'group-hover:text-background h-4 w-4 shrink-0 transition-colors',
+                                      'border-foreground hover:bg-foreground hover:text-background group flex w-full items-center justify-between gap-3 border px-3 py-2 text-left transition-colors',
                                     )}
-                                  />
-                                </button>
-                              ))}
-                            {selectedStudents.filter((student) => student.grade === grade)
-                              .length === 0 && (
-                              <div
-                                className={cn(
-                                  'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
-                                )}
-                              >
-                                등록된 팀원 없음
-                              </div>
-                            )}
+                                    onClick={() =>
+                                      field.onChange(
+                                        field.value.filter((id: number) => id !== student.id),
+                                      )
+                                    }
+                                  >
+                                    <span className={cn('min-w-0 flex-1')}>
+                                      <span
+                                        className={cn(
+                                          'text-muted-foreground group-hover:text-background/80 block font-mono text-[11px] uppercase transition-colors',
+                                        )}
+                                      >
+                                        {student.studentNumber}
+                                      </span>
+                                      <span
+                                        className={cn(
+                                          'text-foreground group-hover:text-background block truncate font-mono text-xs transition-colors',
+                                        )}
+                                      >
+                                        {student.name}
+                                      </span>
+                                    </span>
+                                    <X
+                                      className={cn(
+                                        'group-hover:text-background h-4 w-4 shrink-0 transition-colors',
+                                      )}
+                                    />
+                                  </button>
+                                ))}
+                              {selectedStudents.filter((student) => student.grade === grade)
+                                .length === 0 && (
+                                <div
+                                  className={cn(
+                                    'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
+                                  )}
+                                >
+                                  등록된 팀원 없음
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
+                        ))}
+                      </div>
+                    );
+                  }}
+                />
               </div>
             </SectionCard>
           )}

@@ -175,6 +175,13 @@ export const applicationUrl = {
   postApplicationScope: (applicationId: string) => `/v1/applications/${applicationId}/scopes`,
 } as const;
 
+export const eventUrl = {
+  getEvents: () => '/v1/events',
+  postEvent: () => '/v1/events',
+  patchEvent: (eventId: number) => `/v1/events/${eventId}`,
+  deleteEvent: (eventId: number) => `/v1/events/${eventId}`,
+} as const;
+
 export const healthUrl = {
   getHealth: () => '/v1/health',
 } as const;

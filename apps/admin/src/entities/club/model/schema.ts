@@ -21,7 +21,7 @@ export const AddClubSchema = z
       .number({ message: '설립연도를 입력해주세요.' })
       .int()
       .min(1900, { message: '1900년 이후의 연도를 입력해주세요.' }),
-    abolishedYear: z.number().optional(),
+    abolishedYear: z.number().nullable().optional(),
     leaderId: z.number({ message: '동아리 부장을 선택해주세요.' }).min(1).optional(),
     participantIds: z.array(z.number()),
   })
@@ -46,7 +46,7 @@ export const AddClubSchema = z
   .superRefine((data, ctx) => {
     if (data.status !== 'ABOLISHED') return;
 
-    if (data.abolishedYear === undefined) {
+    if (data.abolishedYear == null) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: '폐지연도를 입력해주세요.',

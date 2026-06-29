@@ -28,15 +28,16 @@ GET /v1/projects
 
 ### 요청 파라미터
 
-| 파라미터            | 타입              | 필수 여부 | 설명                           | 예시             |
-|-----------------|-----------------|-------|------------------------------|----------------|
-| `projectId`     | `Long`          | 선택    | 프로젝트 ID                      | `1`            |
-| `projectName`   | `String`        | 선택    | 프로젝트 이름                      | `DataGSM 프로젝트` |
-| `clubId`        | `Long`          | 선택    | 동아리 ID                       | `1`            |
-| `page`          | `Int`           | 선택    | 페이지 번호 (기본값: 0)              | `0`            |
-| `size`          | `Int`           | 선택    | 페이지 크기 (기본값: 100)            | `100`          |
-| `sortBy`        | `ProjectSortBy` | 선택    | 정렬 기준 (ID, NAME)             | `NAME`         |
-| `sortDirection` | `SortDirection` | 선택    | 정렬 방향 (ASC, DESC) (기본값: ASC) | `ASC`          |
+| 파라미터            | 타입              | 필수 여부 | 설명                                                    | 예시             |
+|-----------------|-----------------|-------|-------------------------------------------------------|----------------|
+| `projectId`     | `Long`          | 선택    | 프로젝트 ID                                               | `1`            |
+| `projectName`   | `String`        | 선택    | 프로젝트 이름                                               | `DataGSM 프로젝트` |
+| `clubId`        | `Long`          | 선택    | 동아리 ID                                                | `1`            |
+| `status`        | `ProjectStatus` | 선택    | 프로젝트 운영 상태 (`ACTIVE`, `ENDED`, 기본값: `ACTIVE`)        | `ACTIVE`       |
+| `page`          | `Int`           | 선택    | 페이지 번호 (기본값: 0)                                       | `0`            |
+| `size`          | `Int`           | 선택    | 페이지 크기 (기본값: 100)                                     | `100`          |
+| `sortBy`        | `ProjectSortBy` | 선택    | 정렬 기준 (ID, NAME)                                      | `NAME`         |
+| `sortDirection` | `SortDirection` | 선택    | 정렬 방향 (ASC, DESC) (기본값: ASC)                          | `ASC`          |
 
 ### 응답 형식
 
@@ -63,13 +64,16 @@ GET /v1/projects
 
 각 프로젝트 객체는 다음 필드를 포함합니다.
 
-| 필드             | 타입                         | 설명                             | 예시                     |
-|----------------|----------------------------|--------------------------------|------------------------|
-| `id`           | `Long`                     | 프로젝트 ID                        | `1`                    |
-| `name`         | `String`                   | 프로젝트 이름                        | `DataGSM 프로젝트`         |
-| `description`  | `String`                   | 프로젝트 설명                        | `학교 데이터를 제공하는 API 서비스` |
-| `club`         | `ClubSummaryDto?`          | 프로젝트 소유 동아리 데이터 (없는 경우 `null`) | -                      |
-| `participants` | `List<ParticipantInfoDto>` | 프로젝트 참가자 목록                    | -                      |
+| 필드             | 타입                         | 설명                                           | 예시                     |
+|----------------|----------------------------|----------------------------------------------|------------------------|
+| `id`           | `Long`                     | 프로젝트 ID                                      | `1`                    |
+| `name`         | `String`                   | 프로젝트 이름                                      | `DataGSM 프로젝트`         |
+| `description`  | `String`                   | 프로젝트 설명                                      | `학교 데이터를 제공하는 API 서비스` |
+| `startYear`    | `Int`                      | 프로젝트 시작 연도                                   | `2024`                 |
+| `endYear`      | `Int?`                     | 프로젝트 종료 연도 (운영 중인 경우 `null`)                 | `2025`                 |
+| `status`       | `ProjectStatus`            | 프로젝트 운영 상태 (`ACTIVE`: 운영 중, `ENDED`: 종료)    | `ACTIVE`               |
+| `club`         | `ClubSummaryDto?`          | 프로젝트 소유 동아리 데이터 (없는 경우 `null`)               | -                      |
+| `participants` | `List<ParticipantInfoDto>` | 프로젝트 참가자 목록                                  | -                      |
 
 ### 동아리 요약 객체 (ClubSummaryDto)
 
@@ -97,7 +101,7 @@ GET /v1/projects
 ### 요청 예시
 
 ```bash
-curl -X GET "https://api.datagsm.com/v1/projects?clubId=1&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/projects?clubId=1&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -105,7 +109,7 @@ curl -X GET "https://api.datagsm.com/v1/projects?clubId=1&page=0&size=50" \
 
 ```bash
 # 프로젝트 이름 순으로 정렬
-curl -X GET "https://api.datagsm.com/v1/projects?sortBy=NAME&sortDirection=ASC&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/projects?sortBy=NAME&sortDirection=ASC&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -124,6 +128,9 @@ curl -X GET "https://api.datagsm.com/v1/projects?sortBy=NAME&sortDirection=ASC&p
         "id": 1,
         "name": "DataGSM 프로젝트",
         "description": "학교 데이터를 제공하는 API 서비스",
+        "startYear": 2024,
+        "endYear": null,
+        "status": "ACTIVE",
         "club": {
           "id": 1,
           "name": "SW개발동아리",
@@ -171,7 +178,7 @@ curl -X GET "https://api.datagsm.com/v1/projects?sortBy=NAME&sortDirection=ASC&p
 
 async function getProjects(projectId) {
   try {
-    const response = await axios.get('https://api.datagsm.com/v1/projects', {
+    const response = await axios.get('https://openapi.datagsm.kr/v1/projects', {
       headers: {
         'X-API-KEY': 'your-api-key-here',
       },
@@ -191,7 +198,7 @@ async function getProjects(projectId) {
 def get_project(project_id):
     try:
         response = requests.get(
-            'https://api.datagsm.com/v1/projects',
+            'https://openapi.datagsm.kr/v1/projects',
             headers={'X-API-KEY': 'your-api-key-here'},
             params={'projectId': project_id}
         )
@@ -208,7 +215,7 @@ public class ProjectAPI {
     public static String getProjects(Long projectId) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.datagsm.com/v1/projects?projectId=" + projectId))
+            .uri(URI.create("https://openapi.datagsm.kr/v1/projects?projectId=" + projectId))
             .header("X-API-KEY", "your-api-key-here")
             .GET()
             .build();
@@ -227,7 +234,7 @@ import java.net.URI
 fun getProjects(projectId: Long): String {
     val client = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.datagsm.com/v1/projects?projectId=\${projectId}"))
+        .uri(URI.create("https://openapi.datagsm.kr/v1/projects?projectId=\${projectId}"))
         .header("X-API-KEY", "your-api-key-here")
         .GET()
         .build()

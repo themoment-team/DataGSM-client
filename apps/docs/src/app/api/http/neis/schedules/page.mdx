@@ -28,16 +28,22 @@ GET /v1/neis/schedules
 
 모든 성공 응답은 다음과 같은 구조로 반환됩니다.
 
-| 필드        | 타입       | 설명             | 예시    |
-|-----------|----------|----------------|-------|
-| `status`  | `String` | HTTP 상태 메시지    | `OK`  |
-| `code`    | `Int`    | HTTP 상태 코드     | `200` |
-| `message` | `String` | 응답 메시지         | `OK`  |
-| `data`    | `Array`  | 학사일정 데이터 목록 배열 | -     |
+| 필드        | 타입       | 설명          | 예시    |
+|-----------|----------|-------------|-------|
+| `status`  | `String` | HTTP 상태 메시지 | `OK`  |
+| `code`    | `Int`    | HTTP 상태 코드  | `200` |
+| `message` | `String` | 응답 메시지      | `OK`  |
+| `data`    | `Object` | 학사일정 응답 객체  | -     |
 
-### data 배열
+### data 객체
 
-`data` 필드는 학사일정 데이터 객체의 배열이며, 각 학사일정 객체는 다음 필드를 포함합니다.
+| 필드          | 타입      | 설명             | 예시 |
+|-------------|---------|----------------|----|
+| `schedules` | `Array` | 학사일정 데이터 목록 배열 | -  |
+
+### schedules 배열
+
+`schedules` 필드는 학사일정 데이터 객체의 배열이며, 각 학사일정 객체는 다음 필드를 포함합니다.
 
 | 필드                 | 타입          | 설명                               | 예시                 |
 |--------------------|-------------|----------------------------------|--------------------|
@@ -59,11 +65,11 @@ GET /v1/neis/schedules
 
 ```bash
 # 특정 날짜 조회
-curl -X GET "https://api.datagsm.com/v1/neis/schedules?date=2025-12-15" \
+curl -X GET "https://openapi.datagsm.kr/v1/neis/schedules?date=2025-12-15" \
   -H "X-API-KEY: your-api-key-here"
 
 # 기간 범위 조회
-curl -X GET "https://api.datagsm.com/v1/neis/schedules?fromDate=2025-12-01&toDate=2025-12-31" \
+curl -X GET "https://openapi.datagsm.kr/v1/neis/schedules?fromDate=2025-12-01&toDate=2025-12-31" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -74,23 +80,25 @@ curl -X GET "https://api.datagsm.com/v1/neis/schedules?fromDate=2025-12-01&toDat
   "status": "OK",
   "code": 200,
   "message": "OK",
-  "data": [
-    {
-      "scheduleId": "7430310_20251215",
-      "schoolCode": "7430310",
-      "schoolName": "광주소프트웨어마이스터고등학교",
-      "officeCode": "G10",
-      "officeName": "광주광역시교육청",
-      "scheduleDate": "2025-12-15",
-      "academicYear": "2025",
-      "eventName": "기말고사",
-      "eventContent": "2025학년도 2학기 기말고사",
-      "dayCategory": null,
-      "schoolCourseType": "고등학교",
-      "dayNightType": "주간",
-      "targetGrades": [1, 2, 3]
-    }
-  ]
+  "data": {
+    "schedules": [
+      {
+        "scheduleId": "7430310_20251215",
+        "schoolCode": "7430310",
+        "schoolName": "광주소프트웨어마이스터고등학교",
+        "officeCode": "G10",
+        "officeName": "광주광역시교육청",
+        "scheduleDate": "2025-12-15",
+        "academicYear": "2025",
+        "eventName": "기말고사",
+        "eventContent": "2025학년도 2학기 기말고사",
+        "dayCategory": null,
+        "schoolCourseType": "고등학교",
+        "dayNightType": "주간",
+        "targetGrades": [1, 2, 3]
+      }
+    ]
+  }
 }
 ```
 
@@ -112,7 +120,7 @@ curl -X GET "https://api.datagsm.com/v1/neis/schedules?fromDate=2025-12-01&toDat
 
 async function getSchedules(date) {
   try {
-    const response = await axios.get('https://api.datagsm.com/v1/neis/schedules', {
+    const response = await axios.get('https://openapi.datagsm.kr/v1/neis/schedules', {
       headers: {
         'X-API-KEY': 'your-api-key-here',
       },
@@ -132,7 +140,7 @@ async function getSchedules(date) {
 def get_schedules(date):
     try:
         response = requests.get(
-            'https://api.datagsm.com/v1/neis/schedules',
+            'https://openapi.datagsm.kr/v1/neis/schedules',
             headers={'X-API-KEY': 'your-api-key-here'},
             params={'date': date}
         )
@@ -149,7 +157,7 @@ public class NeisAPI {
     public static String getSchedules(String date) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.datagsm.com/v1/neis/schedules?date=" + date))
+            .uri(URI.create("https://openapi.datagsm.kr/v1/neis/schedules?date=" + date))
             .header("X-API-KEY", "your-api-key-here")
             .GET()
             .build();
@@ -168,7 +176,7 @@ import java.net.URI
 fun getSchedules(date: String): String {
     val client = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.datagsm.com/v1/neis/schedules?date=\${date}"))
+        .uri(URI.create("https://openapi.datagsm.kr/v1/neis/schedules?date=\${date}"))
         .header("X-API-KEY", "your-api-key-here")
         .GET()
         .build()

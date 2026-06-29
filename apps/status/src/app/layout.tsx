@@ -1,7 +1,8 @@
+import { DM_Sans, JetBrains_Mono, Press_Start_2P } from 'next/font/google';
+
 import { TanStackProvider, ToastProvider } from '@repo/shared/lib';
 import { Header, TooltipProvider } from '@repo/shared/ui';
 import type { Metadata } from 'next';
-import { DM_Sans, JetBrains_Mono, Press_Start_2P } from 'next/font/google';
 
 import '@/shared/styles/globals.css';
 
@@ -32,9 +33,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'DataGSM Status',
     description: '광주소프트웨어마이스터고등학교 OpenAPI & OAuth 플랫폼 상태 페이지',
-    url: 'https://datagsm-front-status.vercel.app/',
+    url: 'https://status.datagsm.kr/',
     siteName: 'DataGSM Status',
-    images: 'https://datagsm-front-status.vercel.app/og-image.png',
+    images: 'https://status.datagsm.kr/images/og-image.png',
     type: 'website',
   },
 };

@@ -99,7 +99,7 @@ const advancedClient = new DataGsmClient({
   });
 
   // 급식 데이터 출력
-  response.data.forEach((meal) => {
+  response.data.meals.forEach((meal) => {
     console.log(\`\${meal.mealType}\`);
     meal.mealMenu.forEach(menu => console.log(\`- \${menu}\`));
   });`} />
@@ -111,7 +111,7 @@ const advancedClient = new DataGsmClient({
   });
 
   // 급식 데이터 출력
-  response.data.forEach((meal: Meal) => {
+  response.data.meals.forEach((meal: Meal) => {
     console.log(\`\${meal.mealType}\`);
     meal.mealMenu.forEach(menu => console.log(\`- \${menu}\`));
   });`} />
@@ -126,6 +126,30 @@ const advancedClient = new DataGsmClient({
 | 메서드                    | 설명              | 반환 타입                          |
 |:-----------------------|:----------------|:-------------------------------|
 | `getStudents(request)` | 조건에 맞는 학생 목록 조회 | `Promise<GetStudentsResponse>` |
+
+#### 요청 파라미터
+
+| 파라미터                 | 타입                 | 설명        |
+|:---------------------|:-------------------|:----------|
+| `studentId`          | `number`           | 학생 ID     |
+| `name`               | `string`           | 이름        |
+| `email`              | `string`           | 이메일       |
+| `grade`              | `number`           | 학년        |
+| `classNum`           | `number`           | 반         |
+| `number`             | `number`           | 번호        |
+| `sex`                | `'MAN' \| 'WOMAN'` | 성별        |
+| `role`               | `Role`             | 학생 역할     |
+| `dormitoryRoom`      | `number`           | 기숙사 호실    |
+| `specialty`          | `string`           | 특기 분야     |
+| `major`              | `Major`            | 전공        |
+| `githubId`           | `string`           | GitHub ID |
+| `includeGraduates`   | `boolean`          | 졸업생 포함 여부 |
+| `includeWithdrawn`   | `boolean`          | 자퇴생 포함 여부 |
+| `onlyEnrolled`       | `boolean`          | 재학생만 조회   |
+| `page`               | `number`           | 페이지 번호    |
+| `size`               | `number`           | 페이지 크기    |
+| `sortBy`             | `StudentSortBy`    | 정렬 기준     |
+| `sortDirection`      | `'ASC' \| 'DESC'`  | 정렬 방향     |
 
 ```typescript
 const students = await client.students().getStudents({
@@ -143,6 +167,21 @@ const students = await client.students().getStudents({
 |:--------------------|:-----------------|:----------------------------|
 | `getClubs(request)` | 조건에 맞는 동아리 목록 조회 | `Promise<GetClubsResponse>` |
 
+#### 요청 파라미터
+
+| 파라미터                          | 타입                                  | 설명              |
+|:------------------------------|:------------------------------------|:----------------|
+| `clubId`                      | `number`                            | 동아리 ID          |
+| `clubName`                    | `string`                            | 동아리 이름          |
+| `clubType`                    | `'MAJOR_CLUB' \| 'AUTONOMOUS_CLUB'` | 동아리 유형          |
+| `clubStatus`                  | `'ACTIVE' \| 'ABOLISHED'`           | 동아리 상태          |
+| `foundedYear`                 | `number`                            | 설립 연도           |
+| `page`                        | `number`                            | 페이지 번호          |
+| `size`                        | `number`                            | 페이지 크기          |
+| `includeLeaderInParticipants` | `boolean`                           | 참여자 목록에 부장 포함 |
+| `sortBy`                      | `ClubSortBy`                        | 정렬 기준           |
+| `sortDirection`               | `'ASC' \| 'DESC'`                   | 정렬 방향           |
+
 ```typescript
 const clubs = await client.clubs().getClubs({
   clubType: 'MAJOR_CLUB',
@@ -156,6 +195,19 @@ const clubs = await client.clubs().getClubs({
 | 메서드                    | 설명                | 반환 타입                          |
 |:-----------------------|:------------------|:-------------------------------|
 | `getProjects(request)` | 조건에 맞는 프로젝트 목록 조회 | `Promise<GetProjectsResponse>` |
+
+#### 요청 파라미터
+
+| 파라미터            | 타입                    | 설명      |
+|:----------------|:----------------------|:--------|
+| `projectId`     | `number`              | 프로젝트 ID |
+| `projectName`   | `string`              | 프로젝트 이름 |
+| `clubId`        | `number`              | 동아리 ID  |
+| `status`        | `'ACTIVE' \| 'ENDED'` | 프로젝트 상태 |
+| `page`          | `number`              | 페이지 번호  |
+| `size`          | `number`              | 페이지 크기  |
+| `sortBy`        | `ProjectSortBy`       | 정렬 기준   |
+| `sortDirection` | `'ASC' \| 'DESC'`     | 정렬 방향   |
 
 ```typescript
 const projects = await client.projects().getProjects({
@@ -172,6 +224,32 @@ const projects = await client.projects().getProjects({
 | `getMeals(request)`      | 급식 데이터 조회  | `Promise<GetMealsResponse>`      |
 | `getSchedules(request)`  | 학사일정 조회    | `Promise<GetSchedulesResponse>`  |
 | `getTimetables(request)` | 시간표 데이터 조회 | `Promise<GetTimetablesResponse>` |
+
+#### 요청 파라미터
+
+| 메서드                      | 파라미터                         | 타입        | 설명                  |
+|:-------------------------|:-----------------------------|:----------|:--------------------|
+| `getMeals`               | `date`                       | `string`  | 조회 날짜              |
+| `getMeals`               | `fromDate`                   | `string`  | 조회 시작 날짜           |
+| `getMeals`               | `toDate`                     | `string`  | 조회 종료 날짜           |
+| `getMeals`               | `isValidDateCombination`     | `boolean` | 날짜 조합 검증 여부        |
+| `getMeals`               | `isValidDateRange`           | `boolean` | 날짜 범위 검증 여부        |
+| `getMeals`               | `isValidDateRangePeriod`     | `boolean` | 날짜 범위 기간 검증 여부     |
+| `getSchedules`           | `date`                       | `string`  | 조회 날짜              |
+| `getSchedules`           | `fromDate`                   | `string`  | 조회 시작 날짜           |
+| `getSchedules`           | `toDate`                     | `string`  | 조회 종료 날짜           |
+| `getSchedules`           | `isValidDateCombination`     | `boolean` | 날짜 조합 검증 여부        |
+| `getSchedules`           | `isValidDateRange`           | `boolean` | 날짜 범위 검증 여부        |
+| `getSchedules`           | `isValidDateRangePeriod`     | `boolean` | 날짜 범위 기간 검증 여부     |
+| `getTimetables`          | `grade`                      | `number`  | 학년                  |
+| `getTimetables`          | `classNum`                   | `number`  | 반                   |
+| `getTimetables`          | `date`                       | `string`  | 조회 날짜              |
+| `getTimetables`          | `fromDate`                   | `string`  | 조회 시작 날짜           |
+| `getTimetables`          | `toDate`                     | `string`  | 조회 종료 날짜           |
+| `getTimetables`          | `isValidDateCombination`     | `boolean` | 날짜 조합 검증 여부        |
+| `getTimetables`          | `isValidDateRange`           | `boolean` | 날짜 범위 검증 여부        |
+| `getTimetables`          | `isValidDateRangePeriod`     | `boolean` | 날짜 범위 기간 검증 여부     |
+| `getTimetables`          | `isDateRequired`             | `boolean` | 날짜 필수 여부 검증        |
 
 ```typescript
 // 학사일정 조회

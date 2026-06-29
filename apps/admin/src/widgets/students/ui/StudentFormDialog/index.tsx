@@ -117,7 +117,9 @@ const StudentFormDialog = ({
 
   useEffect(() => {
     if (mode === 'edit' && student && open) {
-      const isCustom = !!student.specialty && !SPECIALTY_OPTIONS.includes(student.specialty as (typeof SPECIALTY_OPTIONS)[number]);
+      const isCustom =
+        !!student.specialty &&
+        !SPECIALTY_OPTIONS.includes(student.specialty as (typeof SPECIALTY_OPTIONS)[number]);
       setIsCustomSpecialty(isCustom);
       reset({
         name: student.name,
@@ -173,8 +175,12 @@ const StudentFormDialog = ({
     }
   };
 
-  const isPending = mode === 'create' ? isCreating : isUpdating || isUpdatingStatus;
   const title = mode === 'create' ? 'ADD STUDENT' : 'EDIT STUDENT';
+
+  const getPendingState = () => {
+    if (mode === 'create') return isCreating;
+    return isUpdating || isUpdatingStatus;
+  };
 
   const getSubmitText = () => {
     if (mode === 'create') return '추가';
@@ -190,6 +196,7 @@ const StudentFormDialog = ({
     return '수정 중...';
   };
 
+  const isPending = getPendingState();
   const submitText = getSubmitText();
   const loadingText = getLoadingText();
 
@@ -214,16 +221,19 @@ const StudentFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent
-        className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}
-      >
-        <DialogHeader className={cn('border-b-2 border-foreground px-6 py-5')}>
+      <DialogContent className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}>
+        <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
           <DialogTitle className={cn('font-pixel text-[14px] leading-none')}>{title}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className={cn('space-y-6 px-6 py-6')}>
           <div className={cn('grid grid-cols-2 gap-4')}>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="name" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>이름</Label>
+              <Label
+                htmlFor="name"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                이름
+              </Label>
               <Input
                 id="name"
                 placeholder="이름 입력"
@@ -233,7 +243,12 @@ const StudentFormDialog = ({
               <FormErrorMessage error={errors.name} />
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="sex" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>성별</Label>
+              <Label
+                htmlFor="sex"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                성별
+              </Label>
               <Controller
                 control={control}
                 name="sex"
@@ -252,7 +267,12 @@ const StudentFormDialog = ({
               <FormErrorMessage error={errors.sex} />
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="email" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>이메일</Label>
+              <Label
+                htmlFor="email"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                이메일
+              </Label>
               <Input
                 id="email"
                 placeholder="example@gsm.hs.kr"
@@ -262,11 +282,16 @@ const StudentFormDialog = ({
               <FormErrorMessage error={errors.email} />
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="grade" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>학년</Label>
+              <Label
+                htmlFor="grade"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                학년
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -295,11 +320,16 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="classNum" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>반</Label>
+              <Label
+                htmlFor="classNum"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                반
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -329,11 +359,16 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="number" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>번호</Label>
+              <Label
+                htmlFor="number"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                번호
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -350,7 +385,12 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="role" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>구분</Label>
+              <Label
+                htmlFor="role"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                구분
+              </Label>
               <Controller
                 control={control}
                 name="role"
@@ -372,11 +412,16 @@ const StudentFormDialog = ({
               <FormErrorMessage error={errors.role} />
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="dormitoryRoomNumber" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>기숙사 호실</Label>
+              <Label
+                htmlFor="dormitoryRoomNumber"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                기숙사 호실
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -393,11 +438,16 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="majorClubId" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>전공 동아리</Label>
+              <Label
+                htmlFor="majorClubId"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                전공 동아리
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -416,7 +466,7 @@ const StudentFormDialog = ({
                         }
                         onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
                       >
-                        <SelectTrigger className={cn('w-full border-foreground')}>
+                        <SelectTrigger className={cn('border-foreground w-full')}>
                           <SelectValue placeholder="전공 동아리 선택" />
                         </SelectTrigger>
                         <SelectContent>
@@ -439,11 +489,16 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('space-y-2')}>
-              <Label htmlFor="autonomousClubId" className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>자율 동아리</Label>
+              <Label
+                htmlFor="autonomousClubId"
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                자율 동아리
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -462,7 +517,7 @@ const StudentFormDialog = ({
                         }
                         onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
                       >
-                        <SelectTrigger className={cn('w-full border-foreground')}>
+                        <SelectTrigger className={cn('border-foreground w-full')}>
                           <SelectValue placeholder="자율 동아리 선택" />
                         </SelectTrigger>
                         <SelectContent>
@@ -485,11 +540,15 @@ const StudentFormDialog = ({
               )}
             </div>
             <div className={cn('col-span-2 space-y-2')}>
-              <Label className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>전공</Label>
+              <Label
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                전공
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
@@ -497,14 +556,14 @@ const StudentFormDialog = ({
                   <Controller
                     control={control}
                     name="specialty"
-                    render={({ field }) => (
+                    render={({ field }) =>
                       isCustomSpecialty ? (
                         <div className={cn('flex gap-2')}>
                           <Input
                             placeholder="전공 직접 입력"
                             value={field.value ?? ''}
                             onChange={(e) => field.onChange(e.target.value || null)}
-                            className={cn('flex-1 rounded-none border-foreground font-mono')}
+                            className={cn('border-foreground flex-1 rounded-none font-mono')}
                             autoFocus
                           />
                           <Button
@@ -537,7 +596,10 @@ const StudentFormDialog = ({
                             <SelectValue placeholder="전공 선택" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none" className={cn('font-mono text-muted-foreground')}>
+                            <SelectItem
+                              value="none"
+                              className={cn('text-muted-foreground font-mono')}
+                            >
                               선택 안 함
                             </SelectItem>
                             {SPECIALTY_OPTIONS.map((opt) => (
@@ -545,29 +607,35 @@ const StudentFormDialog = ({
                                 {opt}
                               </SelectItem>
                             ))}
-                            <SelectItem value="custom" className={cn('font-mono')}>직접 입력...</SelectItem>
+                            <SelectItem value="custom" className={cn('font-mono')}>
+                              직접 입력...
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       )
-                    )}
+                    }
                   />
                   <FormErrorMessage error={errors.specialty} />
                 </>
               )}
             </div>
             <div className={cn('col-span-2 space-y-2')}>
-              <Label className={cn('font-mono text-xs uppercase tracking-widest text-muted-foreground')}>GitHub ID</Label>
+              <Label
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                GitHub ID
+              </Label>
               {isInactive ? (
                 <div
                   className={cn(
-                    'h-10 w-full cursor-not-allowed rounded-none border border-foreground/30 bg-muted',
+                    'border-foreground/30 bg-muted h-10 w-full cursor-not-allowed rounded-none border',
                   )}
                 />
               ) : (
                 <>
                   <Input
                     placeholder="GitHub 아이디 입력"
-                    className={cn('rounded-none border-foreground font-mono')}
+                    className={cn('border-foreground rounded-none font-mono')}
                     {...register('githubId', { setValueAs: (v) => (v === '' ? null : v) })}
                   />
                   <FormErrorMessage error={errors.githubId} />

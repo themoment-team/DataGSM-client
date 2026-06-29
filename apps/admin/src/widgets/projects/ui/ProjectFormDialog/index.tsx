@@ -83,6 +83,7 @@ const ProjectFormDialog = ({
   const currentStatus = watch('status');
   const [searchTerm, setSearchTerm] = useState('');
   const [memberPopoverOpen, setMemberPopoverOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const memberSearchRef = useRef<HTMLInputElement>(null);
 
   const filteredStudents = useMemo(() => {
@@ -138,6 +139,8 @@ const ProjectFormDialog = ({
   }, [open]);
 
   const onSubmit: SubmitHandler<AddProjectType> = async (data) => {
+    setIsSubmitting(true);
+
     const formattedData = {
       ...data,
       clubId: data.clubId === 0 ? null : data.clubId,
@@ -171,7 +174,13 @@ const ProjectFormDialog = ({
       setOpen(false);
       reset();
     } catch {
-      toast.error(mode === 'create' ? '프로젝트 등록에 실패했습니다.' : '프로젝트 데이터 수정에 실패했습니다.');
+      toast.error(
+        mode === 'create'
+          ? '프로젝트 등록에 실패했습니다.'
+          : '프로젝트 데이터 수정에 실패했습니다.',
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -185,9 +194,26 @@ const ProjectFormDialog = ({
     }
   };
 
-  const isPending = isCreating || isUpdating || isEnding || isReactivating;
   const title = mode === 'create' ? '프로젝트 추가' : '프로젝트 데이터 수정';
-  const submitText = mode === 'create' ? '추가' : '수정';
+
+  const getPendingState = () => {
+    if (mode === 'create') return isSubmitting || isCreating;
+    return isSubmitting || isUpdating || isEnding || isReactivating;
+  };
+
+  const getSubmitText = () => {
+    if (mode === 'create') return '추가';
+    return '수정';
+  };
+
+  const getLoadingText = () => {
+    if (mode === 'create') return '추가 중...';
+    return '수정 중...';
+  };
+
+  const isPending = getPendingState();
+  const submitText = getSubmitText();
+  const loadingText = getLoadingText();
 
   const defaultTrigger =
     mode === 'create' ? (
@@ -210,9 +236,7 @@ const ProjectFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent
-        className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}
-      >
+      <DialogContent className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}>
         <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
           <DialogTitle className={cn('font-pixel text-foreground text-[14px] leading-none')}>
             {title}
@@ -351,9 +375,7 @@ const ProjectFormDialog = ({
               <Textarea
                 id="description"
                 placeholder="프로젝트 설명 입력"
-                className={cn(
-                  'border-foreground min-h-[100px] resize-none rounded-none font-mono',
-                )}
+                className={cn('border-foreground min-h-[100px] resize-none rounded-none font-mono')}
                 {...register('description')}
               />
               <FormErrorMessage error={errors.description} />
@@ -454,7 +476,8 @@ const ProjectFormDialog = ({
                 name="participantIds"
                 render={({ field }) => {
                   const selectedIds = Array.isArray(field.value) ? field.value : [];
-                  const selectedStudents = students?.filter((s) => selectedIds.includes(s.id)) || [];
+                  const selectedStudents =
+                    students?.filter((s) => selectedIds.includes(s.id)) || [];
 
                   const grades = [1, 2, 3];
 
@@ -543,7 +566,7 @@ const ProjectFormDialog = ({
 
           <div className={cn('flex justify-end pt-2')}>
             <Button type="submit" disabled={isPending}>
-              {isPending ? `${submitText} 중...` : submitText}
+              {isPending ? loadingText : submitText}
             </Button>
           </div>
         </form>

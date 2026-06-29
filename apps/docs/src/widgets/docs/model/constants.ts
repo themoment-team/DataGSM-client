@@ -1,4 +1,4 @@
-import { BookOpen, Code2, User } from 'lucide-react';
+import { BookOpen, Code2, Radio, User } from 'lucide-react';
 
 import { DocsSection } from './types';
 
@@ -68,6 +68,10 @@ export const docsSections: DocsSection[] = [
           {
             label: '.NET SDK',
             href: '/api/sdk/dotnet',
+          },
+          {
+            label: 'Go SDK',
+            href: '/api/sdk/go',
           },
           {
             label: 'SDK 버저닝 컨벤션',
@@ -155,6 +159,35 @@ export const docsSections: DocsSection[] = [
             href: '/oauth/sdk/versioning',
           },
         ],
+      },
+    ],
+  },
+  {
+    label: 'Event',
+    href: '/event',
+    icon: Radio,
+    children: [
+      {
+        label: '이벤트 페이로드 명세',
+        href: '/event/payloads',
+        children: [
+          {
+            label: 'student.updated',
+            href: '/event/payloads/student',
+          },
+          {
+            label: 'club.updated',
+            href: '/event/payloads/club',
+          },
+          {
+            label: 'project.updated',
+            href: '/event/payloads/project',
+          },
+        ],
+      },
+      {
+        label: '서명 검증 가이드',
+        href: '/event/signature',
       },
     ],
   },

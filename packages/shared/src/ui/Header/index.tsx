@@ -1,11 +1,13 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import { CLIENT_URL, COOKIE_KEYS, NAV_LINKS } from '@repo/shared/constants';
 import { cn, deleteCookie } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface HeaderProps {
@@ -13,6 +15,7 @@ interface HeaderProps {
 }
 
 const Header = ({ role = 'client' }: HeaderProps) => {
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   const handleLogout = () => {
@@ -25,6 +28,20 @@ const Header = ({ role = 'client' }: HeaderProps) => {
 
     window.location.href = '/';
   };
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 640) {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const links = NAV_LINKS[role];
 
@@ -45,14 +62,14 @@ const Header = ({ role = 'client' }: HeaderProps) => {
           </span>
         </Link>
 
-        {/* Nav */}
-        <nav className={cn('flex items-center gap-5')}>
+        {/* Desktop Nav */}
+        <nav className={cn('hidden items-center gap-5 sm:flex')}>
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                'text-muted-foreground hover:text-foreground hidden font-mono text-xs uppercase tracking-widest transition-colors sm:block',
+                'text-muted-foreground hover:text-foreground font-mono text-xs uppercase tracking-widest transition-colors',
               )}
             >
               {link.label}
@@ -66,11 +83,70 @@ const Header = ({ role = 'client' }: HeaderProps) => {
               )}
             >
               <LogOut className={cn('h-3 w-3')} />
-              <span className={cn('hidden sm:block')}>Logout</span>
+              <span>Logout</span>
             </button>
           )}
         </nav>
+
+        {/* Mobile Menu Trigger */}
+        <button
+          onClick={toggleMenu}
+          className={cn('text-foreground block cursor-pointer p-2 sm:hidden')}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X className={cn('h-6 w-6')} /> : <Menu className={cn('h-6 w-6')} />}
+        </button>
       </div>
+
+      {/* Mobile Side Menu */}
+      <div
+        className={cn(
+          'bg-background border-foreground fixed bottom-0 right-0 top-14 z-50 w-64 border-l-2 transition-transform duration-300 ease-in-out sm:hidden',
+          isMenuOpen ? 'translate-x-0' : 'translate-x-full',
+        )}
+      >
+        <nav className={cn('flex flex-col gap-4 p-6')}>
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={closeMenu}
+              tabIndex={isMenuOpen ? 0 : -1}
+              className={cn(
+                'text-muted-foreground hover:text-foreground font-mono text-sm uppercase tracking-widest transition-colors',
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+          {(role === 'client' || role === 'admin') && (
+            <div className={cn('mt-4 border-t pt-4')}>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  closeMenu();
+                }}
+                tabIndex={isMenuOpen ? 0 : -1}
+                className={cn(
+                  'border-foreground hover:bg-foreground hover:text-background flex w-full cursor-pointer items-center justify-center gap-2 border py-3 font-mono text-xs uppercase tracking-widest transition-all',
+                )}
+              >
+                <LogOut className={cn('h-4 w-4')} />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </nav>
+      </div>
+
+      {/* Overlay */}
+      {isMenuOpen && (
+        <div
+          className={cn('fixed inset-0 z-40 bg-black/50 sm:hidden')}
+          onClick={closeMenu}
+          aria-hidden="true"
+        />
+      )}
     </header>
   );
 };

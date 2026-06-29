@@ -93,7 +93,7 @@ GET /v1/clubs
 ### 요청 예시
 
 ```bash
-curl -X GET "https://api.datagsm.com/v1/clubs?clubType=MAJOR_CLUB&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/clubs?clubType=MAJOR_CLUB&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -101,7 +101,7 @@ curl -X GET "https://api.datagsm.com/v1/clubs?clubType=MAJOR_CLUB&page=0&size=50
 
 ```bash
 # 동아리 이름 순으로 정렬
-curl -X GET "https://api.datagsm.com/v1/clubs?sortBy=NAME&sortDirection=ASC&page=0&size=50" \
+curl -X GET "https://openapi.datagsm.kr/v1/clubs?sortBy=NAME&sortDirection=ASC&page=0&size=50" \
   -H "X-API-KEY: your-api-key-here"
 ```
 
@@ -193,7 +193,7 @@ curl -X GET "https://api.datagsm.com/v1/clubs?sortBy=NAME&sortDirection=ASC&page
 
 async function getClubs(clubId) {
   try {
-    const response = await axios.get('https://api.datagsm.com/v1/clubs', {
+    const response = await axios.get('https://openapi.datagsm.kr/v1/clubs', {
       headers: {
         'X-API-KEY': 'your-api-key-here',
       },
@@ -213,7 +213,7 @@ async function getClubs(clubId) {
 def get_club(club_id):
     try:
         response = requests.get(
-            'https://api.datagsm.com/v1/clubs',
+            'https://openapi.datagsm.kr/v1/clubs',
             headers={'X-API-KEY': 'your-api-key-here'},
             params={'clubId': club_id}
         )
@@ -230,7 +230,7 @@ public class ClubAPI {
     public static String getClubs(Long clubId) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://api.datagsm.com/v1/clubs?clubId=" + clubId))
+            .uri(URI.create("https://openapi.datagsm.kr/v1/clubs?clubId=" + clubId))
             .header("X-API-KEY", "your-api-key-here")
             .GET()
             .build();
@@ -249,7 +249,7 @@ import java.net.URI
 fun getClubs(clubId: Long): String {
     val client = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.datagsm.com/v1/clubs?clubId=\${clubId}"))
+        .uri(URI.create("https://openapi.datagsm.kr/v1/clubs?clubId=\${clubId}"))
         .header("X-API-KEY", "your-api-key-here")
         .GET()
         .build()

@@ -1,9 +1,10 @@
+import { DM_Sans, JetBrains_Mono, Press_Start_2P } from 'next/font/google';
+import localFont from 'next/font/local';
+
 import { TanStackProvider } from '@repo/shared/lib';
 import { Header } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import type { Metadata } from 'next';
-import { DM_Sans, JetBrains_Mono, Press_Start_2P } from 'next/font/google';
-import localFont from 'next/font/local';
 
 import '@/shared/styles/globals.css';
 import { DocsSidebar } from '@/widgets/docs';
@@ -47,9 +48,9 @@ export const metadata: Metadata = {
       default: 'DataGSM Docs',
     },
     description: '광주소프트웨어마이스터고등학교 DataGSM 기술 문서',
-    url: 'https://datagsm-front-client.vercel.app/',
+    url: 'https://docs.datagsm.kr/',
     siteName: 'DataGSM',
-    images: 'https://datagsm-front-client.vercel.app/og-image.png',
+    images: 'https://docs.datagsm.kr/images/og-image.png',
     type: 'website',
   },
 };
