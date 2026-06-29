@@ -154,7 +154,7 @@ const SignInForm = ({
                     >
                       {serviceName}
                     </span>
-                    에서 다음과 같은 권한 을 요청합니다
+                    에서 다음과 같은 권한을 요청합니다
                   </label>
                 )}
               </div>
