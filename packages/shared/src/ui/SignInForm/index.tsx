@@ -148,17 +148,13 @@ const SignInForm = ({
                     }}
                   >
                     <span
-                      className={cn('font-medium underline underline-offset-2 hover:opacity-70')}
+                      className={cn(
+                        'text-foreground decoration-border/60 group-hover:decoration-foreground font-semibold underline underline-offset-4 transition-all',
+                      )}
                     >
                       {serviceName}
                     </span>
-                    에서 다음과 같은{' '}
-                    <span
-                      className={cn('font-medium underline underline-offset-2 hover:opacity-70')}
-                    >
-                      권한
-                    </span>
-                    을 요청합니다
+                    에서 다음과 같은 권한 을 요청합니다
                   </label>
                 )}
               </div>
@@ -301,9 +297,7 @@ const SignInForm = ({
                       <p className={cn('text-foreground text-lg font-semibold')}>
                         {x.applicationName}
                       </p>
-                      <p className={cn('text-muted-foreground text-sm')}>
-                        {x.description}
-                      </p>
+                      <p className={cn('text-muted-foreground text-sm')}>{x.description}</p>
                     </div>
                   </div>
                 ))}
