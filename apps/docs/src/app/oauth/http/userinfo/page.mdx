@@ -1,4 +1,6 @@
-export const metadata = { title: '사용자 데이터 조회' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "사용자 데이터 조회", pathname: "/oauth/http/userinfo" })
 
 # 사용자 데이터 조회
 

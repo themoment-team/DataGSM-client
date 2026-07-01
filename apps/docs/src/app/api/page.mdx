@@ -1,6 +1,8 @@
 import { AlertCircle } from 'lucide-react'
 
-export const metadata = { title: 'OpenAPI' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "OpenAPI", pathname: "/api" })
 
 # OpenAPI
 
@@ -78,4 +80,3 @@ API 키는 각각의 요청량 제한(Rate Limit)이 적용됩니다. 이를 초
 - **정기 갱신**: API 키를 정기적으로 갱신하여 보안을 강화합니다.
 - **안전한 저장**: API 키를 안전하게 저장하고, 공개 저장소에 노출되지 않도록 주의합니다.
 - **불필요한 키 폐기**: 더 이상 사용하지 않는 API 키는 즉시 폐기합니다.
-
