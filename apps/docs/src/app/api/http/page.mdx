@@ -1,4 +1,6 @@
-export const metadata = { title: 'HTTP OpenAPI' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "HTTP OpenAPI", pathname: "/api/http" })
 
 # DataGSM HTTP OpenAPI Overview
 
@@ -139,4 +141,3 @@ async function fetchWithCache(url, apiKey, cachedETag) {
 - [NEIS 데이터 OpenAPI](/api/http/neis)
 
 SDK를 사용한 더 편리한 API 호출을 원한다면 [SDK 기술 문서](/api/sdk)를 참고하세요.
-

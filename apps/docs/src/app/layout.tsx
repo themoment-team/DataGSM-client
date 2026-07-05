@@ -4,9 +4,9 @@ import localFont from 'next/font/local';
 import { TanStackProvider } from '@repo/shared/lib';
 import { Header } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-import type { Metadata } from 'next';
 
 import '@/shared/styles/globals.css';
+import { docsRootMetadata } from '@/shared/lib/metadata';
 import { DocsSidebar } from '@/widgets/docs';
 
 const pressStart2P = Press_Start_2P({
@@ -36,24 +36,7 @@ const dmSans = DM_Sans({
   variable: '--font-sans',
 });
 
-export const metadata: Metadata = {
-  title: {
-    template: 'DataGSM Docs | %s',
-    default: 'DataGSM Docs',
-  },
-  description: '광주소프트웨어마이스터고등학교 DataGSM 기술 문서',
-  openGraph: {
-    title: {
-      template: 'DataGSM Docs | %s',
-      default: 'DataGSM Docs',
-    },
-    description: '광주소프트웨어마이스터고등학교 DataGSM 기술 문서',
-    url: 'https://docs.datagsm.kr/',
-    siteName: 'DataGSM',
-    images: 'https://docs.datagsm.kr/images/og-image.png',
-    type: 'website',
-  },
-};
+export const metadata = docsRootMetadata;
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (

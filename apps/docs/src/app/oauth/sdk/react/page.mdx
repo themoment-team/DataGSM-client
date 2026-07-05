@@ -1,6 +1,8 @@
 import { Shield } from 'lucide-react'
 
-export const metadata = { title: 'React SDK' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "React SDK", pathname: "/oauth/sdk/react" })
 
 # DataGSM OAuth SDK for React
 
@@ -27,7 +29,6 @@ export const metadata = { title: 'React SDK' }
     </div>
   </div>
 </div>
-
 
 ### 주요 특징
 
@@ -117,7 +118,6 @@ export default App;
 | --- | --- | --- | --- |
 | `children` | `ReactNode` | 선택 | 버튼 내부에 렌더링될 내용. 기본값은 "Data GSM 로그인"입니다. |
 | `onClick` | `(event) => void` | 선택 | 기본 `login` 함수 호출 전에 실행할 커스텀 클릭 핸들러. |
-
 
 ### useOAuth Hook 사용하기
 
