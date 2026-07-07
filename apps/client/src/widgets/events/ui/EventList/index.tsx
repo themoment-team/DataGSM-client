@@ -24,7 +24,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Event } from '@/entities/events';
+import { Event, VerificationStatus } from '@/entities/events';
 import { useDeleteEvent } from '@/widgets/events';
 
 interface EventListProps {
@@ -45,10 +45,27 @@ const formatDate = (value: string) => {
   return date.toLocaleString('ko-KR');
 };
 
+const VERIFICATION_STATUS_META: Record<
+  VerificationStatus,
+  { label: string; className: string }
+> = {
+  VERIFIED: { label: 'verified', className: 'border-foreground text-foreground' },
+  PENDING: { label: 'pending', className: 'border-muted-foreground/40 text-muted-foreground' },
+  FAILED: { label: 'failed', className: 'border-destructive text-destructive' },
+};
+
 const EventListItem = ({ event, onEdit, onDelete }: EventListItemProps) => {
+  const isVerificationFailed = event.verification_status === 'FAILED';
+  const verificationMeta = VERIFICATION_STATUS_META[event.verification_status];
+
   return (
     <TableRow>
-      <TableCell className={cn('max-w-xs truncate font-mono text-sm')}>
+      <TableCell
+        className={cn(
+          'max-w-xs truncate font-mono text-sm',
+          isVerificationFailed && 'text-destructive',
+        )}
+      >
         {event.target_url}
       </TableCell>
       <TableCell>
@@ -73,6 +90,16 @@ const EventListItem = ({ event, onEdit, onDelete }: EventListItemProps) => {
           )}
         >
           {event.is_active ? 'active' : 'inactive'}
+        </span>
+      </TableCell>
+      <TableCell>
+        <span
+          className={cn(
+            'border px-1.5 py-0.5 font-mono text-xs uppercase',
+            verificationMeta.className,
+          )}
+        >
+          {verificationMeta.label}
         </span>
       </TableCell>
       <TableCell className={cn('text-muted-foreground font-mono text-xs')}>
@@ -139,6 +166,7 @@ const EventList = ({ events, isLoading, onEdit }: EventListProps) => {
           <TableHead>수신 URL</TableHead>
           <TableHead>구독 이벤트</TableHead>
           <TableHead>상태</TableHead>
+          <TableHead>검증 상태</TableHead>
           <TableHead>생성일</TableHead>
           <TableHead className={cn('w-24')}>작업</TableHead>
         </TableRow>
@@ -152,6 +180,9 @@ const EventList = ({ events, isLoading, onEdit }: EventListProps) => {
               </TableCell>
               <TableCell>
                 <Skeleton className={cn('h-4 w-40')} />
+              </TableCell>
+              <TableCell>
+                <Skeleton className={cn('h-4 w-16')} />
               </TableCell>
               <TableCell>
                 <Skeleton className={cn('h-4 w-16')} />
@@ -175,7 +206,7 @@ const EventList = ({ events, isLoading, onEdit }: EventListProps) => {
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={5} className={cn('text-muted-foreground h-24 text-center font-mono')}>
+            <TableCell colSpan={6} className={cn('text-muted-foreground h-24 text-center font-mono')}>
               {'>'} 등록된 이벤트가 없습니다.
             </TableCell>
           </TableRow>
