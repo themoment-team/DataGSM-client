@@ -51,36 +51,47 @@ const AccountsPage = () => {
     },
   });
 
-  const { control } = form;
+  const { control, reset } = form;
 
   const filters = useWatch({ control });
+  const { email, role, isStudent, sortBy } = filters;
 
-  const debouncedEmail = useDebounce(filters.email);
+  const debouncedEmail = useDebounce(email);
 
   const currentPage = initialValues.page;
 
   useEffect(() => {
+    reset({
+      email: initialValues.email,
+      role: initialValues.role,
+      isStudent: initialValues.isStudent,
+      sortBy: initialValues.sortBy,
+    });
+  }, [initialValues, reset]);
+
+  useEffect(() => {
     const hasChanged =
       debouncedEmail !== initialValues.email ||
-      filters.role !== initialValues.role ||
-      filters.isStudent !== initialValues.isStudent ||
-      filters.sortBy !== initialValues.sortBy;
+      role !== initialValues.role ||
+      isStudent !== initialValues.isStudent ||
+      sortBy !== initialValues.sortBy;
 
     if (hasChanged) {
       updateURL(
         {
-          ...filters,
           email: debouncedEmail,
+          role,
+          isStudent,
+          sortBy,
         },
         0,
       );
     }
   }, [
     debouncedEmail,
-    filters,
-    filters.role,
-    filters.isStudent,
-    filters.sortBy,
+    role,
+    isStudent,
+    sortBy,
     initialValues.email,
     initialValues.role,
     initialValues.isStudent,
@@ -91,8 +102,10 @@ const AccountsPage = () => {
   const handlePageChange = (page: number) => {
     updateURL(
       {
-        ...filters,
         email: debouncedEmail,
+        role,
+        isStudent,
+        sortBy,
       },
       page,
     );
@@ -102,9 +115,9 @@ const AccountsPage = () => {
     page: currentPage,
     size: PAGE_SIZE,
     email: debouncedEmail !== 'all' ? debouncedEmail : undefined,
-    role: filters.role !== 'all' ? (filters.role as UserRoleType) : undefined,
-    isStudent: filters.isStudent !== 'all' ? filters.isStudent === 'true' : undefined,
-    sortBy: filters.sortBy !== 'all' ? (filters.sortBy as AccountSortBy) : undefined,
+    role: role !== 'all' ? (role as UserRoleType) : undefined,
+    isStudent: isStudent !== 'all' ? isStudent === 'true' : undefined,
+    sortBy: sortBy !== 'all' ? (sortBy as AccountSortBy) : undefined,
   };
 
   const { data: accountsData, isLoading: isLoadingAccounts } = useGetAccounts(queryParams);
