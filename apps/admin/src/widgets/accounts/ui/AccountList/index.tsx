@@ -70,7 +70,9 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
                   </span>
                 </TableCell>
                 <TableCell>{account.isStudent ? '연동됨' : '미연동'}</TableCell>
-                <TableCell>{new Date(account.createdAt).toLocaleDateString('ko-KR')}</TableCell>
+                <TableCell>
+                  {new Date(account.createdAt).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
+                </TableCell>
               </TableRow>
             ))}
       </TableBody>

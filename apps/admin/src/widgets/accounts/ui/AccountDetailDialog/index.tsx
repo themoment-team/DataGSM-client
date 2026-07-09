@@ -91,7 +91,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
                 생성일
               </span>
               <span className={cn('font-mono text-sm')}>
-                {new Date(account.createdAt).toLocaleString('ko-KR')}
+                {new Date(account.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
               </span>
             </div>
           </div>
