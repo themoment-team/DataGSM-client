@@ -36,10 +36,10 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'USER'>('USER');
 
   useEffect(() => {
-    if (account && (account.role === 'ADMIN' || account.role === 'USER')) {
+    if (open && account && (account.role === 'ADMIN' || account.role === 'USER')) {
       setSelectedRole(account.role);
     }
-  }, [account]);
+  }, [account, open]);
 
   const { mutate: updateRole, isPending } = useUpdateAccountRole({
     onSuccess: () => {
