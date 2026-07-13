@@ -131,6 +131,15 @@ export const accountQueryKeys = {
   postPasswordReset: () => ['accounts', 'password-resets'] as const,
   postPasswordResetVerification: () => ['accounts', 'password-resets', 'verification'] as const,
   putPassword: () => ['accounts', 'password', 'update'] as const,
+  getAccounts: (params: {
+    page?: number;
+    size?: number;
+    email?: string;
+    role?: string;
+    isStudent?: boolean;
+    sortBy?: string;
+  }) => ['accounts', 'list', params] as const,
+  patchAccountRole: () => ['accounts', 'role', 'update'] as const,
 } as const;
 
 export const oauthQueryKeys = {

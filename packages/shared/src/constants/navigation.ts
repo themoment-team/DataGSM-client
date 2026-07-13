@@ -14,6 +14,7 @@ export const NAV_LINKS = {
   ],
   admin: [
     { href: '/students', label: '학생' },
+    { href: '/accounts', label: '계정' },
     { href: '/clubs', label: '동아리' },
     { href: '/projects', label: '프로젝트' },
     { href: '/api-keys', label: 'API 키' },
