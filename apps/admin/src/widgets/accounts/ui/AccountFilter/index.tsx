@@ -63,10 +63,10 @@ const AccountFilter = ({ control }: AccountFilterProps) => {
       </div>
 
       <div className={cn('flex items-center gap-2')}>
-        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>학생 연동:</Label>
+        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>종류:</Label>
         <Controller
           control={control}
-          name="isStudent"
+          name="objectType"
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger className={cn('w-28 rounded-none border-foreground')}>
@@ -74,8 +74,28 @@ const AccountFilter = ({ control }: AccountFilterProps) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="true">연동됨</SelectItem>
-                <SelectItem value="false">미연동</SelectItem>
+                <SelectItem value="STUDENT">학생</SelectItem>
+                <SelectItem value="TEACHER">선생님</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </div>
+
+      <div className={cn('flex items-center gap-2')}>
+        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>상태:</Label>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className={cn('w-28 rounded-none border-foreground')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="PENDING">승인대기</SelectItem>
+                <SelectItem value="ACTIVE">활성</SelectItem>
               </SelectContent>
             </Select>
           )}

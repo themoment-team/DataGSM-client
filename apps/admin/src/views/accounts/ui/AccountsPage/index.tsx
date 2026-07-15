@@ -6,7 +6,13 @@ import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
-import { AccountListItem, AccountSortBy, UserRoleType } from '@repo/shared/types';
+import {
+  AccountListItem,
+  AccountObjectType,
+  AccountSortBy,
+  AccountStatus,
+  UserRoleType,
+} from '@repo/shared/types';
 import { CommonPagination, PageHeader } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 
@@ -34,7 +40,8 @@ const AccountsPage = () => {
     (): AccountFilterType & { page: number } => ({
       email: searchParams.get('email') || 'all',
       role: searchParams.get('role') || 'all',
-      isStudent: searchParams.get('isStudent') || 'all',
+      objectType: searchParams.get('objectType') || 'all',
+      status: searchParams.get('status') || 'all',
       sortBy: searchParams.get('sortBy') || 'all',
       page: Number(searchParams.get('page')) || 0,
     }),
@@ -46,7 +53,8 @@ const AccountsPage = () => {
     defaultValues: {
       email: initialValues.email,
       role: initialValues.role,
-      isStudent: initialValues.isStudent,
+      objectType: initialValues.objectType,
+      status: initialValues.status,
       sortBy: initialValues.sortBy,
     },
   });
@@ -58,7 +66,7 @@ const AccountsPage = () => {
   } = form;
 
   const filters = useWatch({ control });
-  const { email, role, isStudent, sortBy } = filters;
+  const { email, role, objectType, status, sortBy } = filters;
 
   const debouncedEmail = useDebounce(email);
 
@@ -68,7 +76,8 @@ const AccountsPage = () => {
     reset({
       email: initialValues.email,
       role: initialValues.role,
-      isStudent: initialValues.isStudent,
+      objectType: initialValues.objectType,
+      status: initialValues.status,
       sortBy: initialValues.sortBy,
     });
   }, [initialValues, reset]);
@@ -79,7 +88,8 @@ const AccountsPage = () => {
     const hasChanged =
       debouncedEmail !== initialValues.email ||
       role !== initialValues.role ||
-      isStudent !== initialValues.isStudent ||
+      objectType !== initialValues.objectType ||
+      status !== initialValues.status ||
       sortBy !== initialValues.sortBy;
 
     if (hasChanged) {
@@ -87,7 +97,8 @@ const AccountsPage = () => {
         {
           email: debouncedEmail,
           role,
-          isStudent,
+          objectType,
+          status,
           sortBy,
         },
         0,
@@ -96,11 +107,13 @@ const AccountsPage = () => {
   }, [
     debouncedEmail,
     role,
-    isStudent,
+    objectType,
+    status,
     sortBy,
     initialValues.email,
     initialValues.role,
-    initialValues.isStudent,
+    initialValues.objectType,
+    initialValues.status,
     initialValues.sortBy,
     updateURL,
     isDirty,
@@ -111,7 +124,8 @@ const AccountsPage = () => {
       {
         email: debouncedEmail,
         role,
-        isStudent,
+        objectType,
+        status,
         sortBy,
       },
       page,
@@ -123,7 +137,8 @@ const AccountsPage = () => {
     size: PAGE_SIZE,
     email: debouncedEmail !== 'all' ? debouncedEmail : undefined,
     role: role !== 'all' ? (role as UserRoleType) : undefined,
-    isStudent: isStudent !== 'all' ? isStudent === 'true' : undefined,
+    objectType: objectType !== 'all' ? (objectType as AccountObjectType) : undefined,
+    status: status !== 'all' ? (status as AccountStatus) : undefined,
     sortBy: sortBy !== 'all' ? (sortBy as AccountSortBy) : undefined,
   };
 

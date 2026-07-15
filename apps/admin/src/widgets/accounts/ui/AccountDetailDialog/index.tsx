@@ -19,7 +19,13 @@ import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-import { getAccountRoleBadgeStyle, getAccountRoleLabel } from '@/entities/account';
+import {
+  getAccountRoleBadgeStyle,
+  getAccountRoleLabel,
+  getAccountStatusBadgeStyle,
+  getAccountStatusLabel,
+  getTeacherDepartmentLabel,
+} from '@/entities/account';
 import { useGetMyAccountId } from '@/entities/signin';
 import { getMajorLabel, getRoleBadgeStyle, getRoleLabel, getSexLabel } from '@/entities/student';
 import { useUpdateAccountRole } from '@/widgets/accounts';
@@ -55,7 +61,8 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
 
   if (!account) return null;
 
-  const student = account.student;
+  const { student, teacher, objectType } = account;
+  const isTeacherAccount = objectType === 'TEACHER';
   const isRoleChangeDisabled = account.role === 'ROOT' || account.id === myAccountId;
 
   return (
@@ -88,6 +95,19 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
             </div>
             <div className={cn('flex items-center justify-between')}>
               <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
+                상태
+              </span>
+              <span
+                className={cn(
+                  'border px-1.5 py-0.5 text-xs font-mono uppercase',
+                  getAccountStatusBadgeStyle(account.status),
+                )}
+              >
+                {getAccountStatusLabel(account.status)}
+              </span>
+            </div>
+            <div className={cn('flex items-center justify-between')}>
+              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
                 생성일
               </span>
               <span className={cn('font-mono text-sm')}>
@@ -98,9 +118,29 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
 
           <div className={cn('border-foreground/20 border-t pt-4')}>
             <p className={cn('text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest')}>
-              연동된 학생 정보
+              {isTeacherAccount ? '연동된 선생님 정보' : '연동된 학생 정보'}
             </p>
-            {student ? (
+            {isTeacherAccount ? (
+              teacher ? (
+                <div
+                  className={cn(
+                    'border-foreground grid grid-cols-2 gap-x-4 gap-y-2 border p-4 font-mono text-sm',
+                  )}
+                >
+                  <span>이름: {teacher.name}</span>
+                  <span>소속 부서: {getTeacherDepartmentLabel(teacher.department)}</span>
+                  <span className={cn('col-span-2')}>설명: {teacher.description || '없음'}</span>
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    'border-foreground/25 text-muted-foreground border border-dashed p-4 text-center font-mono text-sm',
+                  )}
+                >
+                  연동된 선생님 정보가 없습니다.
+                </div>
+              )
+            ) : student ? (
               <div
                 className={cn(
                   'border-foreground grid grid-cols-2 gap-x-4 gap-y-2 border p-4 font-mono text-sm',
