@@ -1,6 +1,6 @@
 import { ClubType, StudentRole, StudentSex } from '@repo/shared/types';
 
-import { AccountSortBy } from '../types/account';
+import { AccountObjectType, AccountSortBy, AccountStatus } from '../types/account';
 import { UserRoleType } from '../types/userRole';
 
 export const studentUrl = {
@@ -201,7 +201,8 @@ export const accountUrl = {
     size?: number;
     email?: string;
     role?: UserRoleType;
-    isStudent?: boolean;
+    objectType?: AccountObjectType;
+    status?: AccountStatus;
     sortBy?: AccountSortBy;
   }) => {
     const urlParams = new URLSearchParams();
@@ -210,13 +211,15 @@ export const accountUrl = {
     if (params.size !== undefined) urlParams.append('size', params.size.toString());
     if (params.email) urlParams.append('email', params.email);
     if (params.role !== undefined) urlParams.append('role', params.role);
-    if (params.isStudent !== undefined) urlParams.append('isStudent', params.isStudent.toString());
+    if (params.objectType !== undefined) urlParams.append('objectType', params.objectType);
+    if (params.status !== undefined) urlParams.append('status', params.status);
     if (params.sortBy !== undefined) urlParams.append('sortBy', params.sortBy);
 
     const queryString = urlParams.toString();
     return queryString ? `/v1/accounts?${queryString}` : '/v1/accounts';
   },
   patchAccountRole: (accountId: number) => `/v1/accounts/${accountId}/role`,
+  patchAccountApproval: (accountId: number) => `/v1/accounts/${accountId}/approval`,
 } as const;
 
 export const oauthUrl = {
