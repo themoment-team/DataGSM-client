@@ -16,13 +16,24 @@ import {
   FormErrorMessage,
   Input,
   Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
 } from '@repo/shared/ui';
 import { cn, formatEmailWithDomain, getApiErrorCode, minutesToMs } from '@repo/shared/utils';
 import { Eye, EyeOff } from 'lucide-react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { SignUpFormSchema, SignUpFormType } from '@/entities/signup';
+import {
+  SignUpFormSchema,
+  SignUpFormType,
+  TEACHER_DEPARTMENT_OPTIONS,
+  getTeacherDepartmentLabel,
+} from '@/entities/signup';
 import { useCheckEmailCode, useSendEmailCode, useSignUp } from '@/widgets/signup';
 
 import { PRIVACY_POLICY } from '../../constants/privacyPolicy';
@@ -49,26 +60,37 @@ const SignUpForm = () => {
     trigger,
     watch,
     setValue,
+    control,
+    clearErrors,
   } = useForm<SignUpFormType>({
     resolver: zodResolver(SignUpFormSchema),
+    defaultValues: {
+      objectType: 'STUDENT',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      code: '',
+      privacyAgreed: false,
+    },
   });
 
+  const objectTypeValue = watch('objectType');
   const codeValue = watch('code');
   const emailValue = watch('email');
-  const passwordValue = watch('password');
-  const confirmPasswordValue = watch('confirmPassword');
-  const privacyAgreedValue = watch('privacyAgreed');
   const debouncedCode = useDebounce(codeValue, 1000);
   const lastCheckedCode = useRef('');
   const hasShownExpiredToast = useRef(false);
 
-  const isFormValid = SignUpFormSchema.safeParse({
-    email: emailValue,
-    password: passwordValue,
-    confirmPassword: confirmPasswordValue,
-    code: codeValue,
-    privacyAgreed: privacyAgreedValue,
-  }).success;
+  const isTeacher = objectTypeValue === 'TEACHER';
+
+  const handleObjectTypeChange = (nextType: SignUpFormType['objectType']) => {
+    if (nextType === objectTypeValue) return;
+    setValue('objectType', nextType);
+    setValue('name', undefined);
+    setValue('department', undefined);
+    setValue('description', undefined);
+    clearErrors(['name', 'department', 'description']);
+  };
 
   const handlePrivacyCheckboxClick = () => {
     const isAgreed = getValues('privacyAgreed');
@@ -203,7 +225,7 @@ const SignUpForm = () => {
 
   const { mutate: signUp, isPending: isSigningUp } = useSignUp({
     onSuccess: () => {
-      router.push('/success?page=signup');
+      router.push(isTeacher ? '/success?page=signup-teacher' : '/success?page=signup');
     },
     onError: (error: unknown) => {
       const statusCode = getApiErrorCode(error);
@@ -215,10 +237,14 @@ const SignUpForm = () => {
           toast.error('인증 코드가 만료되었거나 존재하지 않습니다.');
           break;
         case 409:
-          toast.error('이미 존재하는 계정입니다.');
+          toast.error(
+            isTeacher
+              ? '이미 해당 이메일로 가입되었거나 신청된 계정이 있습니다.'
+              : '이미 존재하는 계정입니다.',
+          );
           break;
         default:
-          toast.error('회원가입에 실패했습니다.');
+          toast.error(isTeacher ? '회원가입 신청에 실패했습니다.' : '회원가입에 실패했습니다.');
       }
     },
   });
@@ -245,8 +271,23 @@ const SignUpForm = () => {
       toast.error('이메일 인증을 완료해주세요.');
       return;
     }
-    const { email, password, code } = data;
-    signUp({ email: formatEmailWithDomain(email), password, code });
+    const { objectType, email, password, code, name, department, description } = data;
+
+    if (objectType === 'TEACHER') {
+      if (!name?.trim() || !department) return;
+      signUp({
+        objectType,
+        email: formatEmailWithDomain(email),
+        password,
+        code,
+        name: name.trim(),
+        department,
+        ...(description?.trim() ? { description: description.trim() } : {}),
+      });
+      return;
+    }
+
+    signUp({ objectType: 'STUDENT', email: formatEmailWithDomain(email), password, code });
   };
 
   return (
@@ -280,6 +321,38 @@ const SignUpForm = () => {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={cn('space-y-4 px-6 pt-5')}>
+            {/* Account type */}
+            <div className={cn('space-y-1.5')}>
+              <Label
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
+                가입 종류
+              </Label>
+              <div className={cn('grid grid-cols-2 gap-2')}>
+                {(['STUDENT', 'TEACHER'] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => handleObjectTypeChange(type)}
+                    aria-pressed={objectTypeValue === type}
+                    className={cn(
+                      'border-foreground cursor-pointer border-2 py-2.5 font-mono text-xs font-bold uppercase tracking-widest transition-all',
+                      objectTypeValue === type
+                        ? 'bg-foreground text-background'
+                        : 'bg-background text-foreground hover:bg-foreground/10',
+                    )}
+                  >
+                    {type === 'STUDENT' ? '학생' : '선생님'}
+                  </button>
+                ))}
+              </div>
+              {isTeacher && (
+                <p className={cn('text-muted-foreground font-mono text-xs')}>
+                  {'>'} 선생님 계정은 관리자 승인 후 사용할 수 있습니다
+                </p>
+              )}
+            </div>
+
             {/* Email + code send */}
             <div className={cn('space-y-1.5')}>
               <Label
@@ -429,6 +502,91 @@ const SignUpForm = () => {
               <FormErrorMessage error={errors.confirmPassword} />
             </div>
 
+            {/* Teacher info */}
+            {isTeacher && (
+              <>
+                <div className={cn('space-y-1.5')}>
+                  <Label
+                    htmlFor="name"
+                    className={cn(
+                      'text-muted-foreground font-mono text-xs uppercase tracking-widest',
+                    )}
+                  >
+                    성함
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="성함을 입력하세요"
+                    {...register('name')}
+                    disabled={!isCodeVerified || isSigningUp}
+                    className={cn(
+                      'border-foreground focus-visible:border-foreground rounded-none focus-visible:ring-0',
+                    )}
+                  />
+                  <FormErrorMessage error={errors.name} />
+                </div>
+
+                <div className={cn('space-y-1.5')}>
+                  <Label
+                    htmlFor="department"
+                    className={cn(
+                      'text-muted-foreground font-mono text-xs uppercase tracking-widest',
+                    )}
+                  >
+                    소속 부서
+                  </Label>
+                  <Controller
+                    control={control}
+                    name="department"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value ?? ''}
+                        onValueChange={field.onChange}
+                        disabled={!isCodeVerified || isSigningUp}
+                      >
+                        <SelectTrigger
+                          id="department"
+                          className={cn('border-foreground w-full rounded-none')}
+                        >
+                          <SelectValue placeholder="소속 부서를 선택하세요" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TEACHER_DEPARTMENT_OPTIONS.map((department) => (
+                            <SelectItem key={department} value={department}>
+                              {getTeacherDepartmentLabel(department)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <FormErrorMessage error={errors.department} />
+                </div>
+
+                <div className={cn('space-y-1.5')}>
+                  <Label
+                    htmlFor="description"
+                    className={cn(
+                      'text-muted-foreground font-mono text-xs uppercase tracking-widest',
+                    )}
+                  >
+                    설명 (선택)
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="예: 3학년 1반 담임선생님"
+                    {...register('description')}
+                    disabled={!isCodeVerified || isSigningUp}
+                    className={cn(
+                      'border-foreground focus-visible:border-foreground rounded-none focus-visible:ring-0',
+                    )}
+                  />
+                  <FormErrorMessage error={errors.description} />
+                </div>
+              </>
+            )}
+
             {/* Privacy */}
             <div className={cn('flex items-center gap-2')}>
               <Checkbox
@@ -458,9 +616,9 @@ const SignUpForm = () => {
               className={cn(
                 'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60',
               )}
-              disabled={isSigningUp || !isCodeVerified || !isFormValid}
+              disabled={isSigningUp || !isCodeVerified}
             >
-              {isSigningUp ? 'PROCESSING...' : 'SIGN UP'}
+              {isSigningUp ? 'PROCESSING...' : isTeacher ? '회원가입 신청' : 'SIGN UP'}
             </button>
 
             <p className={cn('text-muted-foreground text-center text-xs')}>
