@@ -12,7 +12,13 @@ import {
 import { cn } from '@repo/shared/utils';
 import { Pencil } from 'lucide-react';
 
-import { getAccountRoleBadgeStyle, getAccountRoleLabel } from '@/entities/account';
+import {
+  getAccountObjectTypeLabel,
+  getAccountRoleBadgeStyle,
+  getAccountRoleLabel,
+  getAccountStatusBadgeStyle,
+  getAccountStatusLabel,
+} from '@/entities/account';
 
 interface AccountListProps {
   accounts?: AccountListItem[];
@@ -28,7 +34,8 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
           <TableHead>ID</TableHead>
           <TableHead>이메일</TableHead>
           <TableHead>역할</TableHead>
-          <TableHead>학생 연동</TableHead>
+          <TableHead>종류</TableHead>
+          <TableHead>상태</TableHead>
           <TableHead>생성일</TableHead>
           <TableHead className={cn('w-30')}>작업</TableHead>
         </TableRow>
@@ -48,6 +55,9 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
                 </TableCell>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-12')} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className={cn('h-5 w-16')} />
                 </TableCell>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-24')} />
@@ -71,7 +81,17 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
                     {getAccountRoleLabel(account.role)}
                   </span>
                 </TableCell>
-                <TableCell>{account.isStudent ? '연동됨' : '미연동'}</TableCell>
+                <TableCell>{getAccountObjectTypeLabel(account.objectType)}</TableCell>
+                <TableCell>
+                  <span
+                    className={cn(
+                      'border px-1.5 py-0.5 text-xs font-mono uppercase',
+                      getAccountStatusBadgeStyle(account.status),
+                    )}
+                  >
+                    {getAccountStatusLabel(account.status)}
+                  </span>
+                </TableCell>
                 <TableCell>
                   {new Date(account.createdAt).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
                 </TableCell>
