@@ -2,6 +2,8 @@ import { TeacherDepartment } from '@repo/shared/types';
 
 import { z } from 'zod';
 
+import { TEACHER_DEPARTMENT_OPTIONS } from '../lib/utils';
+
 export const SignUpFormSchema = z
   .object({
     objectType: z.enum(['STUDENT', 'TEACHER'], {
@@ -25,17 +27,7 @@ export const SignUpFormSchema = z
       message: '개인정보 처리방침에 동의해주세요.',
     }),
     name: z.string().max(10, { message: '성함은 최대 10자 이하여야 합니다.' }).optional(),
-    department: z
-      .enum([
-        'MEISTER',
-        'DORMITORY',
-        'GRADE',
-        'ACADEMIC_AFFAIRS',
-        'PROFESSIONAL_EDUCATION',
-        'EMPLOYMENT_CAREER',
-        'ADMINISTRATION',
-      ])
-      .optional(),
+    department: z.enum(TEACHER_DEPARTMENT_OPTIONS).optional(),
     description: z.string().max(100, { message: '설명은 최대 100자 이하여야 합니다.' }).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
