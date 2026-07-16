@@ -61,7 +61,7 @@ const SignUpForm = () => {
     watch,
     setValue,
     control,
-    clearErrors,
+    resetField,
   } = useForm<SignUpFormType>({
     resolver: zodResolver(SignUpFormSchema),
     defaultValues: {
@@ -86,10 +86,9 @@ const SignUpForm = () => {
   const handleObjectTypeChange = (nextType: SignUpFormType['objectType']) => {
     if (nextType === objectTypeValue) return;
     setValue('objectType', nextType);
-    setValue('name', undefined);
-    setValue('department', undefined);
-    setValue('description', undefined);
-    clearErrors(['name', 'department', 'description']);
+    resetField('name');
+    resetField('department');
+    resetField('description');
   };
 
   const handlePrivacyCheckboxClick = () => {

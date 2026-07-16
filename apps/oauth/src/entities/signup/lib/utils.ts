@@ -19,7 +19,7 @@ export const getTeacherDepartmentLabel = (department: TeacherDepartment) => {
   }
 };
 
-export const TEACHER_DEPARTMENT_OPTIONS: TeacherDepartment[] = [
+export const TEACHER_DEPARTMENT_OPTIONS = [
   'MEISTER',
   'DORMITORY',
   'GRADE',
@@ -27,4 +27,4 @@ export const TEACHER_DEPARTMENT_OPTIONS: TeacherDepartment[] = [
   'PROFESSIONAL_EDUCATION',
   'EMPLOYMENT_CAREER',
   'ADMINISTRATION',
-];
+] as const satisfies readonly TeacherDepartment[];
