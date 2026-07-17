@@ -70,7 +70,7 @@ const StudentsPage = () => {
     },
   });
 
-  const { control } = form;
+  const { control, reset } = form;
 
   const filters = useWatch({
     control,
@@ -79,6 +79,21 @@ const StudentsPage = () => {
   const debouncedName = useDebounce(filters.name);
 
   const currentPage = initialValues.page;
+
+  useEffect(() => {
+    reset({
+      name: initialValues.name,
+      grade: initialValues.grade,
+      classNum: initialValues.classNum,
+      sex: initialValues.sex,
+      role: initialValues.role,
+      status: initialValues.status,
+      includeGraduates: initialValues.includeGraduates,
+      includeWithdrawn: initialValues.includeWithdrawn,
+      onlyEnrolled: initialValues.onlyEnrolled,
+      sortBy: initialValues.sortBy,
+    });
+  }, [initialValues, reset]);
 
   useEffect(() => {
     const hasChanged =
