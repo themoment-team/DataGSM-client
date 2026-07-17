@@ -70,7 +70,11 @@ const StudentsPage = () => {
     },
   });
 
-  const { control, reset } = form;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = form;
 
   const filters = useWatch({
     control,
@@ -96,6 +100,8 @@ const StudentsPage = () => {
   }, [initialValues, reset]);
 
   useEffect(() => {
+    if (!isDirty) return;
+
     const hasChanged =
       debouncedName !== initialValues.name ||
       filters.grade !== initialValues.grade ||
@@ -140,6 +146,7 @@ const StudentsPage = () => {
     initialValues.sortBy,
     updateURL,
     filters,
+    isDirty,
   ]);
 
   const handlePageChange = (page: number) => {
