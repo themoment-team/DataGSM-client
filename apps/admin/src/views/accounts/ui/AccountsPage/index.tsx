@@ -51,7 +51,11 @@ const AccountsPage = () => {
     },
   });
 
-  const { control, reset } = form;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = form;
 
   const filters = useWatch({ control });
   const { email, role, isStudent, sortBy } = filters;
@@ -70,6 +74,8 @@ const AccountsPage = () => {
   }, [initialValues, reset]);
 
   useEffect(() => {
+    if (!isDirty) return;
+
     const hasChanged =
       debouncedEmail !== initialValues.email ||
       role !== initialValues.role ||
@@ -97,6 +103,7 @@ const AccountsPage = () => {
     initialValues.isStudent,
     initialValues.sortBy,
     updateURL,
+    isDirty,
   ]);
 
   const handlePageChange = (page: number) => {
