@@ -1,2 +1,2 @@
 export * from './model/schema';
-export * from './lib/utils';
+export { TEACHER_DEPARTMENT_OPTIONS, getTeacherDepartmentLabel } from '@repo/shared/types';

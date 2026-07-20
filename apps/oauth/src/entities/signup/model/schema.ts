@@ -1,8 +1,6 @@
-import { TeacherDepartment } from '@repo/shared/types';
+import { TEACHER_DEPARTMENT_OPTIONS, TeacherDepartment } from '@repo/shared/types';
 
 import { z } from 'zod';
-
-import { TEACHER_DEPARTMENT_OPTIONS } from '../lib/utils';
 
 export const SignUpFormSchema = z
   .object({
