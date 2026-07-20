@@ -70,7 +70,11 @@ const ProjectsPage = () => {
     },
   });
 
-  const { control } = filterForm;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = filterForm;
 
   const filters = useWatch({
     control,
@@ -81,6 +85,16 @@ const ProjectsPage = () => {
   const currentPage = initialValues.page;
 
   useEffect(() => {
+    reset({
+      projectName: initialValues.projectName,
+      clubId: initialValues.clubId,
+      status: initialValues.status,
+    });
+  }, [initialValues, reset]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
     const hasChanged =
       debouncedProjectName !== initialValues.projectName ||
       filters.clubId !== initialValues.clubId ||
@@ -96,7 +110,7 @@ const ProjectsPage = () => {
         0,
       );
     }
-  }, [debouncedProjectName, filters.clubId, filters.status, initialValues, updateURL]);
+  }, [debouncedProjectName, filters.clubId, filters.status, initialValues, updateURL, isDirty]);
 
   const handlePageChange = (page: number) => {
     updateURL(
