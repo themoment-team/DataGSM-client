@@ -171,6 +171,9 @@ const OAuthAuthorizeForm = () => {
           case 401:
             toast.error('이메일 또는 비밀번호가 일치하지 않습니다.');
             break;
+          case 403:
+            toast.error('승인 대기 중인 계정입니다. 관리자 승인 후 로그인할 수 있습니다.');
+            break;
           default:
             toast.error('로그인에 실패했습니다.');
         }

@@ -136,10 +136,12 @@ export const accountQueryKeys = {
     size?: number;
     email?: string;
     role?: string;
-    isStudent?: boolean;
+    objectType?: string;
+    status?: string;
     sortBy?: string;
   }) => ['accounts', 'list', params] as const,
   patchAccountRole: () => ['accounts', 'role', 'update'] as const,
+  patchAccountApproval: () => ['accounts', 'approval', 'update'] as const,
 } as const;
 
 export const oauthQueryKeys = {

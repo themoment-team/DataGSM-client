@@ -1,5 +1,11 @@
 import { accountQueryKeys, accountUrl, get } from '@repo/shared/api';
-import { AccountListResponse, AccountSortBy, UserRoleType } from '@repo/shared/types';
+import {
+  AccountListResponse,
+  AccountObjectType,
+  AccountSortBy,
+  AccountStatus,
+  UserRoleType,
+} from '@repo/shared/types';
 import { minutesToMs } from '@repo/shared/utils';
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 
@@ -8,7 +14,8 @@ interface UseGetAccountsParams {
   size?: number;
   email?: string;
   role?: UserRoleType;
-  isStudent?: boolean;
+  objectType?: AccountObjectType;
+  status?: AccountStatus;
   sortBy?: AccountSortBy;
 }
 
