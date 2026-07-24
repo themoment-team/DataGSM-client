@@ -1,6 +1,11 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { ApiKeyPage } from '@/views/api-keys';
+
+export const metadata: Metadata = {
+  title: 'API 키',
+};
 
 const ApiKey = () => {
   return (
