@@ -10,6 +10,8 @@ export const metadata = createDocsPageMetadata({ title: "Java / Kotlin SDK", pat
 
 이 SDK를 사용하면 복잡한 OAuth 인증 플로우를 직접 구현할 필요 없이, 간단한 인터페이스를 통해 Authorization Code 교환, PKCE 지원, 토큰 갱신, 사용자 데이터 조회 등의 기능을 손쉽게 사용할 수 있습니다.
 
+> **참고**: `status`, `objectType`, `teacher` 필드는 서버의 선생님 회원가입 지원([datagsm-server#401](https://github.com/themoment-team/datagsm-server/pull/401))에 맞춰 SDK에 추가될 예정입니다. 진행 상황은 [datagsm-oauth-sdk-java#12](https://github.com/themoment-team/datagsm-oauth-sdk-java/issues/12)에서 확인하세요.
+
 ### 주요 특징
 
 | 특징                  | 설명                                                                  |
@@ -192,6 +194,8 @@ val limitedTokenResponse = client.refreshToken(refreshToken, "read")`} />
 <CodeTabs>
   <CodeTab label="Java" language="java" code={`import team.themoment.datagsm.sdk.oauth.model.UserInfo;
 import team.themoment.datagsm.sdk.oauth.model.Student;
+import team.themoment.datagsm.sdk.oauth.model.Teacher;
+import team.themoment.datagsm.sdk.oauth.model.AccountObjectType;
 
 // Access Token으로 사용자 데이터 조회
 UserInfo userInfo = client.getUserInfo(accessToken);
@@ -200,19 +204,28 @@ UserInfo userInfo = client.getUserInfo(accessToken);
 System.out.println("ID: " + userInfo.getId());
 System.out.println("이메일: " + userInfo.getEmail());
 System.out.println("역할: " + userInfo.getRole());
+System.out.println("상태: " + userInfo.getStatus());       // PENDING, ACTIVE
 
-// 학생인 경우 추가 데이터 조회
-if (userInfo.isStudent()) {
+// objectType 기준으로 학생/선생님 데이터 분기 조회
+// isStudent()/getIsStudent()는 Deprecated이며 objectType == STUDENT 파생값입니다.
+if (userInfo.getObjectType() == AccountObjectType.STUDENT) {
     Student student = userInfo.getStudent();
     System.out.println("이름: " + student.getName());
     System.out.println("학번: " + student.getStudentNumber());
     System.out.println("학년: " + student.getGrade());
     System.out.println("반: " + student.getClassNum());
     System.out.println("학과: " + student.getMajor());
+} else if (userInfo.getObjectType() == AccountObjectType.TEACHER) {
+    Teacher teacher = userInfo.getTeacher();
+    System.out.println("이름: " + teacher.getName());
+    System.out.println("부서: " + teacher.getDepartment());
+    System.out.println("설명: " + teacher.getDescription());
 }`} />
 
   <CodeTab label="Kotlin" language="kotlin" code={`import team.themoment.datagsm.sdk.oauth.model.UserInfo
 import team.themoment.datagsm.sdk.oauth.model.Student
+import team.themoment.datagsm.sdk.oauth.model.Teacher
+import team.themoment.datagsm.sdk.oauth.model.AccountObjectType
 
 // Access Token으로 사용자 데이터 조회
 val userInfo = client.getUserInfo(accessToken)
@@ -221,15 +234,26 @@ val userInfo = client.getUserInfo(accessToken)
 println("ID: \${userInfo.id}")
 println("이메일: \${userInfo.email}")
 println("역할: \${userInfo.role}")
+println("상태: \${userInfo.status}")   // PENDING, ACTIVE
 
-// 학생인 경우 추가 데이터 조회
-if (userInfo.isStudent) {
-    val student = userInfo.student
-    println("이름: \${student.name}")
-    println("학번: \${student.studentNumber}")
-    println("학년: \${student.grade}")
-    println("반: \${student.classNum}")
-    println("학과: \${student.major}")
+// objectType 기준으로 학생/선생님 데이터 분기 조회
+// isStudent는 Deprecated이며 objectType == STUDENT 파생값입니다.
+when (userInfo.objectType) {
+    AccountObjectType.STUDENT -> {
+        val student = userInfo.student
+        println("이름: \${student.name}")
+        println("학번: \${student.studentNumber}")
+        println("학년: \${student.grade}")
+        println("반: \${student.classNum}")
+        println("학과: \${student.major}")
+    }
+    AccountObjectType.TEACHER -> {
+        val teacher = userInfo.teacher
+        println("이름: \${teacher.name}")
+        println("부서: \${teacher.department}")
+        println("설명: \${teacher.description}")
+    }
+    else -> {}
 }`} />
 
 </CodeTabs>
@@ -409,9 +433,9 @@ SDK는 다음과 같은 API 메서드를 제공합니다.
 |---------------|----------|--------------|
 | `accessToken` | `String` | Access Token |
 
-| 반환 타입      | 설명                         |
-|------------|----------------------------|
-| `UserInfo` | 사용자 데이터 (학생인 경우 학생 데이터 포함) |
+| 반환 타입      | 설명                                           |
+|------------|----------------------------------------------|
+| `UserInfo` | 사용자 데이터 (`objectType`에 따라 학생 또는 선생님 데이터 포함) |
 
 ## 모델 레퍼런스
 
@@ -445,13 +469,16 @@ Authorization URL 빌더 모델
 
 사용자 데이터 모델
 
-| 필드          | 타입            | 설명              |
-|-------------|---------------|-----------------|
-| `id`        | `Long`        | 사용자 고유 ID       |
-| `email`     | `String`      | 이메일 주소          |
-| `role`      | `AccountRole` | 계정 역할           |
-| `isStudent` | `Boolean`     | 학생 여부           |
-| `student`   | `Student`     | 학생 데이터 (학생인 경우) |
+| 필드           | 타입                | 설명                                                                        |
+|--------------|-------------------|---------------------------------------------------------------------------|
+| `id`         | `Long`            | 사용자 고유 ID                                                                 |
+| `email`      | `String`          | 이메일 주소                                                                    |
+| `role`       | `AccountRole`     | 계정 역할                                                                     |
+| `status`     | `AccountStatus`   | 계정 상태 (`PENDING`, `ACTIVE`). 선생님 계정은 어드민 승인 전까지 `PENDING`으로 유지됩니다              |
+| `objectType` | `AccountObjectType?` | 연결된 대상 종류 (`STUDENT`, `TEACHER`, nullable)                             |
+| `isStudent`  | `Boolean`         | **(Deprecated)** 학생 계정 여부. `objectType == STUDENT`의 파생값이며, 신규 연동은 `objectType`을 사용하세요 |
+| `student`    | `Student?`        | 학생 데이터 (`objectType`이 `STUDENT`인 경우, nullable)                          |
+| `teacher`    | `Teacher?`        | 선생님 데이터 (`objectType`이 `TEACHER`인 경우, nullable)                         |
 
 ### Student
 
@@ -477,6 +504,18 @@ Authorization URL 빌더 모델
 | `githubId`       | `String`      | GitHub 아이디  |
 | `githubUrl`      | `String`      | GitHub 프로필 URL |
 
+### Teacher
+
+선생님 데이터 모델
+
+| 필드            | 타입                | 설명                     |
+|---------------|-------------------|------------------------|
+| `id`          | `Long`            | 선생님 고유 ID              |
+| `name`        | `String`          | 이름                     |
+| `email`       | `String`          | 이메일                    |
+| `department`  | `TeacherDepartment` | 소속 부서                |
+| `description` | `String?`         | 선생님 설명 (미설정 시 `null`) |
+
 ### ClubInfo
 
 동아리 데이터 모델
@@ -500,6 +539,32 @@ Authorization URL 빌더 모델
 | `ADMIN`        | 관리자       |
 | `USER`         | 일반 사용자    |
 | `API_KEY_USER` | API 키 사용자 |
+
+#### AccountStatus
+
+| 값         | 설명                                             |
+|-----------|------------------------------------------------|
+| `PENDING` | 어드민 승인 대기 중 (선생님 회원가입 직후). 로그인이 차단되어 Access Token을 발급받을 수 없습니다 |
+| `ACTIVE`  | 활성화된 계정 (학생은 이메일 인증 후, 선생님은 어드민 승인 후 전환됩니다)     |
+
+#### AccountObjectType
+
+| 값         | 설명                                    |
+|-----------|---------------------------------------|
+| `STUDENT` | 학생 계정. `UserInfo.student`에 상세 데이터 포함  |
+| `TEACHER` | 선생님 계정. `UserInfo.teacher`에 상세 데이터 포함 |
+
+#### TeacherDepartment
+
+| 값                         | 설명       |
+|---------------------------|----------|
+| `MEISTER`                 | 마이스터부    |
+| `DORMITORY`                | 사감선생님   |
+| `GRADE`                    | 학년부      |
+| `ACADEMIC_AFFAIRS`          | 교무부      |
+| `PROFESSIONAL_EDUCATION`   | 전문교육부   |
+| `EMPLOYMENT_CAREER`        | 취업진로부   |
+| `ADMINISTRATION`            | 행정실      |
 
 #### Sex
 
@@ -845,9 +910,10 @@ public class Main {
             System.out.printf("사용자 ID: %d%n", userInfo.getId());
             System.out.printf("이메일: %s%n", userInfo.getEmail());
             System.out.printf("역할: %s%n", userInfo.getRole());
+            System.out.printf("상태: %s%n", userInfo.getStatus());
 
-            // 4. 학생 데이터 조회 (학생인 경우)
-            if (userInfo.isStudent()) {
+            // 4. objectType 기준으로 학생/선생님 데이터 분기 조회
+            if (userInfo.getObjectType() == AccountObjectType.STUDENT) {
                 Student student = userInfo.getStudent();
                 System.out.printf("이름: %s%n", student.getName());
                 System.out.printf("학번: %d%n", student.getStudentNumber());
@@ -859,6 +925,10 @@ public class Main {
                 if (student.getMajorClub() != null) {
                     System.out.printf("전공동아리: %s%n", student.getMajorClub().getName());
                 }
+            } else if (userInfo.getObjectType() == AccountObjectType.TEACHER) {
+                Teacher teacher = userInfo.getTeacher();
+                System.out.printf("이름: %s%n", teacher.getName());
+                System.out.printf("부서: %s%n", teacher.getDepartment());
             }
 
             // 5. 토큰 갱신
@@ -913,19 +983,28 @@ fun main() {
             println("사용자 ID: \${userInfo.id}")
             println("이메일: \${userInfo.email}")
             println("역할: \${userInfo.role}")
+            println("상태: \${userInfo.status}")
 
-            // 4. 학생 데이터 조회 (학생인 경우)
-            if (userInfo.isStudent) {
-                val student = userInfo.student
-                println("이름: \${student.name}")
-                println("학번: \${student.studentNumber}")
-                println("학년/반/번호: \${student.grade}학년 \${student.classNum}반 \${student.number}번")
-                println("학과: \${student.major}")
+            // 4. objectType 기준으로 학생/선생님 데이터 분기 조회
+            when (userInfo.objectType) {
+                AccountObjectType.STUDENT -> {
+                    val student = userInfo.student
+                    println("이름: \${student.name}")
+                    println("학번: \${student.studentNumber}")
+                    println("학년/반/번호: \${student.grade}학년 \${student.classNum}반 \${student.number}번")
+                    println("학과: \${student.major}")
 
-                // 동아리 데이터
-                student.majorClub?.let { club ->
-                    println("전공동아리: \${club.name}")
+                    // 동아리 데이터
+                    student.majorClub?.let { club ->
+                        println("전공동아리: \${club.name}")
+                    }
                 }
+                AccountObjectType.TEACHER -> {
+                    val teacher = userInfo.teacher
+                    println("이름: \${teacher.name}")
+                    println("부서: \${teacher.department}")
+                }
+                else -> {}
             }
 
             // 5. 토큰 갱신

@@ -13,7 +13,7 @@ GET /userinfo
 ### 설명
 
 Access Token을 사용하여 인증된 사용자의 데이터를 조회합니다.
-이 엔드포인트는 사용자의 기본 데이터와 학생인 경우 학생 상세 데이터를 반환합니다.
+이 엔드포인트는 사용자의 기본 데이터와 연결된 대상(`objectType`)에 따라 학생 또는 선생님 상세 데이터를 반환합니다.
 
 ### 인증
 
@@ -36,6 +36,8 @@ Authorization: Bearer {accessToken}
   "id": 1,
   "email": "student@gsm.hs.kr",
   "role": "USER",
+  "status": "ACTIVE",
+  "objectType": "STUDENT",
   "isStudent": true,
   "student": {
     "id": 1,
@@ -51,7 +53,8 @@ Authorization: Bearer {accessToken}
     "dormitoryRoom": 301,
     "role": "GENERAL_STUDENT",
     "isLeaveSchool": false
-  }
+  },
+  "teacher": null
 }
 ```
 
@@ -59,17 +62,20 @@ Authorization: Bearer {accessToken}
 
 #### 사용자 기본 데이터
 
-| 필드          | 타입        | 설명                               | 예시                  |
-|-------------|-----------|----------------------------------|---------------------|
-| `id`        | `Long`    | 사용자 고유 ID                        | `1`                 |
-| `email`     | `String`  | 사용자 이메일 주소                       | `student@gsm.hs.kr` |
-| `role`      | `String`  | 사용자 역할 (`USER`, `ADMIN`)         | `USER`              |
-| `isStudent` | `Boolean` | 학생 여부                            | `true`              |
-| `student`   | `Object?` | 학생 상세 데이터 (학생인 경우만 제공, nullable) | -                   |
+| 필드          | 타입        | 설명                                                              | 예시                  |
+|-------------|-----------|-------------------------------------------------------------------|---------------------|
+| `id`        | `Long`    | 사용자 고유 ID                                                       | `1`                 |
+| `email`     | `String`  | 사용자 이메일 주소                                                     | `student@gsm.hs.kr` |
+| `role`      | `String`  | 사용자 역할 (`USER`, `ADMIN`)                                        | `USER`              |
+| `status`    | `String`  | 계정 상태 (`PENDING`, `ACTIVE`). 선생님 계정은 어드민 승인 전까지 `PENDING`으로 유지됩니다 | `ACTIVE`             |
+| `objectType`| `String?` | 연결된 대상 종류 (`STUDENT`, `TEACHER`, nullable)                      | `STUDENT`            |
+| `isStudent` | `Boolean` | **(Deprecated)** 학생 계정 여부. `objectType == STUDENT`의 파생값으로, 하위 호환을 위해 유지됩니다. 신규 연동은 `objectType`을 사용하세요 | `true`              |
+| `student`   | `Object?` | 학생 상세 데이터 (`objectType`이 `STUDENT`인 경우만 제공, nullable)          | -                   |
+| `teacher`   | `Object?` | 선생님 상세 데이터 (`objectType`이 `TEACHER`인 경우만 제공, nullable)         | -                   |
 
 #### 학생 상세 데이터 (student 객체)
 
-학생인 경우(`isStudent: true`) 다음 필드를 포함합니다.
+`objectType`이 `STUDENT`인 경우 다음 필드를 포함합니다.
 
 | 필드               | 타입        | 설명                                                                                         | 예시                |
 |------------------|-----------|--------------------------------------------------------------------------------------------|-------------------|
@@ -87,13 +93,25 @@ Authorization: Bearer {accessToken}
 | `role`           | `String`  | 학생 역할 (`STUDENT_COUNCIL`, `DORMITORY_MANAGER`, `GENERAL_STUDENT`, `GRADUATE`, `WITHDRAWN`) | `GENERAL_STUDENT` |
 | `isLeaveSchool`  | `Boolean` | 자퇴 여부                                                                                      | `false`           |
 
+#### 선생님 상세 데이터 (teacher 객체)
+
+`objectType`이 `TEACHER`인 경우 다음 필드를 포함합니다.
+
+| 필드            | 타입        | 설명                                                                    | 예시                 |
+|---------------|-----------|-----------------------------------------------------------------------|--------------------|
+| `id`          | `Long`    | 선생님 고유 ID                                                            | `1`                |
+| `name`        | `String`  | 선생님 이름                                                               | `김선생`             |
+| `email`       | `String`  | 선생님 이메일 주소                                                          | `teacher@gsm.hs.kr` |
+| `department`  | `String`  | 소속 부서 (`MEISTER`, `DORMITORY`, `GRADE`, `ACADEMIC_AFFAIRS`, `PROFESSIONAL_EDUCATION`, `EMPLOYMENT_CAREER`, `ADMINISTRATION`) | `GRADE`              |
+| `description` | `String?` | 선생님 설명 (미설정 시 `null`)                                               | `3학년 1반 담임선생님`  |
+
 ### 오류 응답
 
-| 상태 코드              | 설명           | 원인                         |
-|--------------------|--------------|----------------------------|
-| `401 Unauthorized` | 인증 실패        | Access Token이 유효하지 않거나 만료됨 |
-| `403 Forbidden`    | 권한 범위 부족     | 요청한 리소스에 대한 권한 범위 부족       |
-| `404 Not Found`    | 리소스를 찾을 수 없음 | 사용자 데이터를 찾을 수 없음           |
+| 상태 코드              | 설명           | 원인                                          |
+|--------------------|--------------|---------------------------------------------|
+| `401 Unauthorized` | 인증 실패        | Access Token이 유효하지 않거나 만료됨                    |
+| `403 Forbidden`    | 권한 범위 부족     | 요청한 리소스에 대한 권한 범위 부족, 또는 선생님 계정이 어드민 승인 대기(`PENDING`) 상태 |
+| `404 Not Found`    | 리소스를 찾을 수 없음 | 사용자 데이터를 찾을 수 없음                             |
 
 ### 요청 예시
 
@@ -113,6 +131,8 @@ curl -X GET "https://oauth.resource.datagsm.kr/userinfo" \
   "id": 1,
   "email": "student@gsm.hs.kr",
   "role": "USER",
+  "status": "ACTIVE",
+  "objectType": "STUDENT",
   "isStudent": true,
   "student": {
     "id": 1,
@@ -128,21 +148,33 @@ curl -X GET "https://oauth.resource.datagsm.kr/userinfo" \
     "dormitoryRoom": 301,
     "role": "GENERAL_STUDENT",
     "isLeaveSchool": false
-  }
+  },
+  "teacher": null
 }
 ```
 
-#### 비학생 사용자
+#### 선생님 사용자 (승인 완료)
 
 ```json
 {
   "id": 2,
   "email": "teacher@gsm.hs.kr",
-  "role": "ADMIN",
+  "role": "USER",
+  "status": "ACTIVE",
+  "objectType": "TEACHER",
   "isStudent": false,
-  "student": null
+  "student": null,
+  "teacher": {
+    "id": 1,
+    "name": "김선생",
+    "email": "teacher@gsm.hs.kr",
+    "department": "GRADE",
+    "description": "3학년 1반 담임선생님"
+  }
 }
 ```
+
+선생님 계정은 어드민 승인이 완료되어 `status`가 `ACTIVE`인 경우에만 로그인할 수 있습니다. `status`가 `PENDING`인 상태로 로그인을 시도하면 `403 Forbidden` 오류가 발생합니다.
 
 #### 실패 (401 Unauthorized)
 
@@ -187,10 +219,14 @@ const userInfo = await getUserInfo(accessToken);
 console.log('User ID:', userInfo.id);
 console.log('Email:', userInfo.email);
 
-if (userInfo.isStudent) {
+// isStudent는 Deprecated이며 objectType == 'STUDENT'의 파생값입니다. 신규 연동은 objectType을 사용하세요.
+if (userInfo.objectType === 'STUDENT') {
   console.log('Student Name:', userInfo.student.name);
   console.log('Grade:', userInfo.student.grade);
   console.log('Class:', userInfo.student.classNum);
+} else if (userInfo.objectType === 'TEACHER') {
+  console.log('Teacher Name:', userInfo.teacher.name);
+  console.log('Department:', userInfo.teacher.department);
 }`} />
 
   <CodeTab label="Python" language="python" code={`import requests
@@ -223,11 +259,16 @@ user_info = get_user_info(access_token)
 print(f'User ID: {user_info["id"]}')
 print(f'Email: {user_info["email"]}')
 
-if user_info['isStudent']:
+# isStudent는 Deprecated이며 objectType == 'STUDENT'의 파생값입니다. 신규 연동은 objectType을 사용하세요.
+if user_info['objectType'] == 'STUDENT':
     student = user_info['student']
     print(f'Student Name: {student["name"]}')
     print(f'Grade: {student["grade"]}')
-    print(f'Class: {student["classNum"]}')`} />
+    print(f'Class: {student["classNum"]}')
+elif user_info['objectType'] == 'TEACHER':
+    teacher = user_info['teacher']
+    print(f'Teacher Name: {teacher["name"]}')
+    print(f'Department: {teacher["department"]}')`} />
 
   <CodeTab label="Java" language="java" code={`import java.net.http.*;
 import java.net.URI;
@@ -264,8 +305,12 @@ public class UserInfoService {
         public Long id;
         public String email;
         public String role;
+        public String status;
+        public String objectType;
+        // isStudent는 Deprecated이며 objectType == "STUDENT"의 파생값입니다. 신규 연동은 objectType을 사용하세요.
         public Boolean isStudent;
         public Student student;
+        public Teacher teacher;
     }
 
     public static class Student {
@@ -284,6 +329,14 @@ public class UserInfoService {
         public Boolean isLeaveSchool;
     }
 
+    public static class Teacher {
+        public Long id;
+        public String name;
+        public String email;
+        public String department;
+        public String description;
+    }
+
     public static void main(String[] args) throws Exception {
         String accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
         UserInfo userInfo = getUserInfo(accessToken);
@@ -291,9 +344,12 @@ public class UserInfoService {
         System.out.println("User ID: " + userInfo.id);
         System.out.println("Email: " + userInfo.email);
 
-        if (userInfo.isStudent && userInfo.student != null) {
+        if ("STUDENT".equals(userInfo.objectType) && userInfo.student != null) {
             System.out.println("Student Name: " + userInfo.student.name);
             System.out.println("Grade: " + userInfo.student.grade);
+        } else if ("TEACHER".equals(userInfo.objectType) && userInfo.teacher != null) {
+            System.out.println("Teacher Name: " + userInfo.teacher.name);
+            System.out.println("Department: " + userInfo.teacher.department);
         }
     }
 }`} />
@@ -309,8 +365,12 @@ data class UserInfo(
     val id: Long,
     val email: String,
     val role: String,
+    val status: String,
+    val objectType: String?,
+    @Deprecated("objectType == \\"STUDENT\\" 으로 대체 예정, 하위 호환을 위해 임시 유지")
     val isStudent: Boolean,
-    val student: Student?
+    val student: Student?,
+    val teacher: Teacher?
 )
 
 data class Student(
@@ -327,6 +387,14 @@ data class Student(
     val dormitoryRoom: Int?,
     val role: String,
     val isLeaveSchool: Boolean
+)
+
+data class Teacher(
+    val id: Long,
+    val name: String,
+    val email: String,
+    val department: String,
+    val description: String?
 )
 
 class UserInfoService {
@@ -359,10 +427,14 @@ fun main() {
     println("User ID: \${userInfo.id}")
     println("Email: \${userInfo.email}")
 
-    if (userInfo.isStudent && userInfo.student != null) {
+    // isStudent는 Deprecated이며 objectType == "STUDENT"의 파생값입니다. 신규 연동은 objectType을 사용하세요.
+    if (userInfo.objectType == "STUDENT" && userInfo.student != null) {
         println("Student Name: \${userInfo.student.name}")
         println("Grade: \${userInfo.student.grade}")
         println("Class: \${userInfo.student.classNum}")
+    } else if (userInfo.objectType == "TEACHER" && userInfo.teacher != null) {
+        println("Teacher Name: \${userInfo.teacher.name}")
+        println("Department: \${userInfo.teacher.department}")
     }
 }`} />
 </CodeTabs>
@@ -388,6 +460,38 @@ fun main() {
 | `DORMITORY_MANAGER` | 기숙사 사감 |
 | `GRADUATE` | 졸업생 |
 | `WITHDRAWN` | 자퇴생 |
+
+### 선생님 부서 코드 (Department)
+
+`teacher.department` 필드는 다음 값 중 하나입니다.
+
+| 코드 | 설명 |
+| --- | --- |
+| `MEISTER` | 마이스터부 |
+| `DORMITORY` | 사감선생님 |
+| `GRADE` | 학년부 |
+| `ACADEMIC_AFFAIRS` | 교무부 |
+| `PROFESSIONAL_EDUCATION` | 전문교육부 |
+| `EMPLOYMENT_CAREER` | 취업진로부 |
+| `ADMINISTRATION` | 행정실 |
+
+### 계정 상태 코드 (Status)
+
+`status` 필드는 다음 값 중 하나입니다.
+
+| 코드 | 설명 |
+| --- | --- |
+| `PENDING` | 어드민 승인 대기 중 (선생님 회원가입 직후). 이 상태에서는 로그인이 차단되어 Access Token을 발급받을 수 없습니다 |
+| `ACTIVE` | 활성화된 계정. 학생은 이메일 인증 후 즉시 `ACTIVE`가 되며, 선생님은 어드민 승인 후 `ACTIVE`가 됩니다 |
+
+### 연결 대상 종류 (Object Type)
+
+`objectType` 필드는 다음 값 중 하나입니다.
+
+| 코드 | 설명 |
+| --- | --- |
+| `STUDENT` | 학생 계정. `student` 필드에 상세 데이터가 포함됩니다 |
+| `TEACHER` | 선생님 계정. `teacher` 필드에 상세 데이터가 포함됩니다 |
 
 ### 보안 주의사항
 

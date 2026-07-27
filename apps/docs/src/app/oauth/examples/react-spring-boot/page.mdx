@@ -305,8 +305,12 @@ data class UserInfo(
     val id: Long,
     val email: String,
     val role: String,
+    val status: String,
+    val objectType: String?,
+    // isStudent는 Deprecated이며 objectType == "STUDENT"의 파생값입니다. 신규 연동은 objectType을 사용하세요.
     val isStudent: Boolean,
-    val student: StudentInfo?
+    val student: StudentInfo?,
+    val teacher: TeacherInfo?
 )
 
 data class StudentInfo(
@@ -316,6 +320,14 @@ data class StudentInfo(
     val classNum: Int,
     val number: Int,
     val major: String
+)
+
+data class TeacherInfo(
+    val id: Long,
+    val name: String,
+    val email: String,
+    val department: String,
+    val description: String?
 )`} />
 </CodeTabs>
 
@@ -588,12 +600,24 @@ interface StudentInfo {
   major: string;
 }
 
+interface TeacherInfo {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  description?: string;
+}
+
 interface UserInfo {
   id: number;
   email: string;
   role: string;
+  status: string;
+  objectType?: string;
+  /** @deprecated objectType === 'STUDENT'의 파생값입니다. 신규 연동은 objectType을 사용하세요. */
   isStudent: boolean;
   student?: StudentInfo;
+  teacher?: TeacherInfo;
 }
 
 export function useAuth() {
@@ -969,6 +993,8 @@ describe('useAuth', () => {
         id: 1,
         email: 'test@gsm.hs.kr',
         role: 'USER',
+        status: 'ACTIVE',
+        objectType: 'STUDENT',
         isStudent: true,
         student: { id: 1, name: '홍길동', grade: 1, classNum: 1, number: 1, major: 'SW' },
       }),
@@ -988,7 +1014,7 @@ describe('useAuth', () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          id: 1, email: 'test@gsm.hs.kr', role: 'USER', isStudent: true,
+          id: 1, email: 'test@gsm.hs.kr', role: 'USER', status: 'ACTIVE', objectType: 'STUDENT', isStudent: true,
           student: { id: 1, name: '홍길동', grade: 1, classNum: 1, number: 1, major: 'SW' },
         }),
       })
