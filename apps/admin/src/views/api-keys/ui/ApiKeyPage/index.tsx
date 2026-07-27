@@ -43,7 +43,11 @@ const ApiKeyPage = () => {
     },
   });
 
-  const { control } = form;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = form;
 
   const filters = useWatch({
     control,
@@ -52,6 +56,18 @@ const ApiKeyPage = () => {
   const currentPage = initialValues.page;
 
   useEffect(() => {
+    reset({
+      id: initialValues.id,
+      accountId: initialValues.accountId,
+      scope: initialValues.scope,
+      isExpired: initialValues.isExpired,
+      isRenewable: initialValues.isRenewable,
+    });
+  }, [initialValues, reset]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
     const timer = setTimeout(() => {
       const hasChanged =
         filters.id !== initialValues.id ||
@@ -66,7 +82,7 @@ const ApiKeyPage = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [filters, initialValues, updateURL]);
+  }, [filters, initialValues, updateURL, isDirty]);
 
   const handlePageChange = (page: number) => {
     updateURL(filters, page);

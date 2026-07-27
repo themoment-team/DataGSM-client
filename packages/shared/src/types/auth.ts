@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+import { AccountObjectType, AccountStatus } from './account';
 import { ApiResponse } from './base';
 import { Student } from './student';
+import { Teacher } from './teacher';
 import { UserRoleType } from './userRole';
 
 export interface Account {
@@ -11,8 +13,10 @@ export interface Account {
 }
 
 export interface MyAccount extends Account {
-  isStudent: boolean;
+  status: AccountStatus;
+  objectType: AccountObjectType | null;
   student?: Student;
+  teacher?: Teacher;
 }
 
 export type AccountResponse = ApiResponse<Account>;

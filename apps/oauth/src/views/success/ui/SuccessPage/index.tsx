@@ -2,6 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 
+import { CLIENT_URL } from '@repo/shared/constants';
 import { cn } from '@repo/shared/utils';
 import { AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react';
 
@@ -9,8 +10,13 @@ const SuccessPage = () => {
   const searchParams = useSearchParams();
   const page = searchParams.get('page');
 
+  // 팝업으로 열렸다면 닫고, 아니라면(브라우저가 close()를 무시함) 클라이언트로 보낸다.
+  // 클라이언트 미들웨어가 토큰이 없으면 OAuth 로그인으로 다시 안내한다.
   const handleAction = () => {
     window.close();
+    setTimeout(() => {
+      if (!window.closed) window.location.href = CLIENT_URL;
+    }, 100);
   };
 
   const contentMap = {
@@ -25,6 +31,13 @@ const SuccessPage = () => {
       title: '회원가입 완료',
       description: 'DataGSM 계정이 성공적으로 생성되었습니다',
       mainText: '로그인을 진행해주세요',
+      buttonText: '이 창 닫기',
+      isError: false,
+    },
+    'signup-teacher': {
+      title: '가입 신청 완료',
+      description: '선생님 계정 가입 신청이 접수되었습니다',
+      mainText: '관리자 승인 후 로그인할 수 있습니다',
       buttonText: '이 창 닫기',
       isError: false,
     },

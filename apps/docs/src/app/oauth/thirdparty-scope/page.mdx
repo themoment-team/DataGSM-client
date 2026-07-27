@@ -1,6 +1,8 @@
 import { Shield, Key, AlertCircle } from 'lucide-react'
 
-export const metadata = { title: '서드파티 권한 범위' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "서드파티 권한 범위", pathname: "/oauth/thirdparty-scope" })
 
 # 서드파티 권한 범위
 
@@ -26,9 +28,7 @@ export const metadata = { title: '서드파티 권한 범위' }
 
 ### 권한 범위 형식
 
-DataGSM OAuth의 기본 사용자 정보 조회 권한 범위는 `self:read`입니다. 이 기본 scope는 DataGSM 사용자 본인 정보를 조회하기 위한 권한이며, 서드파티 Application ID를 붙여서 사용하지 않습니다.
-
-서드파티 권한 범위는 `{applicationId}:{scopeName}` 형식의 문자열로 표현됩니다.
+**모든 권한 범위는 `{applicationId}:{scopeName}` 형식의 문자열입니다.** DataGSM 기본 권한 범위도 예외가 아닙니다.
 
 ```
 a1b2c3d4-e5f6-7890-abcd-ef1234567890:profile
@@ -36,25 +36,25 @@ a1b2c3d4-e5f6-7890-abcd-ef1234567890:profile
 
 위 예시에서 `a1b2c3d4-e5f6-7890-abcd-ef1234567890`은 Application ID이고, `profile`은 해당 Application에서 정의한 권한 범위 이름입니다.
 
-| 구분 | 형식 | 사용 목적 |
-| --- | --- | --- |
-| DataGSM 기본 scope | `self:read` | DataGSM 사용자 기본 정보 및 학생 상세 데이터 조회 |
-| 서드파티 scope | `{applicationId}:{scopeName}` | 외부 애플리케이션이 직접 정의한 권한 범위 요청 |
+| 구분               | 형식                               | 사용 목적                                         |
+|--------------------|------------------------------------|---------------------------------------------------|
+| DataGSM 기본 scope | `datagsm:self_read` | DataGSM 사용자 기본 정보 및 학생 상세 데이터 조회 |
+| 서드파티 scope     | `{applicationId}:{scopeName}`      | 외부 애플리케이션이 직접 정의한 권한 범위 요청    |
 
 #### scopeName 제약 조건
 
-| 항목         | 규칙                                                       |
-|------------|----------------------------------------------------------|
-| **허용 문자**  | 소문자 영문(`a-z`), 숫자(`0-9`), 언더스코어(`_`), 하이픈(`-`)          |
-| **최대 길이**  | 100자                                                     |
-| **금지 문자**  | 콜론(`:`) — 권한 범위 형식의 구분자로 사용되므로 scopeName에 포함할 수 없습니다     |
-| **유일성**    | 동일 Application 내에서 scopeName은 고유해야 합니다                    |
+| 항목          | 규칙                                                                            |
+|---------------|---------------------------------------------------------------------------------|
+| **허용 문자** | 소문자 영문(`a-z`), 숫자(`0-9`), 언더스코어(`_`), 하이픈(`-`)                   |
+| **최대 길이** | 100자                                                                           |
+| **금지 문자** | 콜론(`:`) — 권한 범위 형식의 구분자로 사용되므로 scopeName에 포함할 수 없습니다 |
+| **유일성**    | 동일 Application 내에서 scopeName은 고유해야 합니다                             |
 
 #### description 제약 조건
 
-| 항목        | 규칙       |
-|-----------|----------|
-| **최대 길이** | 255자     |
+| 항목          | 규칙              |
+|---------------|-------------------|
+| **최대 길이** | 255자             |
 | **필수 여부** | 필수 (빈 값 불가) |
 
 ### 권한 범위 생명주기
@@ -102,8 +102,8 @@ GET /v1/oauth/authorize?client_id=your-client-id&redirect_uri=https://your-app.c
 GET /v1/oauth/authorize?client_id=your-client-id&redirect_uri=https://your-app.com/callback&scope=a1b2c3d4:profile%20a1b2c3d4:email
 ```
 
-- DataGSM 사용자 본인 정보만 필요하다면 `scope` 파라미터를 생략하거나 `self:read`를 전달합니다.
-- 서드파티 권한 범위를 요청할 때는 `{applicationId}:{scopeName}` 형식을 사용합니다.
+- DataGSM 사용자 본인 정보만 필요하다면 `scope` 파라미터를 생략하는 것을 권장합니다. 클라이언트에 등록된 권한 범위 전체가 부여됩니다.
+- 권한 범위를 명시할 때는 DataGSM 기본 권한 범위를 포함해 모두 `{applicationId}:{scopeName}` 형식을 사용합니다.
 - 요청한 권한범위가  Client의 허용 목록에 포함되지 않으면 `400 Bad Request` 오류가 발생합니다.
 - 권한 범위 정보는 Authorization Code → Access Token까지 전파되며, Refresh Token 갱신 시에도 원래 권한 범위가 유지됩니다.
 
@@ -143,13 +143,13 @@ GET /v1/oauth/authorize?client_id=your-client-id&redirect_uri=https://your-app.c
 
 ### 오류 응답
 
-| 상태 코드              | 설명                     | 원인                                                  |
-|--------------------|------------------------|-----------------------------------------------------|
-| `400 Bad Request`  | 잘못된 요청                 | 검증 실패 (scopeName 형식 불일치, 필수 필드 누락 등)                |
-| `401 Unauthorized` | 인증되지 않은 요청             | 유효하지 않은 세션                                          |
-| `403 Forbidden`    | 권한이 없는 요청              | Application 소유자가 아니거나 관리자 권한 없음                      |
-| `404 Not Found`    | 리소스를 찾을 수 없음           | 존재하지 않는 Application ID 또는 권한 범위 ID                   |
-| `409 Conflict`     | 리소스 충돌                 | 동일 Application 내에 이미 같은 scopeName이 존재                |
+| 상태 코드          | 설명                  | 원인                                                 |
+|--------------------|-----------------------|------------------------------------------------------|
+| `400 Bad Request`  | 잘못된 요청           | 검증 실패 (scopeName 형식 불일치, 필수 필드 누락 등) |
+| `401 Unauthorized` | 인증되지 않은 요청    | 유효하지 않은 세션                                   |
+| `403 Forbidden`    | 권한이 없는 요청      | Application 소유자가 아니거나 관리자 권한 없음       |
+| `404 Not Found`    | 리소스를 찾을 수 없음 | 존재하지 않는 Application ID 또는 권한 범위 ID       |
+| `409 Conflict`     | 리소스 충돌           | 동일 Application 내에 이미 같은 scopeName이 존재     |
 
 ### 주의사항
 

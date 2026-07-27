@@ -72,7 +72,11 @@ const ClubsPage = () => {
     },
   });
 
-  const { control } = filterForm;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = filterForm;
 
   const filters = useWatch({
     control,
@@ -83,6 +87,16 @@ const ClubsPage = () => {
   const currentPage = initialValues.page;
 
   useEffect(() => {
+    reset({
+      clubName: initialValues.clubName,
+      clubType: initialValues.clubType,
+      status: initialValues.status,
+    });
+  }, [initialValues, reset]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
     const hasChanged =
       debouncedClubName !== initialValues.clubName ||
       filters.clubType !== initialValues.clubType ||
@@ -106,6 +120,7 @@ const ClubsPage = () => {
     initialValues.status,
     updateURL,
     filters,
+    isDirty,
   ]);
 
   const handlePageChange = (page: number) => {

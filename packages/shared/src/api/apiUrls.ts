@@ -1,5 +1,6 @@
 import { ClubType, StudentRole, StudentSex } from '@repo/shared/types';
 
+import { AccountObjectType, AccountSortBy, AccountStatus } from '../types/account';
 import { UserRoleType } from '../types/userRole';
 
 export const studentUrl = {
@@ -195,6 +196,30 @@ export const accountUrl = {
   postPasswordReset: () => '/v1/accounts/password-resets', // 비밀번호 재설정 요청 (이메일 발송)
   postPasswordResetVerification: () => '/v1/accounts/password-resets/verification', // 비밀번호 재설정 코드 검증
   putPassword: () => '/v1/accounts/password', // 비밀번호 변경 (인증된 사용자)
+  getAccounts: (params: {
+    page?: number;
+    size?: number;
+    email?: string;
+    role?: UserRoleType;
+    objectType?: AccountObjectType;
+    status?: AccountStatus;
+    sortBy?: AccountSortBy;
+  }) => {
+    const urlParams = new URLSearchParams();
+
+    if (params.page !== undefined) urlParams.append('page', params.page.toString());
+    if (params.size !== undefined) urlParams.append('size', params.size.toString());
+    if (params.email) urlParams.append('email', params.email);
+    if (params.role !== undefined) urlParams.append('role', params.role);
+    if (params.objectType !== undefined) urlParams.append('objectType', params.objectType);
+    if (params.status !== undefined) urlParams.append('status', params.status);
+    if (params.sortBy !== undefined) urlParams.append('sortBy', params.sortBy);
+
+    const queryString = urlParams.toString();
+    return queryString ? `/v1/accounts?${queryString}` : '/v1/accounts';
+  },
+  patchAccountRole: (accountId: number) => `/v1/accounts/${accountId}/role`,
+  patchAccountApproval: (accountId: number) => `/v1/accounts/${accountId}/approval`,
 } as const;
 
 export const oauthUrl = {

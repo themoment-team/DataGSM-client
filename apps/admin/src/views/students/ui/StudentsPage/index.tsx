@@ -70,7 +70,11 @@ const StudentsPage = () => {
     },
   });
 
-  const { control } = form;
+  const {
+    control,
+    reset,
+    formState: { isDirty },
+  } = form;
 
   const filters = useWatch({
     control,
@@ -81,6 +85,23 @@ const StudentsPage = () => {
   const currentPage = initialValues.page;
 
   useEffect(() => {
+    reset({
+      name: initialValues.name,
+      grade: initialValues.grade,
+      classNum: initialValues.classNum,
+      sex: initialValues.sex,
+      role: initialValues.role,
+      status: initialValues.status,
+      includeGraduates: initialValues.includeGraduates,
+      includeWithdrawn: initialValues.includeWithdrawn,
+      onlyEnrolled: initialValues.onlyEnrolled,
+      sortBy: initialValues.sortBy,
+    });
+  }, [initialValues, reset]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
     const hasChanged =
       debouncedName !== initialValues.name ||
       filters.grade !== initialValues.grade ||
@@ -125,6 +146,7 @@ const StudentsPage = () => {
     initialValues.sortBy,
     updateURL,
     filters,
+    isDirty,
   ]);
 
   const handlePageChange = (page: number) => {

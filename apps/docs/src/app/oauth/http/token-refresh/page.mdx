@@ -1,6 +1,8 @@
 import { Shield } from 'lucide-react'
 
-export const metadata = { title: '토큰 갱신' }
+import { createDocsPageMetadata } from '@/shared/lib/metadata';
+
+export const metadata = createDocsPageMetadata({ title: "토큰 갱신", pathname: "/oauth/http/token-refresh" })
 
 # 토큰 갱신
 
@@ -57,7 +59,7 @@ Refresh Token은 **30일의 유효기간**을 가지며, 갱신 시 새로운 Re
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "scope": "self:read"
+  "scope": "datagsm:self_read"
 }
 ```
 
@@ -100,7 +102,7 @@ curl -X POST "https://oauth.authorization.datagsm.kr/v1/oauth/token" \
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-  "scope": "self:read"
+  "scope": "datagsm:self_read"
 }
 ```
 
