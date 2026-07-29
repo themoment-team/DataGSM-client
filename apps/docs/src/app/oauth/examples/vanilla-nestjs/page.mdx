@@ -946,12 +946,24 @@ interface StudentInfo {
   major: string;
 }
 
+interface TeacherInfo {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  description?: string;
+}
+
 interface DataGsmUserInfo {
   id: number;
   email: string;
   role: string;
+  status: string;
+  objectType?: string;
+  /** @deprecated objectType === 'STUDENT'의 파생값입니다. 신규 연동은 objectType을 사용하세요. */
   isStudent: boolean;
   student?: StudentInfo;
+  teacher?: TeacherInfo;
 }
 
 @Injectable()
@@ -1084,12 +1096,24 @@ interface StudentInfo {
   major: string;
 }
 
+interface TeacherInfo {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  description?: string;
+}
+
 interface DataGsmUserInfo {
   id: number;
   email: string;
   role: string;
+  status: string;
+  objectType?: string;
+  /** @deprecated objectType === 'STUDENT'의 파생값입니다. 신규 연동은 objectType을 사용하세요. */
   isStudent: boolean;
   student?: StudentInfo;
+  teacher?: TeacherInfo;
 }
 
 @Injectable()
