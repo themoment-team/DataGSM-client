@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EMAIL_DOMAIN } from '@repo/shared/constants';
 import { ClientAvailableScope, SignInFormSchema, SignInFormType } from '@repo/shared/types';
-import { FormErrorMessage, Input, Label, Skeleton } from '@repo/shared/ui';
+import { FormErrorMessage, Input, Skeleton } from '@repo/shared/ui';
 import { cn, formatEmailWithDomain } from '@repo/shared/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -59,7 +59,7 @@ const SignInForm = ({
   return (
     <div
       className={cn(
-        'border-foreground bg-background pixel-shadow-lg relative w-full max-w-sm border-2',
+        'border-foreground bg-background pixel-shadow-lg max-w-100 relative w-full border-2',
       )}
     >
       {isPending && (
@@ -70,17 +70,18 @@ const SignInForm = ({
 
       <div
         className={cn(
-          'border-foreground bg-foreground flex items-center gap-3 border-b-2 px-5 py-3',
+          'border-foreground bg-foreground flex items-center gap-3 border-b-2 px-4 py-3',
         )}
       >
         <div
           className={cn(
-            'bg-background text-foreground font-pixel flex h-6 w-6 flex-shrink-0 items-center justify-center text-[8px]',
+            'bg-background text-foreground font-pixel flex size-6 flex-shrink-0 items-center justify-center text-[8px]',
           )}
         >
           D
         </div>
         <span className={cn('text-background font-pixel text-[9px]')}>DataGSM</span>
+        <span className={cn('text-background font-pixel text-[9px]')}>Sign In</span>
       </div>
 
       <div className="relative">
@@ -89,8 +90,8 @@ const SignInForm = ({
         )}
 
         {/* Header */}
-        <div className={cn('border-border/50 flex flex-col gap-2 border-b px-6 py-5')}>
-          <h1 className={cn('text-foreground text-xl font-bold')}>로그인</h1>
+        <div className={cn('border-border/50 flex flex-col gap-2 border-b p-5')}>
+          <h1 className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>로그인</h1>
           {isLoadingServiceInfo ? (
             <Skeleton className={cn('h-4 w-48')} />
           ) : (
@@ -121,95 +122,87 @@ const SignInForm = ({
           )}
         </div>
 
-        {remainingTime !== null && remainingTime !== undefined && (
-          <div
-            className={cn(
-              'border-warning text-warning mx-6 mt-4 flex h-6 items-center border px-2 text-xs font-medium',
-            )}
-            role="status"
-            aria-live="polite"
-          >
-            세션 만료까지: {formatTime(remainingTime)}
-          </div>
-        )}
-
         <form onSubmit={handleFormSubmit}>
-          <div className={cn('space-y-4 px-6 pt-5')}>
-            {/* Email */}
-            <div className={cn('space-y-1.5')}>
-              <Label
-                htmlFor="emailLocal"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+          <div className={cn('flex flex-col gap-4 px-5 pt-5')}>
+            {remainingTime !== null && remainingTime !== undefined && (
+              <div
+                className={cn(
+                  'border-warning text-warning flex h-6 items-center border px-2 text-xs font-medium',
+                )}
+                role="status"
+                aria-live="polite"
               >
-                Email
-              </Label>
-              <div className={cn('flex')}>
-                <Input
-                  id="emailLocal"
-                  type="text"
-                  placeholder="이메일을 입력하세요"
-                  {...register('email')}
-                  disabled={isPending}
-                  className={cn(
-                    'border-foreground focus-visible:border-foreground flex-1 rounded-none focus-visible:ring-0',
-                  )}
-                />
-                <span
-                  className={cn(
-                    'border-foreground bg-muted text-muted-foreground flex items-center whitespace-nowrap border border-l-0 px-3 font-mono text-xs',
-                  )}
-                >
-                  {EMAIL_DOMAIN}
-                </span>
+                세션 만료까지: {formatTime(remainingTime)}
               </div>
-              <FormErrorMessage error={errors.email} />
-            </div>
+            )}
 
-            {/* Password */}
-            <div className={cn('space-y-1.5')}>
-              <Label
-                htmlFor="password"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                Password
-              </Label>
-              <div className={cn('relative')}>
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="비밀번호를 입력하세요"
-                  {...register('password')}
-                  disabled={isPending}
-                  className={cn(
-                    'border-foreground focus-visible:border-foreground rounded-none pr-10 focus-visible:ring-0',
-                  )}
-                />
-                <button
-                  type="button"
-                  aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
-                  onClick={() => setShowPassword(!showPassword)}
-                  className={cn(
-                    'text-muted-foreground hover:text-foreground absolute right-3 top-1/2 -translate-y-1/2 transition-colors',
-                    isPending && 'cursor-not-allowed opacity-50',
-                  )}
-                  disabled={isPending}
-                >
-                  {showPassword ? (
-                    <EyeOff className={cn('h-4 w-4')} />
-                  ) : (
-                    <Eye className={cn('h-4 w-4')} />
-                  )}
-                </button>
+            <div className={cn('flex flex-col gap-2')}>
+              {/* Email */}
+              <div className={cn('space-y-1.5')}>
+                <div className={cn('flex')}>
+                  <Input
+                    id="emailLocal"
+                    type="text"
+                    aria-label="이메일"
+                    placeholder="이메일을 입력하세요"
+                    {...register('email')}
+                    disabled={isPending}
+                    className={cn(
+                      'border-foreground focus-visible:border-foreground flex-1 rounded-none focus-visible:ring-0',
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      'border-foreground bg-muted text-muted-foreground flex items-center whitespace-nowrap border border-l-0 px-3 font-mono text-sm',
+                    )}
+                  >
+                    {EMAIL_DOMAIN}
+                  </span>
+                </div>
+                <FormErrorMessage error={errors.email} />
               </div>
-              <FormErrorMessage error={errors.password} />
+
+              {/* Password */}
+              <div className={cn('space-y-1.5')}>
+                <div className={cn('relative')}>
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    aria-label="비밀번호"
+                    placeholder="비밀번호를 입력하세요"
+                    {...register('password')}
+                    disabled={isPending}
+                    className={cn(
+                      'border-foreground focus-visible:border-foreground rounded-none pr-10 focus-visible:ring-0',
+                    )}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 보기'}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={cn(
+                      'text-muted-foreground hover:text-foreground absolute right-3 top-1/2 -translate-y-1/2 transition-colors',
+                      isPending && 'cursor-not-allowed opacity-50',
+                    )}
+                    disabled={isPending}
+                  >
+                    {showPassword ? (
+                      <EyeOff className={cn('size-4')} />
+                    ) : (
+                      <Eye className={cn('size-4')} />
+                    )}
+                  </button>
+                </div>
+                <FormErrorMessage error={errors.password} />
+              </div>
             </div>
           </div>
 
-          <div className={cn('space-y-3 px-6 pb-6 pt-5')}>
+          <div className={cn('flex flex-col items-center gap-4 p-5')}>
             <button
               type="submit"
               className={cn(
-                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60',
+                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 px-4 py-3 font-mono text-xs font-bold uppercase tracking-[1.2px] transition-all disabled:cursor-not-allowed disabled:opacity-60',
               )}
               disabled={isPending}
             >
@@ -217,30 +210,23 @@ const SignInForm = ({
             </button>
 
             {signupHref && (
-              <div className={cn('space-y-1 pt-1 text-center text-xs')}>
-                <p className={cn('text-muted-foreground')}>
-                  계정이 없으신가요?{' '}
-                  <Link
-                    href={signupHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn('text-foreground font-semibold underline underline-offset-2')}
-                  >
-                    회원가입
-                  </Link>
-                </p>
-                <p>
-                  <Link
-                    href={resetHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      'text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors',
-                    )}
-                  >
-                    비밀번호를 잊으셨나요?
-                  </Link>
-                </p>
+              <div className={cn('flex items-center justify-center gap-2 text-xs')}>
+                <Link
+                  href={signupHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('text-foreground underline underline-offset-2')}
+                >
+                  회원가입
+                </Link>
+                <Link
+                  href={resetHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn('text-foreground underline underline-offset-2')}
+                >
+                  비밀번호 찾기
+                </Link>
               </div>
             )}
           </div>
