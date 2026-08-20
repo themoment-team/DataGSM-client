@@ -15,12 +15,6 @@ import { useGetOAuthSession } from '@/widgets/oauth';
 const BUFFER_TIME_MS = 30000;
 const STORAGE_KEY = 'oauth_session_timestamp';
 
-const WARNING_CONFIG = [
-  { time: 300, key: 'fiveMin', message: '5분 후 세션이 만료됩니다.' },
-  { time: 60, key: 'oneMin', message: '1분 후 세션이 만료됩니다.' },
-  { time: 30, key: 'thirtySec', message: '30초 후 세션이 만료됩니다.' },
-] as const;
-
 const OAuthAuthorizeForm = () => {
   const [isPending, setIsPending] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
@@ -29,12 +23,7 @@ const OAuthAuthorizeForm = () => {
   const token = searchParams.get('token');
 
   const sessionExpiresAt = useRef<number | null>(null);
-  const hasShownWarnings = useRef<Record<string, boolean>>({
-    fiveMin: false,
-    oneMin: false,
-    thirtySec: false,
-    expired: false,
-  });
+  const hasShownExpiredToast = useRef(false);
   const { data: sessionResponse, isLoading: isLoadingServiceInfo } = useGetOAuthSession(token);
   const sessionData = sessionResponse?.data;
   const serviceName = sessionData?.serviceName;
@@ -51,19 +40,11 @@ const OAuthAuthorizeForm = () => {
 
     if (remaining <= 0) {
       setIsExpired(true);
-      if (!hasShownWarnings.current.expired) {
-        hasShownWarnings.current.expired = true;
+      if (!hasShownExpiredToast.current) {
+        hasShownExpiredToast.current = true;
         toast.error('인증 세션이 만료되었습니다. 처음부터 다시 시도해주세요.');
       }
       return true;
-    }
-
-    for (const { time, key, message } of WARNING_CONFIG) {
-      if (remaining <= time && !hasShownWarnings.current[key]) {
-        hasShownWarnings.current[key] = true;
-        toast.info(message);
-        break;
-      }
     }
 
     return false;

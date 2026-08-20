@@ -9,7 +9,7 @@ import { EMAIL_DOMAIN } from '@repo/shared/constants';
 import { ClientAvailableScope, SignInFormSchema, SignInFormType } from '@repo/shared/types';
 import { FormErrorMessage, Input, Label, Skeleton } from '@repo/shared/ui';
 import { cn, formatEmailWithDomain } from '@repo/shared/utils';
-import { Clock, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -41,7 +41,7 @@ const SignInForm = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const {
@@ -121,17 +121,15 @@ const SignInForm = ({
           )}
         </div>
 
-        {remainingTime !== null && remainingTime !== undefined && remainingTime <= 300 && (
+        {remainingTime !== null && remainingTime !== undefined && (
           <div
             className={cn(
-              'mx-6 mt-4 flex items-center gap-2 border px-3 py-2 font-mono text-xs font-medium',
-              remainingTime <= 30
-                ? 'border-destructive text-destructive'
-                : 'border-amber-600 text-amber-600',
+              'border-warning text-warning mx-6 mt-4 flex h-6 items-center border px-2 text-xs font-medium',
             )}
+            role="status"
+            aria-live="polite"
           >
-            <Clock className={cn('h-3.5 w-3.5 flex-shrink-0')} />
-            <span>세션만료: {formatTime(remainingTime)}</span>
+            세션 만료까지: {formatTime(remainingTime)}
           </div>
         )}
 
