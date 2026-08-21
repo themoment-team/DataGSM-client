@@ -57,11 +57,7 @@ const SignInForm = ({
   });
 
   return (
-    <div
-      className={cn(
-        'border-foreground bg-background pixel-shadow-lg max-w-100 relative w-full border-2',
-      )}
-    >
+    <div className={cn('border-foreground bg-background max-w-100 relative w-full border-2')}>
       {isPending && (
         <div className="absolute left-[-2px] right-[-2px] top-[-0.5rem] z-10 h-2 overflow-hidden">
           <div className="animate-progress-bar-loading absolute h-full bg-black" />
