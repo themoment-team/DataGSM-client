@@ -140,11 +140,12 @@ const SignInForm = ({
                     id="emailLocal"
                     type="text"
                     aria-label="이메일"
+                    aria-invalid={!!errors.email}
                     placeholder="이메일을 입력하세요"
                     {...register('email')}
                     disabled={isPending}
                     className={cn(
-                      'border-foreground focus-visible:border-foreground flex-1 rounded-none focus-visible:ring-0',
+                      'border-foreground focus-visible:border-foreground aria-invalid:border-destructive aria-invalid:text-destructive flex-1 rounded-none focus-visible:ring-0',
                     )}
                   />
                   <span
@@ -155,7 +156,12 @@ const SignInForm = ({
                     {EMAIL_DOMAIN}
                   </span>
                 </div>
-                <FormErrorMessage error={errors.email} />
+                <FormErrorMessage
+                  error={errors.email}
+                  className={cn(
+                    "text-destructive text-xs leading-4 before:mr-1 before:content-['>']",
+                  )}
+                />
               </div>
 
               {/* Password */}
@@ -165,11 +171,12 @@ const SignInForm = ({
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     aria-label="비밀번호"
+                    aria-invalid={!!errors.password}
                     placeholder="비밀번호를 입력하세요"
                     {...register('password')}
                     disabled={isPending}
                     className={cn(
-                      'border-foreground focus-visible:border-foreground rounded-none pr-10 focus-visible:ring-0',
+                      'border-foreground focus-visible:border-foreground aria-invalid:border-destructive aria-invalid:text-destructive rounded-none pr-10 focus-visible:ring-0',
                     )}
                   />
                   <button
@@ -189,7 +196,12 @@ const SignInForm = ({
                     )}
                   </button>
                 </div>
-                <FormErrorMessage error={errors.password} />
+                <FormErrorMessage
+                  error={errors.password}
+                  className={cn(
+                    "text-destructive text-xs leading-4 before:mr-1 before:content-['>']",
+                  )}
+                />
               </div>
             </div>
           </div>
