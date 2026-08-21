@@ -7,7 +7,6 @@ import { useSearchParams } from 'next/navigation';
 import { SignInFormType } from '@repo/shared/types';
 import { SignInForm } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useGetOAuthSession } from '@/widgets/oauth';
@@ -185,18 +184,44 @@ const OAuthAuthorizeForm = () => {
       {isExpired && (
         <div
           className={cn(
-            'bg-background/80 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm',
+            'bg-background fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm',
           )}
         >
-          <div className="border-destructive bg-background pixel-shadow flex max-w-md flex-col items-center gap-4 border-2 p-8 text-center">
-            <div className="border-destructive border-2 p-3">
-              <AlertCircle className="text-destructive h-8 w-8" />
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="session-expired-title"
+            aria-describedby="session-expired-description"
+            className={cn('border-destructive bg-background max-w-100 w-full border-2')}
+          >
+            <div className={cn('bg-destructive flex items-center gap-3 px-4 py-3')}>
+              <div
+                className={cn(
+                  'bg-background text-destructive font-pixel flex size-6 flex-shrink-0 items-center justify-center text-[8px]',
+                )}
+              >
+                D
+              </div>
+              <span className={cn('text-background font-pixel text-[9px]')}>DataGSM</span>
+              <span className={cn('text-background font-pixel text-[9px]')}>Session</span>
+              <span className={cn('text-background font-pixel text-[9px]')}>Expiration</span>
             </div>
-            <h2 className="text-foreground text-xl font-bold">인증 세션 만료</h2>
-            <p className="text-muted-foreground text-sm">
-              보안을 위해 인증 세션이 만료되었습니다.
-              <br />이 창을 닫고 서비스에서 다시 로그인을 시도해주세요.
-            </p>
+
+            <div className={cn('flex flex-col items-center gap-2 p-5 text-center')}>
+              <h2
+                id="session-expired-title"
+                className={cn('text-destructive text-xl font-semibold leading-[1.45]')}
+              >
+                인증 세션 만료
+              </h2>
+              <p
+                id="session-expired-description"
+                className={cn('text-muted-foreground text-xs leading-[18px]')}
+              >
+                보안을 위해 인증 세션이 만료되었습니다.
+                <br />이 창을 닫고 서비스에서 다시 로그인을 시도하세요.
+              </p>
+            </div>
           </div>
         </div>
       )}
