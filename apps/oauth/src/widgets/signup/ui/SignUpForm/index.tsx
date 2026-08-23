@@ -11,6 +11,7 @@ import { useDebounce } from '@repo/shared/hooks';
 import {
   Checkbox,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -501,25 +502,38 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
       {/* Privacy dialog */}
       <Dialog open={isPrivacyDialogOpen} onOpenChange={setIsPrivacyDialogOpen}>
         <DialogContent
+          showCloseButton={false}
           className={cn(
-            'border-foreground pixel-shadow flex max-h-[80vh] max-w-md flex-col border-2',
+            'border-foreground sm:max-w-160 flex max-h-[80vh] flex-col gap-0 border-2 p-0',
           )}
         >
-          <DialogHeader>
-            <DialogTitle className={cn('text-base font-bold')}>개인정보 처리방침</DialogTitle>
+          <DialogHeader
+            className={cn('bg-foreground flex-row items-center justify-between gap-3 px-4 py-3')}
+          >
+            <DialogTitle className={cn('text-background font-pixel text-[9px] font-normal')}>
+              privacy policy
+            </DialogTitle>
+            <DialogClose
+              aria-label="닫기"
+              className={cn(
+                'border-background/30 text-background hover:bg-background hover:text-foreground flex h-6 cursor-pointer items-center justify-center border px-2 font-mono text-xs tracking-[1.2px] transition-all',
+              )}
+            >
+              X
+            </DialogClose>
           </DialogHeader>
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className={cn('max-w-none flex-1 overflow-y-auto pr-4')}
+            className={cn('max-w-none flex-1 overflow-y-auto px-5 pt-4')}
           >
-            <div className={cn('whitespace-pre-wrap text-sm leading-relaxed')}>
+            <div className={cn('text-muted-foreground whitespace-pre-wrap text-[13px]')}>
               {PRIVACY_POLICY.split('\n').map((line, index) => {
                 if (line.startsWith('# ')) {
                   return (
                     <h1
                       key={index}
-                      className={cn('mb-2 mt-4 text-xl font-bold')}
+                      className={cn('text-foreground mb-1 text-base font-semibold leading-[1.45]')}
                       dangerouslySetInnerHTML={{ __html: line.replace('# ', '') }}
                     />
                   );
@@ -528,7 +542,7 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
                   return (
                     <h2
                       key={index}
-                      className={cn('mb-2 mt-4 text-lg font-semibold')}
+                      className={cn('text-foreground mb-1 mt-4 text-sm font-medium')}
                       dangerouslySetInnerHTML={{ __html: line.replace('## ', '') }}
                     />
                   );
@@ -537,7 +551,7 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
                   return (
                     <h3
                       key={index}
-                      className={cn('mb-1 mt-3 text-base font-medium')}
+                      className={cn('text-foreground mt-2 text-sm font-medium')}
                       dangerouslySetInnerHTML={{ __html: line.replace('### ', '') }}
                     />
                   );
@@ -548,18 +562,16 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
                   return (
                     <li
                       key={index}
-                      className={cn(isNested ? 'ml-14' : 'ml-8')}
+                      className={cn('list-disc leading-[1.6]', isNested ? 'ml-10' : 'ml-5')}
                       dangerouslySetInnerHTML={{ __html: trimmedLine.substring(2) }}
                     />
                   );
                 }
                 if (line.startsWith('  > ')) {
                   return (
-                    <blockquote
+                    <li
                       key={index}
-                      className={cn(
-                        'text-muted-foreground border-muted-foreground ml-8 border-l-2 pl-3 italic',
-                      )}
+                      className={cn('ml-10 list-disc leading-[1.6]')}
                       dangerouslySetInnerHTML={{ __html: line.replace('  > ', '') }}
                     />
                   );
@@ -567,24 +579,24 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
                 return (
                   <p
                     key={index}
-                    className={cn('my-2')}
+                    className={cn('leading-[1.6]')}
                     dangerouslySetInnerHTML={{ __html: line }}
                   />
                 );
               })}
             </div>
           </div>
-          <div className={cn('flex flex-col gap-2 border-t pt-4')}>
+          <div className={cn('border-border/50 flex flex-col gap-2 border-t p-5')}>
             {!hasScrolledToBottom && (
-              <p className={cn('text-muted-foreground text-center font-mono text-xs')}>
-                {'>'} 내용을 끝까지 읽어주세요
+              <p className={cn("text-muted-foreground text-xs before:mr-1 before:content-['>']")}>
+                내용을 끝까지 읽어주세요
               </p>
             )}
             <button
               onClick={handlePrivacyAgree}
               disabled={!hasScrolledToBottom}
               className={cn(
-                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-2.5 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-50',
+                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 text-xs font-bold tracking-[1.2px] transition-all disabled:cursor-not-allowed disabled:opacity-50',
               )}
             >
               동의합니다
