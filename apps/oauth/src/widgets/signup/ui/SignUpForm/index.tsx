@@ -494,17 +494,6 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
             >
               {isTeacher ? '학생으로 회원가입하나요?' : '선생님으로 회원가입하시나요?'}
             </Link>
-
-            <p className={cn('text-muted-foreground text-center text-xs')}>
-              이미 계정이 있으신가요?{' '}
-              <button
-                type="button"
-                onClick={() => window.close()}
-                className={cn('text-foreground font-semibold underline underline-offset-2')}
-              >
-                창을 닫고 로그인으로 돌아가기
-              </button>
-            </p>
           </div>
         </form>
       </div>
