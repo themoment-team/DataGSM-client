@@ -504,7 +504,7 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
         <DialogContent
           showCloseButton={false}
           className={cn(
-            'border-foreground sm:max-w-160 flex max-h-[80vh] flex-col gap-0 border-2 p-0',
+            'border-foreground sm:max-w-160 [box-shadow:none]! flex max-h-[80vh] flex-col gap-0 border-2 p-0',
           )}
         >
           <DialogHeader
