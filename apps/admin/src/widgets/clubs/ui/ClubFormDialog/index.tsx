@@ -527,7 +527,6 @@ const ClubFormDialog = ({
 
           {currentStatus !== 'ABOLISHED' && (
             <SectionCard
-              shadow
               title="Team Members"
               headerAction="remove with click"
               className={cn('bg-background')}

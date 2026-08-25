@@ -249,7 +249,6 @@ const StudentFormDialog = ({
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
       <DialogContent
         showCloseButton={false}
-        style={{ boxShadow: 'none' }}
         className={cn(
           'border-foreground max-h-[90vh] gap-0 overflow-y-auto border-2 p-0 sm:max-w-[656px]',
         )}

@@ -474,7 +474,6 @@ const ProjectFormDialog = ({
           </div>
 
           <SectionCard
-            shadow
             title="Team Members"
             headerAction="remove with click"
             className={cn('bg-background')}
