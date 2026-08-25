@@ -16,6 +16,7 @@ import {
   getAccountRoleBadgeStyle,
   getAccountRoleLabel,
   getAccountStatusBadgeStyle,
+  getAccountStatusDotStyle,
   getAccountStatusLabel,
 } from '@/entities/account';
 
@@ -33,6 +34,17 @@ const BODY_ROW_STYLE =
 
 const BADGE_STYLE =
   'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]';
+
+const STATUS_BADGE_STYLE =
+  'inline-flex h-6 items-center gap-1.5 border px-2 font-sans text-xs font-medium';
+
+const formatCreatedAt = (value: string | Date) => {
+  const [year, month, day] = new Date(value)
+    .toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+    .split('-');
+
+  return `${year}.${month}.${day}`;
+};
 
 const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
   if (!isLoading && !accounts?.length) {
@@ -97,21 +109,18 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
                 <TableCell>{getAccountObjectTypeLabel(account.objectType)}</TableCell>
                 <TableCell>
                   <span
-                    className={cn(
-                      BADGE_STYLE,
-                      'gap-1.5',
-                      getAccountStatusBadgeStyle(account.status),
-                    )}
+                    className={cn(STATUS_BADGE_STYLE, getAccountStatusBadgeStyle(account.status))}
                   >
-                    <span className={cn('size-[6px] shrink-0 rounded-full bg-current')} />
+                    <span
+                      className={cn(
+                        'size-2.5 shrink-0 rounded-full',
+                        getAccountStatusDotStyle(account.status),
+                      )}
+                    />
                     {getAccountStatusLabel(account.status)}
                   </span>
                 </TableCell>
-                <TableCell>
-                  {new Date(account.createdAt).toLocaleDateString('ko-KR', {
-                    timeZone: 'Asia/Seoul',
-                  })}
-                </TableCell>
+                <TableCell>{formatCreatedAt(account.createdAt)}</TableCell>
                 <TableCell>
                   <Button
                     type="button"
@@ -119,7 +128,7 @@ const AccountList = ({ accounts, isLoading, onSelect }: AccountListProps) => {
                     className={cn('h-6 border px-2')}
                     onClick={() => onSelect?.(account)}
                   >
-                    Detail
+                    detail
                   </Button>
                 </TableCell>
               </TableRow>

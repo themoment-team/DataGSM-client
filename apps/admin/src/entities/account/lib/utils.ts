@@ -18,7 +18,7 @@ export const getAccountRoleBadgeStyle = (role: UserRoleType) => {
     case 'ADMIN':
       return 'bg-foreground text-background border-foreground';
     case 'USER':
-      return 'border-foreground/25 text-foreground';
+      return 'border-foreground text-foreground';
   }
 };
 
@@ -45,8 +45,17 @@ export const getAccountStatusLabel = (status: AccountStatus) => {
 export const getAccountStatusBadgeStyle = (status: AccountStatus) => {
   switch (status) {
     case 'PENDING':
-      return 'bg-destructive text-white border-destructive';
+      return 'border-foreground/25 text-muted-foreground';
     case 'ACTIVE':
-      return 'border-foreground/25 text-foreground';
+      return 'border-[#5AB982] text-[#5AB982]';
+  }
+};
+
+export const getAccountStatusDotStyle = (status: AccountStatus) => {
+  switch (status) {
+    case 'PENDING':
+      return 'border-muted-foreground border';
+    case 'ACTIVE':
+      return 'bg-[#5AB982]';
   }
 };
