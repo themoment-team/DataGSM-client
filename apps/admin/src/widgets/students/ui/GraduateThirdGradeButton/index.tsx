@@ -13,7 +13,6 @@ import {
   Button,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-import { GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useGraduateThirdGrade } from '@/views/students/model/useGraduateThirdGrade';
@@ -36,12 +35,11 @@ const GraduateThirdGradeButton = () => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant="outline"
-          size="sm"
-          className={cn('gap-2 bg-transparent text-red-600 hover:bg-red-50 hover:text-red-700')}
+          type="button"
+          variant="pixel-destructive"
+          className={cn('px-3')}
           disabled={isPending}
         >
-          <GraduationCap className={cn('h-4 w-4')} />
           3학년 전체 졸업
         </Button>
       </AlertDialogTrigger>

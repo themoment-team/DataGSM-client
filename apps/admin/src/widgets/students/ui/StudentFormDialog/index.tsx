@@ -21,7 +21,7 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, X } from 'lucide-react';
+import { Pencil, X } from 'lucide-react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -202,9 +202,8 @@ const StudentFormDialog = ({
 
   const defaultTrigger =
     mode === 'create' ? (
-      <Button size="sm" className={cn('gap-2')} disabled={isLoadingClubs}>
-        <Plus className={cn('h-4 w-4')} />
-        학생 추가
+      <Button variant="pixel-primary" className={cn('px-3')} disabled={isLoadingClubs}>
+        + 학생 추가
       </Button>
     ) : (
       <Button variant="ghost" size="icon" disabled={isLoadingClubs}>
