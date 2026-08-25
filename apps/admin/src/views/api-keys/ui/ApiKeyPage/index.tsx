@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useURLFilters } from '@repo/shared/hooks';
-import { ApiKeyFormDialog, CommonPagination } from '@repo/shared/ui';
+import { ApiKeyFormDialog, Button, CommonPagination, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -102,47 +102,45 @@ const ApiKeyPage = () => {
 
   const apiKeys = apiKeysData?.data.apiKeys;
   const totalPages = apiKeysData?.data.totalPages ?? 0;
+  const isEmpty = !isLoadingApiKeys && !apiKeys?.length;
 
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        {/* Page header */}
-        <div
-          className={cn('border-foreground mb-6 flex items-end justify-between border-b-2 pb-4')}
+        <PageWindow
+          windowTitle="API Key Management"
+          title="API Key 관리"
+          description="발급된 API Key를 확인하거나 관리하세요."
+          action={
+            <ApiKeyFormDialog
+              userRole="ADMIN"
+              trigger={
+                <Button type="button" variant="pixel-primary" className={cn('px-3')}>
+                  + API 키 관리
+                </Button>
+              }
+            />
+          }
         >
-          <div>
-            <p
-              className={cn(
-                'text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest',
-              )}
-            >
-              DATAGSM / Admin
-            </p>
-            <h1 className={cn('text-foreground font-pixel text-[15px] leading-tight')}>
-              API Key 관리
-            </h1>
+          {/* Filters */}
+          <div className={cn('mb-2')}>
+            <ApiKeyFilter control={control} />
           </div>
-          <ApiKeyFormDialog userRole="ADMIN" />
-        </div>
 
-        {/* Filters */}
-        <div className={cn('mb-4')}>
-          <ApiKeyFilter control={control} />
-        </div>
+          {/* Table */}
+          <div className={cn(!isEmpty && 'border-foreground border')}>
+            <ApiKeyList apiKeys={apiKeys} isLoading={isLoadingApiKeys} />
+          </div>
 
-        {/* Table */}
-        <div className={cn('border-foreground pixel-shadow border-2')}>
-          <ApiKeyList apiKeys={apiKeys} isLoading={isLoadingApiKeys} />
-        </div>
-
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoadingApiKeys}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoadingApiKeys}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </PageWindow>
       </main>
     </div>
   );
