@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Student, StudentRole, StudentSex } from '@repo/shared/types';
-import { Button, CommonPagination } from '@repo/shared/ui';
+import { Button, CommonPagination, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -190,57 +190,53 @@ const StudentsPage = () => {
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        {/* Page header */}
-        <div className={cn('mb-4 flex items-start justify-end gap-2')}>
-          <div className={cn('flex flex-1 flex-col gap-1')}>
-            <h1 className={cn('text-foreground text-base font-semibold leading-[1.45]')}>
-              학생 관리
-            </h1>
-            <p className={cn('text-muted-foreground text-[13px] leading-[1.6]')}>
-              학생들의 정보를 확인하거나 수정하세요.
-            </p>
+        <PageWindow
+          windowTitle="Student Management"
+          title="학생 관리"
+          description="학생들의 정보를 확인하거나 수정하세요."
+          action={
+            <>
+              <GraduateThirdGradeButton />
+              {/* TODO: 컬럼 초기화 API 연동 (현재는 시안 반영용 UI) */}
+              <Button type="button" variant="pixel-destructive" className={cn('px-3')}>
+                컬럼 초기화
+              </Button>
+              {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
+              <Button type="button" variant="pixel" className={cn('px-3')}>
+                공지사항 전송
+              </Button>
+              <StudentExcelActions />
+              <StudentFormDialog
+                mode="create"
+                clubs={clubsData?.data}
+                isLoadingClubs={isLoadingClubs}
+              />
+            </>
+          }
+        >
+          {/* Filters */}
+          <div className={cn('mb-2')}>
+            <StudentFilter control={control} />
           </div>
-          <div className={cn('flex flex-wrap items-center justify-end gap-2')}>
-            <GraduateThirdGradeButton />
-            {/* TODO: 컬럼 초기화 API 연동 (현재는 시안 반영용 UI) */}
-            <Button type="button" variant="pixel-destructive" className={cn('px-3')}>
-              컬럼 초기화
-            </Button>
-            {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
-            <Button type="button" variant="pixel" className={cn('px-3')}>
-              공지사항 전송
-            </Button>
-            <StudentExcelActions />
-            <StudentFormDialog
-              mode="create"
-              clubs={clubsData?.data}
-              isLoadingClubs={isLoadingClubs}
+
+          {/* Table */}
+          <div className={cn('border-foreground border')}>
+            <StudentList
+              students={students}
+              isLoading={isLoadingStudents}
+              onEdit={handleEditStudent}
             />
           </div>
-        </div>
 
-        {/* Filters */}
-        <div className={cn('mb-4')}>
-          <StudentFilter control={control} />
-        </div>
-
-        {/* Table */}
-        <div className={cn('border-foreground border-2')}>
-          <StudentList
-            students={students}
-            isLoading={isLoadingStudents}
-            onEdit={handleEditStudent}
-          />
-        </div>
-
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoadingStudents}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoadingStudents}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </PageWindow>
 
         {editingStudent && (
           <StudentFormDialog
