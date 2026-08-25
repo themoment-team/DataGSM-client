@@ -6,11 +6,10 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
+  buttonVariants,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { toast } from 'sonner';
@@ -43,23 +42,45 @@ const GraduateThirdGradeButton = () => {
           3학년 전체 졸업
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>3학년 전체 졸업 처리</AlertDialogTitle>
-          <AlertDialogDescription>
-            정말로 3학년 전체 학생을 졸업 처리하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 3학년
-            학생의 상태가 졸업으로 변경됩니다.
+      <AlertDialogContent className={cn('gap-0 p-0 sm:max-w-[656px]')}>
+        <div
+          className={cn(
+            'bg-foreground text-background flex items-center justify-between px-4 py-3',
+          )}
+        >
+          <span className={cn('font-pixel text-[9px] leading-none')}>Alert</span>
+          <AlertDialogCancel
+            className={cn(
+              buttonVariants({ variant: 'pixel-primary' }),
+              'text-background h-6 border-0 px-2',
+            )}
+          >
+            X<span className={cn('sr-only')}>닫기</span>
+          </AlertDialogCancel>
+        </div>
+
+        <div className={cn('flex flex-col gap-1 px-5 pt-5')}>
+          <AlertDialogTitle className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
+            정말 3학년 전체 졸업 기능을 실행할까요?
+          </AlertDialogTitle>
+          <AlertDialogDescription className={cn('text-destructive text-[13px] leading-[1.6]')}>
+            &gt; 중요: 이 작업은 되돌릴 수 없습니다!
           </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
+        </div>
+
+        <div className={cn('flex items-center gap-2.5 p-5')}>
+          <AlertDialogCancel
+            className={cn(buttonVariants({ variant: 'pixel' }), 'h-9 flex-1 px-3')}
+          >
+            취소
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleGraduate}
-            className={cn('bg-red-600 hover:bg-red-700 focus:ring-red-600')}
+            className={cn(buttonVariants({ variant: 'pixel-destructive' }), 'h-9 flex-1 px-3')}
           >
-            졸업 처리
+            확인
           </AlertDialogAction>
-        </AlertDialogFooter>
+        </div>
       </AlertDialogContent>
     </AlertDialog>
   );
