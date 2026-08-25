@@ -29,6 +29,12 @@ interface TeacherApprovalListProps {
   onApprove?: (accountId: number) => void;
 }
 
+const HEAD_ROW_STYLE =
+  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
+
+const BODY_ROW_STYLE =
+  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
+
 const TeacherApprovalList = ({
   accounts,
   isLoading,
@@ -38,19 +44,21 @@ const TeacherApprovalList = ({
   return (
     <Table>
       <TableHeader>
-        <TableRow>
-          <TableHead>이메일</TableHead>
-          <TableHead>성함</TableHead>
-          <TableHead>소속 부서</TableHead>
+        <TableRow className={cn(HEAD_ROW_STYLE)}>
+          <TableHead className={cn('w-[240px]')}>이메일</TableHead>
+          <TableHead className={cn('w-[120px]')}>성함</TableHead>
+          <TableHead className={cn('w-[120px]')}>소속부서</TableHead>
           <TableHead>설명</TableHead>
-          <TableHead>신청일</TableHead>
-          <TableHead className={cn('w-30')}>작업</TableHead>
+          <TableHead className={cn('w-[160px]')}>신청일</TableHead>
+          <TableHead className={cn('w-[170px]')}>
+            <span className={cn('sr-only')}>작업</span>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {isLoading ? (
           Array.from({ length: 10 }).map((_, index) => (
-            <TableRow key={index}>
+            <TableRow key={index} className={cn(BODY_ROW_STYLE)}>
               <TableCell>
                 <Skeleton className={cn('h-4 w-40')} />
               </TableCell>
@@ -67,22 +75,22 @@ const TeacherApprovalList = ({
                 <Skeleton className={cn('h-4 w-24')} />
               </TableCell>
               <TableCell>
-                <Skeleton className={cn('h-8 w-16')} />
+                <Skeleton className={cn('h-6 w-32')} />
               </TableCell>
             </TableRow>
           ))
         ) : !accounts?.length ? (
-          <TableRow>
+          <TableRow className={cn(BODY_ROW_STYLE)}>
             <TableCell
               colSpan={6}
-              className={cn('text-muted-foreground py-12 text-center font-mono text-sm')}
+              className={cn('text-muted-foreground py-12 text-center font-mono text-xs')}
             >
               승인 대기 중인 선생님 계정이 없습니다.
             </TableCell>
           </TableRow>
         ) : (
           accounts.map((account) => (
-            <TableRow key={account.id}>
+            <TableRow key={account.id} className={cn(BODY_ROW_STYLE)}>
               <TableCell>{account.email}</TableCell>
               <TableCell>{account.teacher?.name ?? '-'}</TableCell>
               <TableCell>
@@ -95,28 +103,44 @@ const TeacherApprovalList = ({
                 })}
               </TableCell>
               <TableCell>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" disabled={isApproving}>
-                      승인
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>선생님 계정 승인</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {account.teacher?.name ?? account.email} 님의 선생님 계정을
-                        승인하시겠습니까? 승인 후에는 되돌릴 수 없습니다.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>취소</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onApprove?.(account.id)}>
-                        승인
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <div className={cn('flex items-center gap-2')}>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="pixel"
+                        className={cn('h-6 border px-2')}
+                        disabled={isApproving}
+                      >
+                        Allow
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>선생님 계정 승인</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {account.teacher?.name ?? account.email} 님의 선생님 계정을
+                          승인하시겠습니까? 승인 후에는 되돌릴 수 없습니다.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>취소</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onApprove?.(account.id)}>
+                          승인
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  {/* TODO: 선생님 역할 신청 거절(계정 삭제) API 연동 (현재는 시안 반영용 UI) */}
+                  <Button
+                    type="button"
+                    variant="pixel-destructive"
+                    className={cn('h-6 border px-2')}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))
