@@ -51,6 +51,7 @@ const TeacherApprovalsPage = () => {
 
   const accounts = accountsData?.data.accounts;
   const totalPages = accountsData?.data.totalPages ?? 0;
+  const isEmpty = !isLoading && !accounts?.length;
 
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
@@ -61,7 +62,7 @@ const TeacherApprovalsPage = () => {
           description="선생님 역할이 요청된 계정들을 관리하세요"
         >
           {/* Table */}
-          <div className={cn('border-foreground border')}>
+          <div className={cn(!isEmpty && 'border-foreground border')}>
             <TeacherApprovalList
               accounts={accounts}
               isLoading={isLoading}
