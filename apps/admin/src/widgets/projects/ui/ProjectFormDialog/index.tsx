@@ -29,7 +29,7 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { Controller, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -217,13 +217,22 @@ const ProjectFormDialog = ({
 
   const defaultTrigger =
     mode === 'create' ? (
-      <Button size="sm" className={cn('gap-2')} disabled={isLoadingStudents}>
-        <Plus className={cn('h-4 w-4')} />
-        프로젝트 추가
+      <Button
+        type="button"
+        variant="pixel-primary"
+        className={cn('px-3')}
+        disabled={isLoadingStudents}
+      >
+        + 프로젝트 추가
       </Button>
     ) : (
-      <Button variant="ghost" size="icon" disabled={isLoadingStudents}>
-        <Pencil className={cn('h-4 w-4')} />
+      <Button
+        type="button"
+        variant="pixel"
+        className={cn('h-6 border px-2')}
+        disabled={isLoadingStudents}
+      >
+        Edit
       </Button>
     );
 
@@ -565,7 +574,12 @@ const ProjectFormDialog = ({
           </SectionCard>
 
           <div className={cn('flex justify-end pt-2')}>
-            <Button type="submit" disabled={isPending}>
+            <Button
+              type="submit"
+              variant="pixel-primary"
+              className={cn('px-3')}
+              disabled={isPending}
+            >
               {isPending ? loadingText : submitText}
             </Button>
           </div>

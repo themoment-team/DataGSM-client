@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Project } from '@repo/shared/types';
-import { CommonPagination, PageHeader } from '@repo/shared/ui';
+import { CommonPagination, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
@@ -154,13 +154,15 @@ const ProjectsPage = () => {
     },
   });
 
+  const isEmpty = !isLoadingProjects && !projectList.length;
+
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        {/* Page header */}
-        <PageHeader
-          breadcrumb="DATAGSM / Admin"
+        <PageWindow
+          windowTitle="Project Management"
           title="프로젝트 관리"
+          description="프로젝트들의 정보를 확인하거나 수정하세요."
           action={
             <ProjectFormDialog
               mode="create"
@@ -170,31 +172,31 @@ const ProjectsPage = () => {
               isLoadingStudents={isLoadingStudents}
             />
           }
-        />
+        >
+          {/* Filters */}
+          <div className={cn('mb-2')}>
+            <ProjectFilter control={control} clubs={clubs} />
+          </div>
 
-        {/* Filters */}
-        <div className={cn('mb-4')}>
-          <ProjectFilter control={control} clubs={clubs} />
-        </div>
+          {/* Table */}
+          <div className={cn(!isEmpty && 'border-foreground border')}>
+            <ProjectList
+              projects={projectList}
+              isLoading={isLoadingProjects}
+              onEdit={handleEditProject}
+              onDelete={(projectId) => deleteProject(projectId)}
+            />
+          </div>
 
-        {/* Table */}
-        <div className={cn('border-foreground pixel-shadow border-2')}>
-          <ProjectList
-            projects={projectList}
-            isLoading={isLoadingProjects}
-            onEdit={handleEditProject}
-            onDelete={(projectId) => deleteProject(projectId)}
-          />
-        </div>
-
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoadingProjects}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoadingProjects}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </PageWindow>
 
         {editingProject && (
           <ProjectFormDialog
