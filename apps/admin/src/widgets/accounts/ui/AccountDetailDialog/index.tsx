@@ -69,24 +69,30 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn('max-h-[90vh] max-w-lg overflow-y-auto p-0')}>
         <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
-          <DialogTitle className={cn('font-pixel text-[14px] leading-none')}>ACCOUNT DETAIL</DialogTitle>
+          <DialogTitle className={cn('font-pixel text-[14px] leading-none')}>
+            ACCOUNT DETAIL
+          </DialogTitle>
         </DialogHeader>
 
         <div className={cn('space-y-6 px-6 py-6')}>
           <div className={cn('space-y-2')}>
             <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
+              <span
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
                 이메일
               </span>
               <span className={cn('font-mono text-sm')}>{account.email}</span>
             </div>
             <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
+              <span
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
                 현재 역할
               </span>
               <span
                 className={cn(
-                  'border px-1.5 py-0.5 text-xs font-mono uppercase',
+                  'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]',
                   getAccountRoleBadgeStyle(account.role),
                 )}
               >
@@ -94,12 +100,14 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
               </span>
             </div>
             <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
+              <span
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
                 상태
               </span>
               <span
                 className={cn(
-                  'border px-1.5 py-0.5 text-xs font-mono uppercase',
+                  'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]',
                   getAccountStatusBadgeStyle(account.status),
                 )}
               >
@@ -107,7 +115,9 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
               </span>
             </div>
             <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
+              <span
+                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
+              >
                 생성일
               </span>
               <span className={cn('font-mono text-sm')}>
@@ -117,7 +127,11 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
           </div>
 
           <div className={cn('border-foreground/20 border-t pt-4')}>
-            <p className={cn('text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest')}>
+            <p
+              className={cn(
+                'text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest',
+              )}
+            >
               {isTeacherAccount ? '연동된 선생님 정보' : '연동된 학생 정보'}
             </p>
             {isTeacherAccount ? (
@@ -154,7 +168,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
                   구분:{' '}
                   <span
                     className={cn(
-                      'border px-1.5 py-0.5 text-xs font-mono uppercase',
+                      'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]',
                       getRoleBadgeStyle(student.role),
                     )}
                   >
@@ -177,7 +191,11 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
           </div>
 
           <div className={cn('border-foreground/20 border-t pt-4')}>
-            <p className={cn('text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest')}>
+            <p
+              className={cn(
+                'text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest',
+              )}
+            >
               권한 변경
             </p>
             {isRoleChangeDisabled ? (
@@ -202,6 +220,8 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
                 </Select>
                 <Button
                   type="button"
+                  variant="pixel-primary"
+                  className={cn('h-9 px-3')}
                   disabled={isPending || selectedRole === account.role}
                   onClick={() => updateRole({ accountId: account.id, role: selectedRole })}
                 >

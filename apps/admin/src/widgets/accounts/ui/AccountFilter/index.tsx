@@ -1,17 +1,76 @@
-import {
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/shared/ui';
+import { Input, Select, SelectContent, SelectItem, SelectTrigger } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { Search } from 'lucide-react';
 import { Control, Controller } from 'react-hook-form';
 
 import { AccountFilterType } from '@/entities/account';
+
+interface FilterOption {
+  value: string;
+  label: string;
+}
+
+const ROLE_OPTIONS: FilterOption[] = [
+  { value: 'all', label: '전체' },
+  { value: 'USER', label: '유저' },
+  { value: 'ADMIN', label: '어드민' },
+  { value: 'ROOT', label: '루트' },
+];
+
+const OBJECT_TYPE_OPTIONS: FilterOption[] = [
+  { value: 'all', label: '전체' },
+  { value: 'STUDENT', label: '학생' },
+  { value: 'TEACHER', label: '선생님' },
+];
+
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'all', label: '전체' },
+  { value: 'PENDING', label: '승인대기' },
+  { value: 'ACTIVE', label: '활성' },
+];
+
+const SORT_BY_OPTIONS: FilterOption[] = [
+  { value: 'all', label: '기본' },
+  { value: 'ID', label: 'ID' },
+  { value: 'EMAIL', label: '이메일' },
+  { value: 'ROLE', label: '역할' },
+  { value: 'CREATED_AT', label: '생성일' },
+];
+
+interface FilterSelectProps {
+  label: string;
+  options: FilterOption[];
+  value?: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+const FilterSelect = ({ label, options, value, onChange, className }: FilterSelectProps) => {
+  const selected = options.find((option) => option.value === value);
+  const isPlaceholder = value === undefined || value === 'all';
+
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger
+        aria-label={label}
+        className={cn('border-foreground h-9 justify-between px-3', className)}
+      >
+        <span
+          className={cn('truncate', isPlaceholder ? 'text-muted-foreground' : 'text-foreground')}
+        >
+          {label}: {isPlaceholder ? '' : selected?.label}
+        </span>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
 
 interface AccountFilterProps {
   control: Control<AccountFilterType>;
@@ -19,8 +78,8 @@ interface AccountFilterProps {
 
 const AccountFilter = ({ control }: AccountFilterProps) => {
   return (
-    <div className={cn('mt-4 flex flex-wrap items-center gap-4')}>
-      <div className={cn('relative flex-1')}>
+    <div className={cn('flex flex-wrap items-center gap-2')}>
+      <div className={cn('relative w-[320px] max-w-full')}>
         <Search
           className={cn('text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2')}
         />
@@ -30,8 +89,8 @@ const AccountFilter = ({ control }: AccountFilterProps) => {
           render={({ field }) => (
             <Input
               {...field}
-              placeholder="이메일로 검색"
-              className={cn('pl-9 rounded-none border-foreground font-mono')}
+              placeholder="이메일로 검색하세요"
+              className={cn('border-foreground rounded-none pl-9')}
               onChange={(e) => {
                 field.onChange(e.target.value || 'all');
               }}
@@ -41,85 +100,60 @@ const AccountFilter = ({ control }: AccountFilterProps) => {
         />
       </div>
 
-      <div className={cn('flex items-center gap-2')}>
-        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>역할:</Label>
+      <div className={cn('ml-auto flex flex-wrap items-center justify-end gap-2')}>
         <Controller
           control={control}
           name="role"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className={cn('w-28 rounded-none border-foreground')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="USER">유저</SelectItem>
-                <SelectItem value="ADMIN">어드민</SelectItem>
-                <SelectItem value="ROOT">루트</SelectItem>
-              </SelectContent>
-            </Select>
+            <FilterSelect
+              label="역할"
+              options={ROLE_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              className={cn('w-[120px]')}
+            />
           )}
         />
-      </div>
 
-      <div className={cn('flex items-center gap-2')}>
-        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>종류:</Label>
         <Controller
           control={control}
           name="objectType"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className={cn('w-28 rounded-none border-foreground')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="STUDENT">학생</SelectItem>
-                <SelectItem value="TEACHER">선생님</SelectItem>
-              </SelectContent>
-            </Select>
+            <FilterSelect
+              label="종류"
+              options={OBJECT_TYPE_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              className={cn('w-[120px]')}
+            />
           )}
         />
-      </div>
 
-      <div className={cn('flex items-center gap-2')}>
-        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>상태:</Label>
         <Controller
           control={control}
           name="status"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className={cn('w-28 rounded-none border-foreground')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="PENDING">승인대기</SelectItem>
-                <SelectItem value="ACTIVE">활성</SelectItem>
-              </SelectContent>
-            </Select>
+            <FilterSelect
+              label="상태"
+              options={STATUS_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              className={cn('w-[120px]')}
+            />
           )}
         />
-      </div>
 
-      <div className={cn('flex items-center gap-2')}>
-        <Label className={cn('text-xs uppercase tracking-widest text-muted-foreground font-mono')}>정렬 기준:</Label>
         <Controller
           control={control}
           name="sortBy"
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger className={cn('w-32 rounded-none border-foreground')}>
-                <SelectValue placeholder="기본" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">기본</SelectItem>
-                <SelectItem value="ID">ID</SelectItem>
-                <SelectItem value="EMAIL">이메일</SelectItem>
-                <SelectItem value="ROLE">역할</SelectItem>
-                <SelectItem value="CREATED_AT">생성일</SelectItem>
-              </SelectContent>
-            </Select>
+            <FilterSelect
+              label="정렬"
+              options={SORT_BY_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              className={cn('w-[160px]')}
+            />
           )}
         />
       </div>
