@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { AccountListItem } from '@repo/shared/types';
 import {
   AlertDialog,
@@ -5,8 +7,6 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
@@ -17,6 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  buttonVariants,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 
@@ -29,11 +30,74 @@ interface TeacherApprovalListProps {
   onApprove?: (accountId: number) => void;
 }
 
+interface TeacherApprovalConfirmDialogProps {
+  trigger: ReactNode;
+  title: string;
+  /** 시안에 경고 문구가 있는 경우에만 노출한다. 없으면 스크린리더용으로만 제공한다. */
+  warning?: string;
+  description: string;
+  confirmLabel: string;
+  confirmVariant: 'pixel-primary' | 'pixel-destructive';
+  onConfirm?: () => void;
+}
+
 const HEAD_ROW_STYLE =
   '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
 
 const BODY_ROW_STYLE =
   'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
+
+const TeacherApprovalConfirmDialog = ({
+  trigger,
+  title,
+  warning,
+  description,
+  confirmLabel,
+  confirmVariant,
+  onConfirm,
+}: TeacherApprovalConfirmDialogProps) => (
+  <AlertDialog>
+    <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+    <AlertDialogContent className={cn('gap-0 p-0 sm:max-w-[656px]')}>
+      <div
+        className={cn('bg-foreground text-background flex items-center justify-between px-4 py-3')}
+      >
+        <span className={cn('font-pixel text-[9px] leading-none')}>Alert</span>
+        <AlertDialogCancel
+          className={cn(
+            buttonVariants({ variant: 'pixel-primary' }),
+            'text-background h-6 border-0 px-2',
+          )}
+        >
+          X<span className={cn('sr-only')}>닫기</span>
+        </AlertDialogCancel>
+      </div>
+
+      <div className={cn('flex flex-col gap-1 px-5 pt-5')}>
+        <AlertDialogTitle className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
+          {title}
+        </AlertDialogTitle>
+        <AlertDialogDescription
+          className={cn(warning ? 'text-destructive text-[13px] leading-[1.6]' : 'sr-only')}
+        >
+          {warning ?? description}
+        </AlertDialogDescription>
+      </div>
+
+      <div className={cn('flex items-center gap-2.5 p-5')}>
+        <AlertDialogCancel className={cn(buttonVariants({ variant: 'pixel' }), 'h-9 flex-1 px-3')}>
+          취소
+        </AlertDialogCancel>
+        <AlertDialogAction
+          onClick={onConfirm}
+          className={cn(buttonVariants({ variant: confirmVariant }), 'h-9 flex-1 px-3')}
+        >
+          {confirmLabel}
+        </AlertDialogAction>
+      </div>
+    </AlertDialogContent>
+  </AlertDialog>
+);
 
 const TeacherApprovalList = ({
   accounts,
@@ -102,8 +166,8 @@ const TeacherApprovalList = ({
                 </TableCell>
                 <TableCell>
                   <div className={cn('flex items-center gap-2')}>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
+                    <TeacherApprovalConfirmDialog
+                      trigger={
                         <Button
                           type="button"
                           variant="pixel"
@@ -112,32 +176,31 @@ const TeacherApprovalList = ({
                         >
                           Allow
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>선생님 계정 승인</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {account.teacher?.name ?? account.email} 님의 선생님 계정을
-                            승인하시겠습니까? 승인 후에는 되돌릴 수 없습니다.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onApprove?.(account.id)}>
-                            승인
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      }
+                      title={`“${account.email}”의 요청을 허락할까요?`}
+                      description="승인 후에는 되돌릴 수 없습니다."
+                      confirmLabel="확인"
+                      confirmVariant="pixel-primary"
+                      onConfirm={() => onApprove?.(account.id)}
+                    />
 
                     {/* TODO: 선생님 역할 신청 거절(계정 삭제) API 연동 (현재는 시안 반영용 UI) */}
-                    <Button
-                      type="button"
-                      variant="pixel-destructive"
-                      className={cn('h-6 border px-2')}
-                    >
-                      Delete
-                    </Button>
+                    <TeacherApprovalConfirmDialog
+                      trigger={
+                        <Button
+                          type="button"
+                          variant="pixel-destructive"
+                          className={cn('h-6 border px-2')}
+                        >
+                          Delete
+                        </Button>
+                      }
+                      title={`“${account.email}”의 요청을 거절할까요?`}
+                      warning="> 중요: 거절하면 해당 계정은 삭제되며 되돌릴 수 없습니다!"
+                      description="거절하면 해당 계정은 삭제되며 되돌릴 수 없습니다."
+                      confirmLabel="확인"
+                      confirmVariant="pixel-destructive"
+                    />
                   </div>
                 </TableCell>
               </TableRow>
