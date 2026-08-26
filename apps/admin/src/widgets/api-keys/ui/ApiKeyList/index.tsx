@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { useDeleteApiKeyById, useUpdateApiKeyExpirationById } from '@repo/shared/hooks';
 import { ApiKey } from '@repo/shared/types';
@@ -8,8 +8,6 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
@@ -22,6 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  buttonVariants,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,6 +29,20 @@ import { toast } from 'sonner';
 interface ApiKeyListProps {
   apiKeys?: ApiKey[];
   isLoading: boolean;
+}
+
+interface ApiKeyConfirmDialogProps {
+  trigger: ReactNode;
+  title: string;
+  /** 시안에 경고 문구가 있는 경우에만 노출한다. 없으면 스크린리더용으로만 제공한다. */
+  warning?: string;
+  description: string;
+  confirmLabel: string;
+  confirmVariant: 'pixel-primary' | 'pixel-destructive';
+  onConfirm?: () => void;
+  onOpenChange?: (open: boolean) => void;
+  /** 시안에 입력 필드가 있는 경우 본문 아래에 렌더링한다. */
+  children?: ReactNode;
 }
 
 const HEAD_ROW_STYLE =
@@ -45,6 +58,62 @@ const formatExpiresAt = (value: string | Date) => {
 
   return `${year}.${month}.${day}`;
 };
+
+const ApiKeyConfirmDialog = ({
+  trigger,
+  title,
+  warning,
+  description,
+  confirmLabel,
+  confirmVariant,
+  onConfirm,
+  onOpenChange,
+  children,
+}: ApiKeyConfirmDialogProps) => (
+  <AlertDialog onOpenChange={onOpenChange}>
+    <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+    <AlertDialogContent className={cn('gap-0 p-0 sm:max-w-[656px]')}>
+      <div
+        className={cn('bg-foreground text-background flex items-center justify-between px-4 py-3')}
+      >
+        <span className={cn('font-pixel text-[9px] leading-none')}>Alert</span>
+        <AlertDialogCancel
+          className={cn(
+            buttonVariants({ variant: 'pixel-primary' }),
+            'text-background h-6 border-0 px-2',
+          )}
+        >
+          X<span className={cn('sr-only')}>닫기</span>
+        </AlertDialogCancel>
+      </div>
+
+      <div className={cn('flex flex-col gap-1 px-5 pt-5')}>
+        <AlertDialogTitle className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
+          {title}
+        </AlertDialogTitle>
+        <AlertDialogDescription
+          className={cn(warning ? 'text-destructive text-[13px] leading-[1.6]' : 'sr-only')}
+        >
+          {warning ?? description}
+        </AlertDialogDescription>
+      </div>
+
+      {children && <div className={cn('flex flex-col gap-1.5 px-5 pt-4')}>{children}</div>}
+
+      <div className={cn('flex items-center gap-2.5 p-5')}>
+        <AlertDialogCancel className={cn(buttonVariants({ variant: 'pixel' }), 'h-9 flex-1 px-3')}>
+          취소
+        </AlertDialogCancel>
+        <AlertDialogAction
+          onClick={onConfirm}
+          className={cn(buttonVariants({ variant: confirmVariant }), 'h-9 flex-1 px-3')}
+        >
+          {confirmLabel}
+        </AlertDialogAction>
+      </div>
+    </AlertDialogContent>
+  </AlertDialog>
+);
 
 const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
   const queryClient = useQueryClient();
@@ -122,54 +191,43 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
                 <TableCell>{formatExpiresAt(apiKey.expiresAt)}</TableCell>
                 <TableCell>
                   <div className={cn('flex items-center gap-2 whitespace-nowrap')}>
-                    <AlertDialog onOpenChange={() => setExtendDays(30)}>
-                      <AlertDialogTrigger asChild>
+                    <ApiKeyConfirmDialog
+                      trigger={
                         <Button type="button" variant="pixel" className={cn('h-6 border px-2')}>
                           Renew
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Api Key 기한 연장</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            &apos;{apiKey.description}&apos;의 기한을 연장하시겠습니까?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <div className={cn('my-4 space-y-2')}>
-                          <Label
-                            className={cn(
-                              'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                            )}
-                          >
-                            연장 일수 (1~365)
-                          </Label>
-                          <Input
-                            type="number"
-                            min={1}
-                            max={365}
-                            value={extendDays}
-                            onChange={(e) =>
-                              setExtendDays(Math.min(365, Math.max(1, Number(e.target.value))))
-                            }
-                            className={cn('w-32')}
-                          />
-                        </div>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() =>
-                              updateApiKeyExpiration({ apiKeyId: apiKey.id, days: extendDays })
-                            }
-                            className={cn('bg-black text-white hover:bg-black/50')}
-                          >
-                            연장
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      }
+                      title={`“${apiKey.description}”키의 만료 기한을 연장할까요?`}
+                      description={`“${apiKey.description}”키의 만료 기한을 연장합니다.`}
+                      confirmLabel="확인"
+                      confirmVariant="pixel-primary"
+                      onOpenChange={() => setExtendDays(30)}
+                      onConfirm={() =>
+                        updateApiKeyExpiration({ apiKeyId: apiKey.id, days: extendDays })
+                      }
+                    >
+                      <Label
+                        htmlFor={`extend-days-${apiKey.id}`}
+                        className={cn('text-foreground text-sm font-medium')}
+                      >
+                        연장 일수
+                      </Label>
+                      <Input
+                        id={`extend-days-${apiKey.id}`}
+                        type="number"
+                        min={1}
+                        max={365}
+                        placeholder="(1 ~ 365) 사이의 숫자를 입력하세요"
+                        value={extendDays}
+                        onChange={(e) =>
+                          setExtendDays(Math.min(365, Math.max(1, Number(e.target.value))))
+                        }
+                        className={cn('border-foreground h-9 rounded-none px-3 text-sm')}
+                      />
+                    </ApiKeyConfirmDialog>
 
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
+                    <ApiKeyConfirmDialog
+                      trigger={
                         <Button
                           type="button"
                           variant="pixel-destructive"
@@ -177,26 +235,14 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
                         >
                           Delete
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Api Key 삭제</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            정말로 &apos;{apiKey.description}&apos;를 삭제하시겠습니까? 이 작업은
-                            되돌릴 수 없습니다.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteApiKey(apiKey.id)}
-                            className={cn('bg-destructive hover:bg-destructive/90 text-white')}
-                          >
-                            삭제
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                      }
+                      title={`정말 “${apiKey.description}”키를 삭제할까요?`}
+                      warning="> 중요: 이 작업은 되돌릴 수 없습니다!"
+                      description="이 작업은 되돌릴 수 없습니다."
+                      confirmLabel="확인"
+                      confirmVariant="pixel-destructive"
+                      onConfirm={() => deleteApiKey(apiKey.id)}
+                    />
                   </div>
                 </TableCell>
               </TableRow>
