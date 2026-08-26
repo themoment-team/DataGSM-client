@@ -30,10 +30,10 @@ const BODY_ROW_STYLE =
   'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
 
 const getStatusBadgeStyle = (status: ClubStatus) =>
-  status === 'ACTIVE' ? 'border-[#5AB982] text-[#5AB982]' : 'border-foreground/25';
+  status === 'ACTIVE' ? 'border-success text-success' : 'border-foreground/25';
 
 const getStatusDotStyle = (status: ClubStatus) =>
-  status === 'ACTIVE' ? 'bg-[#5AB982]' : 'border-muted-foreground border';
+  status === 'ACTIVE' ? 'bg-success' : 'border-muted-foreground border';
 
 const ClubList = ({ clubs, isLoading, onEdit }: ClubListProps) => {
   const queryClient = useQueryClient();

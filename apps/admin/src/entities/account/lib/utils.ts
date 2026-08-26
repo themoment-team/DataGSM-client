@@ -47,7 +47,7 @@ export const getAccountStatusBadgeStyle = (status: AccountStatus) => {
     case 'PENDING':
       return 'border-foreground/25 text-muted-foreground';
     case 'ACTIVE':
-      return 'border-[#5AB982] text-[#5AB982]';
+      return 'border-success text-success';
   }
 };
 
@@ -56,6 +56,6 @@ export const getAccountStatusDotStyle = (status: AccountStatus) => {
     case 'PENDING':
       return 'border-muted-foreground border';
     case 'ACTIVE':
-      return 'bg-[#5AB982]';
+      return 'bg-success';
   }
 };

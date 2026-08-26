@@ -29,8 +29,8 @@ const STATUS_BADGE: Record<ProjectStatus, { label: string; badgeStyle: string; d
   {
     ACTIVE: {
       label: '운영 중',
-      badgeStyle: 'border-[#5ab982] text-[#5ab982]',
-      dotStyle: 'bg-[#5ab982]',
+      badgeStyle: 'border-success text-success',
+      dotStyle: 'bg-success',
     },
     ENDED: {
       label: '운영 종료',
