@@ -20,7 +20,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  SectionCard,
   Select,
   SelectContent,
   SelectItem,
@@ -30,7 +29,7 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Controller, FieldError, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -479,106 +478,86 @@ const ProjectFormDialog = ({
             </FormField>
           </div>
 
-          {/* 팀원 목록: Figma 시안에는 없지만 선택된 팀원 확인/제거 기능이라 유지 */}
-          <div className={cn('px-5 pb-2.5')}>
-            <SectionCard
-              title="Team Members"
-              headerAction="remove with click"
-              className={cn('bg-background')}
-            >
-              <div className={cn('flex flex-col gap-5 p-4')}>
-                <Controller
-                  control={control}
-                  name="participantIds"
-                  render={({ field }) => {
-                    const selectedIds = Array.isArray(field.value) ? field.value : [];
-                    const selectedStudents =
-                      students?.filter((s) => selectedIds.includes(s.id)) || [];
+          <div className={cn('flex flex-col gap-1.5 px-5 pb-2.5 pt-2.5')}>
+            <Label className={cn('text-foreground text-sm font-medium')}>팀원 명단</Label>
+            <Controller
+              control={control}
+              name="participantIds"
+              render={({ field }) => {
+                const selectedIds = Array.isArray(field.value) ? field.value : [];
+                const selectedStudents =
+                  students?.filter((student) => selectedIds.includes(student.id)) || [];
 
-                    const grades = [1, 2, 3];
-
-                    return (
-                      <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
-                        {grades.map((grade) => (
-                          <div
-                            key={grade}
-                            className={cn(
-                              'border-foreground bg-background flex min-h-[240px] flex-col border',
-                            )}
+                return (
+                  <div className={cn('flex items-stretch gap-2')}>
+                    {[1, 2, 3].map((grade) => (
+                      <div
+                        key={grade}
+                        className={cn(
+                          'border-foreground bg-background flex flex-1 flex-col border',
+                        )}
+                      >
+                        <div className={cn('bg-foreground flex items-center px-4 py-3')}>
+                          <span
+                            className={cn('text-background font-pixel text-[9px] leading-none')}
                           >
-                            <div
-                              className={cn(
-                                'border-foreground flex items-center justify-between border-b px-3 py-2',
-                              )}
-                            >
-                              <span className={cn('font-pixel text-foreground text-[11px]')}>
-                                GRADE {grade}
-                              </span>
-                              <span className={cn('text-muted-foreground font-mono text-[11px]')}>
-                                {selectedStudents.filter((s) => s.grade === grade).length}
-                              </span>
-                            </div>
-                            <div
-                              className={cn(
-                                '[&::-webkit-scrollbar-thumb]:bg-foreground/30 max-h-75 flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
-                              )}
-                            >
-                              {selectedStudents
-                                .filter((s) => s.grade === grade)
-                                .map((student) => (
-                                  <button
-                                    key={student.id}
-                                    type="button"
-                                    className={cn(
-                                      'border-foreground hover:bg-foreground hover:text-background group flex w-full items-center justify-between gap-3 border px-3 py-2 text-left transition-colors',
-                                    )}
-                                    onClick={() =>
-                                      field.onChange(
-                                        field.value.filter((id: number) => id !== student.id),
-                                      )
-                                    }
-                                  >
-                                    <span className={cn('min-w-0 flex-1')}>
-                                      <span
-                                        className={cn(
-                                          'text-muted-foreground group-hover:text-background/80 block font-mono text-[11px] uppercase transition-colors',
-                                        )}
-                                      >
-                                        {student.studentNumber}
-                                      </span>
-                                      <span
-                                        className={cn(
-                                          'text-foreground group-hover:text-background block truncate text-sm transition-colors',
-                                        )}
-                                      >
-                                        {student.name}
-                                      </span>
-                                    </span>
-                                    <X
-                                      className={cn(
-                                        'group-hover:text-background size-4 shrink-0 transition-colors',
-                                      )}
-                                    />
-                                  </button>
-                                ))}
-                              {selectedStudents.filter((s) => s.grade === grade).length === 0 && (
-                                <div
+                            Grade {grade}
+                          </span>
+                        </div>
+                        <div
+                          className={cn(
+                            'bg-foreground text-background flex items-center px-5 py-1.5 text-[13px] leading-[1.6]',
+                          )}
+                        >
+                          <span className={cn('w-[60px] shrink-0')}>학번</span>
+                          <span className={cn('flex-1')}>이름</span>
+                        </div>
+                        <div className={cn('max-h-[160px] min-h-[80px] overflow-y-auto')}>
+                          {selectedStudents
+                            .filter((student) => student.grade === grade)
+                            .map((student) => (
+                              <div
+                                key={student.id}
+                                className={cn(
+                                  'border-foreground -mt-px flex items-center gap-2 border px-5 py-2 first:mt-0',
+                                )}
+                              >
+                                <span
                                   className={cn(
-                                    'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
+                                    'text-muted-foreground w-[60px] shrink-0 truncate font-mono text-xs leading-6',
                                   )}
                                 >
-                                  등록된 팀원 없음
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                                  {student.studentNumber}
+                                </span>
+                                <span
+                                  className={cn(
+                                    'text-muted-foreground min-w-0 flex-1 truncate font-mono text-xs leading-6',
+                                  )}
+                                >
+                                  {student.name}
+                                </span>
+                                <button
+                                  type="button"
+                                  className={cn(
+                                    'text-foreground shrink-0 cursor-pointer px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-60',
+                                  )}
+                                  onClick={() =>
+                                    field.onChange(
+                                      field.value.filter((id: number) => id !== student.id),
+                                    )
+                                  }
+                                >
+                                  X<span className={cn('sr-only')}>{student.name} 제외</span>
+                                </button>
+                              </div>
+                            ))}
+                        </div>
                       </div>
-                    );
-                  }}
-                />
-              </div>
-            </SectionCard>
+                    ))}
+                  </div>
+                );
+              }}
+            />
           </div>
 
           <div className={cn('flex flex-col items-end justify-center p-5')}>

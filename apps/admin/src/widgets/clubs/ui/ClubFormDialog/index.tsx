@@ -20,7 +20,6 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  SectionCard,
   Select,
   SelectContent,
   SelectItem,
@@ -539,58 +538,68 @@ const ClubFormDialog = ({
           </div>
 
           {currentStatus !== 'ABOLISHED' && (
-            <div className={cn('px-5 pb-2.5 pt-2.5')}>
-              <SectionCard
-                title="Team Members"
-                headerAction="remove with click"
-                className={cn('bg-background')}
-              >
-                <Controller
-                  control={control}
-                  name="participantIds"
-                  render={({ field }) => {
-                    const selectedIds = Array.isArray(field.value) ? field.value : [];
-                    const selectedStudents =
-                      students?.filter((student) => selectedIds.includes(student.id)) || [];
-                    const grades = [1, 2, 3];
+            <div className={cn('flex flex-col gap-1.5 px-5 pb-2.5 pt-2.5')}>
+              <Label className={cn('text-foreground text-sm font-medium')}>팀원 명단</Label>
+              <Controller
+                control={control}
+                name="participantIds"
+                render={({ field }) => {
+                  const selectedIds = Array.isArray(field.value) ? field.value : [];
+                  const selectedStudents =
+                    students?.filter((student) => selectedIds.includes(student.id)) || [];
 
-                    return (
-                      <div className={cn('grid grid-cols-1 gap-4 p-4 md:grid-cols-3')}>
-                        {grades.map((grade) => (
+                  return (
+                    <div className={cn('flex items-stretch gap-2')}>
+                      {[1, 2, 3].map((grade) => (
+                        <div
+                          key={grade}
+                          className={cn(
+                            'border-foreground bg-background flex flex-1 flex-col border',
+                          )}
+                        >
+                          <div className={cn('bg-foreground flex items-center px-4 py-3')}>
+                            <span
+                              className={cn('text-background font-pixel text-[9px] leading-none')}
+                            >
+                              Grade {grade}
+                            </span>
+                          </div>
                           <div
-                            key={grade}
                             className={cn(
-                              'border-foreground bg-background flex min-h-[180px] flex-col border',
+                              'bg-foreground text-background flex items-center px-5 py-1.5 text-[13px] leading-[1.6]',
                             )}
                           >
-                            <div
-                              className={cn(
-                                'border-foreground flex items-center justify-between border-b px-3 py-2',
-                              )}
-                            >
-                              <span className={cn('font-pixel text-foreground text-[9px]')}>
-                                GRADE {grade}
-                              </span>
-                              <span className={cn('text-muted-foreground font-mono text-[11px]')}>
-                                {
-                                  selectedStudents.filter((student) => student.grade === grade)
-                                    .length
-                                }
-                              </span>
-                            </div>
-                            <div
-                              className={cn(
-                                '[&::-webkit-scrollbar-thumb]:bg-foreground/30 flex max-h-[240px] flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
-                              )}
-                            >
-                              {selectedStudents
-                                .filter((student) => student.grade === grade)
-                                .map((student) => (
+                            <span className={cn('w-[60px] shrink-0')}>학번</span>
+                            <span className={cn('flex-1')}>이름</span>
+                          </div>
+                          <div className={cn('max-h-[160px] min-h-[80px] overflow-y-auto')}>
+                            {selectedStudents
+                              .filter((student) => student.grade === grade)
+                              .map((student) => (
+                                <div
+                                  key={student.id}
+                                  className={cn(
+                                    'border-foreground -mt-px flex items-center gap-2 border px-5 py-2 first:mt-0',
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      'text-muted-foreground w-[60px] shrink-0 truncate font-mono text-xs leading-6',
+                                    )}
+                                  >
+                                    {student.studentNumber}
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      'text-muted-foreground min-w-0 flex-1 truncate font-mono text-xs leading-6',
+                                    )}
+                                  >
+                                    {student.name}
+                                  </span>
                                   <button
-                                    key={student.id}
                                     type="button"
                                     className={cn(
-                                      'border-foreground hover:bg-foreground hover:text-background group flex h-9 w-full items-center justify-between gap-3 border px-3 text-left transition-colors',
+                                      'text-foreground shrink-0 cursor-pointer px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-60',
                                     )}
                                     onClick={() =>
                                       field.onChange(
@@ -598,41 +607,17 @@ const ClubFormDialog = ({
                                       )
                                     }
                                   >
-                                    <span
-                                      className={cn(
-                                        'text-foreground group-hover:text-background min-w-0 flex-1 truncate font-mono text-xs tracking-[0.1em] transition-colors',
-                                      )}
-                                    >
-                                      {student.studentNumber} {student.name}
-                                    </span>
-                                    <span
-                                      className={cn(
-                                        'group-hover:text-background shrink-0 font-mono text-xs leading-4 tracking-[0.1em] transition-colors',
-                                      )}
-                                      aria-hidden
-                                    >
-                                      X
-                                    </span>
+                                    X<span className={cn('sr-only')}>{student.name} 제외</span>
                                   </button>
-                                ))}
-                              {selectedStudents.filter((student) => student.grade === grade)
-                                .length === 0 && (
-                                <div
-                                  className={cn(
-                                    'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
-                                  )}
-                                >
-                                  등록된 팀원 없음
                                 </div>
-                              )}
-                            </div>
+                              ))}
                           </div>
-                        ))}
-                      </div>
-                    );
-                  }}
-                />
-              </SectionCard>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }}
+              />
             </div>
           )}
 
