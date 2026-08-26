@@ -28,9 +28,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  Badge,
+  Button,
   Checkbox,
   FormErrorMessage,
   Input,
+  Label,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -39,6 +42,9 @@ import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+const FIELD_STYLE = 'border-foreground h-9 rounded-none px-3 text-sm';
+const ACTION_STYLE = 'h-10 w-full px-3';
 
 interface ApiKeyFormProps {
   initialApiKeyData?: ApiKeyResponse;
@@ -137,7 +143,7 @@ const ApiKeyForm = ({ initialApiKeyData, initialAvailableScope, userRole }: ApiK
       ? 'API 키 갱신 중...'
       : apiKeyData?.data?.apiKey
         ? 'API 키 갱신하기'
-        : 'API 키 생성하기';
+        : 'Generate key';
 
   const buttonTooptipText = !apiKeyData?.data?.apiKey
     ? '새로운 API 키를 발급합니다.'
@@ -145,7 +151,7 @@ const ApiKeyForm = ({ initialApiKeyData, initialAvailableScope, userRole }: ApiK
       ? '기존 API 키를 폐기하고 권한 범위와 설명이 같은 새로운 키를 발급합니다.'
       : 'API 키의 권한 범위 및 설명을 수정한 새로운 키를 발급합니다.';
 
-  const { handleScopeToggle, isScopeChecked, getIndentation } = useApiKeyScopeSelection({
+  const { handleScopeToggle, isScopeChecked } = useApiKeyScopeSelection({
     availableScopes: availableKeyScope,
     watch,
     setValue,
@@ -194,152 +200,185 @@ const ApiKeyForm = ({ initialApiKeyData, initialAvailableScope, userRole }: ApiK
     });
   };
 
+  const isPending = isCreatingApiKey || isUpdatingApiKey || isRotatingApiKey;
+
   if (isLoadingApiKey || isLoadingKeyScope) {
     return (
-      <div className={cn('border-foreground pixel-shadow-sm border-2 p-5')}>
-        <span className={cn('text-muted-foreground font-mono text-sm')}>
+      <div className={cn('flex flex-col gap-1')}>
+        <p className={cn('text-foreground text-base font-semibold leading-[1.45]')}>권한 범위</p>
+        <p className={cn('text-muted-foreground text-[13px] leading-[1.6]')}>
           {'>'} 권한 범위 불러오는 중...
-        </span>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className={cn('border-foreground pixel-shadow-sm border-2 p-5')}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className={cn('mb-6 flex flex-col gap-4')}>
-          <div>
-            <p className={cn('mb-1 font-mono text-sm font-bold uppercase tracking-wide')}>
-              API 권한 범위 선택
-            </p>
-            <p className={cn('text-muted-foreground font-mono text-xs')}>
-              {'>'} API 키로 접근할 수 있는 권한 범위를 선택하세요.
-            </p>
-          </div>
-          <div className={cn('mb-4 space-y-6')}>
-            {availableKeyScope?.data?.list.map((category) => {
-              const hasMultipleScopes = category.scopes?.length > 1;
-              return (
-                <div key={category.title}>
-                  <h3 className={cn('mb-2 text-sm font-semibold')}>{category.title}</h3>
-                  <div className={cn('space-y-2')}>
-                    {category.scopes?.map((scope) => (
-                      <div
-                        key={scope.scope}
-                        className={cn(
-                          'flex items-start gap-3',
-                          hasMultipleScopes && getIndentation(scope.scope),
-                        )}
+    <form onSubmit={handleSubmit(onSubmit)} className={cn('flex flex-col')}>
+      <div className={cn('flex flex-col gap-1')}>
+        <p className={cn('text-foreground text-base font-semibold leading-[1.45]')}>권한 범위</p>
+        <p className={cn('text-muted-foreground text-[13px] leading-[1.6]')}>
+          이 키로 접근할 수 있는 데이터를 고르세요.
+        </p>
+      </div>
+
+      <div className={cn('grid grid-cols-1 gap-x-5 gap-y-6 pt-5 md:grid-cols-2')}>
+        {availableKeyScope?.data?.list.map((category) => {
+          const hasMultipleScopes = category.scopes?.length > 1;
+
+          return (
+            <div key={category.title} className={cn('flex flex-col gap-4')}>
+              <h3 className={cn('text-foreground text-base font-semibold leading-none')}>
+                {category.title}
+              </h3>
+              <div className={cn('flex flex-col')}>
+                {category.scopes?.map((scope) => {
+                  const isWildcard = scope.scope.endsWith(':*');
+                  const isChecked = isScopeChecked(scope.scope);
+
+                  return (
+                    <div
+                      key={scope.scope}
+                      className={cn(
+                        'flex items-center gap-6 py-3 pr-4',
+                        hasMultipleScopes && !isWildcard ? 'pl-16' : 'pl-4',
+                      )}
+                    >
+                      <Checkbox
+                        id={scope.scope}
+                        className={cn('size-6')}
+                        checked={isChecked}
+                        onCheckedChange={() => handleScopeToggle(scope.scope)}
+                      />
+                      <Label
+                        htmlFor={scope.scope}
+                        className={cn('flex cursor-pointer flex-wrap items-center gap-2')}
                       >
-                        <Checkbox
-                          id={scope.scope}
-                          checked={isScopeChecked(scope.scope)}
-                          onCheckedChange={() => handleScopeToggle(scope.scope)}
-                        />
-                        <div className={cn('flex-1')}>
-                          <label
-                            htmlFor={scope.scope}
-                            className={cn('cursor-pointer text-sm font-medium leading-none')}
-                          >
-                            {scope.scope}
-                          </label>
-                          <p className={cn('text-muted-foreground mt-1 text-sm')}>
-                            {scope.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <FormErrorMessage error={errors.scopes} />
-          <Input placeholder="설명을 작성해주세요." {...register('description')} />
-          <FormErrorMessage error={errors.description} />
-          {apiKeyData?.data?.apiKey && (
-            <AlertDialog open={isRenewConfirmOpen} onOpenChange={setIsRenewConfirmOpen}>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            'h-6 rounded-none px-2 text-xs font-medium',
+                            isChecked
+                              ? 'border-foreground text-foreground'
+                              : 'border-muted-foreground/50 text-muted-foreground',
+                          )}
+                        >
+                          {scope.scope}
+                        </Badge>
+                        <span
+                          className={cn(
+                            'text-xs font-normal',
+                            isChecked ? 'text-foreground' : 'text-muted-foreground',
+                          )}
+                        >
+                          {scope.description}
+                        </span>
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <FormErrorMessage error={errors.scopes} className={cn('pt-2')} />
+
+      <div className={cn('flex flex-col gap-1.5 pt-10')}>
+        <Label htmlFor="description" className={cn('text-foreground text-sm font-medium')}>
+          설명 <span className={cn('text-destructive')}>*</span>{' '}
+          <span className={cn('text-muted-foreground')}>(필수)</span>
+        </Label>
+        <Input
+          id="description"
+          placeholder="API 키 설명을 입력하세요"
+          className={cn(FIELD_STYLE)}
+          {...register('description')}
+        />
+        <p className={cn('text-muted-foreground text-xs leading-4')}>
+          {'>'} 생성된 키는 30일동안 유지됩니다
+        </p>
+        <FormErrorMessage error={errors.description} />
+      </div>
+
+      {apiKeyData?.data?.apiKey && (
+        <AlertDialog open={isRenewConfirmOpen} onOpenChange={setIsRenewConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>API 키 갱신</AlertDialogTitle>
+              <AlertDialogDescription>
+                {isApiKeyDataEqual
+                  ? '기존 API 키를 폐기하고 새로운 키를 발급합니다. 이 작업은 되돌릴 수 없습니다.'
+                  : 'API 키의 권한 범위와 설명을 수정하여 새로운 키를 발급합니다.'}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>취소</AlertDialogCancel>
+              <AlertDialogAction onClick={onRenewConfirm}>확인</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+
+      <div className={cn('flex flex-col items-end justify-center gap-2 pt-5')}>
+        <Tooltip className="w-full">
+          <TooltipTrigger asChild>
+            {apiKeyData?.data?.apiKey ? (
+              <Button
+                type="button"
+                variant="pixel-primary"
+                className={cn(ACTION_STYLE)}
+                disabled={isPending}
+                onClick={onRenewClick}
+              >
+                {buttonText}
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                variant="pixel-primary"
+                className={cn(ACTION_STYLE)}
+                disabled={isPending}
+              >
+                {buttonText}
+              </Button>
+            )}
+          </TooltipTrigger>
+          <TooltipContent>{buttonTooptipText}</TooltipContent>
+        </Tooltip>
+
+        {isApiKeyDataEqual && (
+          <>
+            <AlertDialog open={isExtendConfirmOpen} onOpenChange={setIsExtendConfirmOpen}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>API 키 갱신</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {isApiKeyDataEqual
-                      ? '기존 API 키를 폐기하고 새로운 키를 발급합니다. 이 작업은 되돌릴 수 없습니다.'
-                      : 'API 키의 권한 범위와 설명을 수정하여 새로운 키를 발급합니다.'}
-                  </AlertDialogDescription>
+                  <AlertDialogTitle>기한 연장</AlertDialogTitle>
+                  <AlertDialogDescription>API 키의 만료 기한을 연장합니다.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={onRenewConfirm}>확인</AlertDialogAction>
+                  <AlertDialogAction onClick={onExtendConfirm}>확인</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          )}
-          <div className={cn('flex flex-col gap-2')}>
             <Tooltip className="w-full">
               <TooltipTrigger asChild>
-                {apiKeyData?.data?.apiKey ? (
-                  <button
-                    className={cn(
-                      'bg-foreground text-background border-foreground hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60',
-                    )}
-                    disabled={isCreatingApiKey || isUpdatingApiKey || isRotatingApiKey}
-                    type="button"
-                    onClick={onRenewClick}
-                  >
-                    {buttonText}
-                  </button>
-                ) : (
-                  <button
-                    className={cn(
-                      'bg-foreground text-background border-foreground hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60',
-                    )}
-                    disabled={isCreatingApiKey || isUpdatingApiKey || isRotatingApiKey}
-                    type="submit"
-                  >
-                    {buttonText}
-                  </button>
-                )}
+                <Button
+                  type="button"
+                  variant="pixel"
+                  className={cn(ACTION_STYLE)}
+                  disabled={isPending}
+                  onClick={onExtendClick}
+                >
+                  기한 연장하기
+                </Button>
               </TooltipTrigger>
-              <TooltipContent>{buttonTooptipText}</TooltipContent>
+              <TooltipContent>API 키의 만료 기한을 연장합니다.</TooltipContent>
             </Tooltip>
-          </div>
-          {isApiKeyDataEqual && (
-            <div className={cn('flex flex-col gap-2')}>
-              <AlertDialog open={isExtendConfirmOpen} onOpenChange={setIsExtendConfirmOpen}>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>기한 연장</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      API 키의 만료 기한을 연장합니다.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction onClick={onExtendConfirm}>확인</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <Tooltip className="w-full">
-                <TooltipTrigger asChild>
-                  <button
-                    className={cn(
-                      'text-foreground border-foreground hover:bg-foreground hover:text-background w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-all disabled:cursor-not-allowed disabled:opacity-60',
-                    )}
-                    disabled={isCreatingApiKey || isUpdatingApiKey || isRotatingApiKey}
-                    type="button"
-                    onClick={onExtendClick}
-                  >
-                    기한 연장하기
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>API 키의 만료 기한을 연장합니다.</TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-        </div>
-      </form>
-    </div>
+          </>
+        )}
+      </div>
+    </form>
   );
 };
 
