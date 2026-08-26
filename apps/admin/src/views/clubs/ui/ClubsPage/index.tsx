@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Club, ClubType } from '@repo/shared/types';
-import { CommonPagination, PageWindow } from '@repo/shared/ui';
+import { CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -160,6 +160,8 @@ const ClubsPage = () => {
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
+        <PageTitleBar title="CLUB MANAGEMENT" description="DataGSM에 등록된 동아리를 관리합니다." />
+
         <PageWindow
           windowTitle="Club Management"
           title="동아리 관리"

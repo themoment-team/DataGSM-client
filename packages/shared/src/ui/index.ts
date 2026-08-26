@@ -27,5 +27,6 @@ export { PixelIconButton } from './PixelIconButton';
 export { SectionCard } from './SectionCard';
 export { PageHeader } from './PageHeader';
 export { PageWindow } from './PageWindow';
+export { PageTitleBar } from './PageTitleBar';
 export { DialogWindow } from './DialogWindow';
 export { ConfirmDialog } from './ConfirmDialog';

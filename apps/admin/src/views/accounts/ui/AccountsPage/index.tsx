@@ -13,7 +13,7 @@ import {
   AccountStatus,
   UserRoleType,
 } from '@repo/shared/types';
-import { CommonPagination, PageWindow } from '@repo/shared/ui';
+import { CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -150,6 +150,8 @@ const AccountsPage = () => {
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
+        <PageTitleBar title="ACCOUNT MANAGEMENT" description="DataGSM 계정과 권한을 관리합니다." />
+
         <PageWindow
           windowTitle="Account Management"
           title="계정 관리"

@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { useURLFilters } from '@repo/shared/hooks';
-import { CommonPagination, PageWindow } from '@repo/shared/ui';
+import { CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -56,6 +56,8 @@ const TeacherApprovalsPage = () => {
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
+        <PageTitleBar title="TEACHER APPROVE" description="DataGSM의 선생님 역할을 승인합니다." />
+
         <PageWindow
           windowTitle="Teacher Approve"
           title="선생님 역할 승인"

@@ -6,7 +6,13 @@ import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useURLFilters } from '@repo/shared/hooks';
-import { ApiKeyFormDialog, Button, CommonPagination, PageWindow } from '@repo/shared/ui';
+import {
+  ApiKeyFormDialog,
+  Button,
+  CommonPagination,
+  PageTitleBar,
+  PageWindow,
+} from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useForm, useWatch } from 'react-hook-form';
 
@@ -107,6 +113,11 @@ const ApiKeyPage = () => {
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
+        <PageTitleBar
+          title="API KEY MANAGEMENT"
+          description="DataGSM API를 사용하기 위한 키를 관리합니다."
+        />
+
         <PageWindow
           windowTitle="API Key Management"
           title="API Key 관리"
