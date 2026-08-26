@@ -6,10 +6,7 @@ import { AccountListItem } from '@repo/shared/types';
 import {
   Button,
   Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
+  DialogWindow,
   Label,
   Select,
   SelectContent,
@@ -185,35 +182,17 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        className={cn(
-          'border-foreground max-h-[90vh] gap-0 overflow-y-auto border-2 p-0 sm:max-w-[860px]',
-        )}
+      <DialogWindow
+        windowTitle="Account Detail"
+        description="계정에 연결된 정보를 확인하고 권한을 관리하세요."
+        className={cn('sm:max-w-[860px]')}
       >
-        <div
-          className={cn(
-            'bg-foreground text-background flex items-center justify-between px-4 py-3',
-          )}
-        >
-          <DialogTitle className={cn('font-pixel text-[9px] font-normal leading-none')}>
-            Account Detail
-          </DialogTitle>
-          <DialogClose
-            className={cn(
-              'flex h-6 cursor-pointer items-center justify-center px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-70',
-            )}
-          >
-            X<span className={cn('sr-only')}>닫기</span>
-          </DialogClose>
-        </div>
-
         <div className={cn('flex flex-col gap-4 px-5 pt-4')}>
           <div className={cn('flex flex-col gap-1')}>
             <p className={cn(SECTION_TITLE_STYLE)}>계정 정보</p>
-            <DialogDescription className={cn(SECTION_DESCRIPTION_STYLE)}>
+            <p className={cn(SECTION_DESCRIPTION_STYLE)}>
               계정에 연결된 정보를 확인하고 권한을 관리하세요.
-            </DialogDescription>
+            </p>
           </div>
 
           <Table>
@@ -303,7 +282,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
             {isPending ? '변경 중...' : 'Confirm'}
           </Button>
         </div>
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 };

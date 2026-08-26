@@ -3,15 +3,7 @@
 import { useState } from 'react';
 
 import { ApiKeyResponse, AvailableScopeListResponse, UserRoleType } from '@repo/shared/types';
-import {
-  Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from '@repo/shared/ui';
+import { Button, Dialog, DialogTrigger, DialogWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 
 import ApiKeyManager from '../ApiKeyManager';
@@ -47,42 +39,18 @@ const ApiKeyFormDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent
-        showCloseButton={false}
-        className={cn(
-          'border-foreground max-h-[90vh] gap-0 overflow-y-auto border-2 p-0 sm:max-w-[1020px]',
-        )}
+      <DialogWindow
+        windowTitle="API key permission scope"
+        description="이 키로 접근할 수 있는 데이터를 고르세요."
+        className={cn('sm:max-w-[1020px]')}
       >
-        <div
-          className={cn(
-            'bg-foreground text-background flex items-center justify-between px-4 py-3',
-          )}
-        >
-          <DialogTitle className={cn('font-pixel text-[9px] font-normal leading-none')}>
-            API key permission scope
-          </DialogTitle>
-          <DialogClose
-            className={cn(
-              'flex h-6 cursor-pointer items-center justify-center px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-70',
-            )}
-          >
-            X<span className={cn('sr-only')}>닫기</span>
-          </DialogClose>
-        </div>
-
-        {/* 시안의 "권한 범위 / 이 키로 접근할 수 있는 데이터를 고르세요." 문구는
-            ApiKeyForm 안에서 노출되므로, 여기서는 접근성용으로만 제공한다. */}
-        <DialogDescription className={cn('sr-only')}>
-          이 키로 접근할 수 있는 데이터를 고르세요.
-        </DialogDescription>
-
         <ApiKeyManager
           className={cn('px-5 pb-5 pt-4')}
           initialApiKeyData={initialApiKeyData}
           initialAvailableScope={initialAvailableScope}
           userRole={userRole}
         />
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 };

@@ -1,16 +1,10 @@
-import { type ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 import { useDeleteApiKeyById, useUpdateApiKeyExpirationById } from '@repo/shared/hooks';
 import { ApiKey } from '@repo/shared/types';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-  AlertDialogTrigger,
   Button,
+  ConfirmDialog,
   Input,
   Label,
   Skeleton,
@@ -20,7 +14,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  buttonVariants,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -29,20 +22,6 @@ import { toast } from 'sonner';
 interface ApiKeyListProps {
   apiKeys?: ApiKey[];
   isLoading: boolean;
-}
-
-interface ApiKeyConfirmDialogProps {
-  trigger: ReactNode;
-  title: string;
-  /** 시안에 경고 문구가 있는 경우에만 노출한다. 없으면 스크린리더용으로만 제공한다. */
-  warning?: string;
-  description: string;
-  confirmLabel: string;
-  confirmVariant: 'pixel-primary' | 'pixel-destructive';
-  onConfirm?: () => void;
-  onOpenChange?: (open: boolean) => void;
-  /** 시안에 입력 필드가 있는 경우 본문 아래에 렌더링한다. */
-  children?: ReactNode;
 }
 
 const HEAD_ROW_STYLE =
@@ -58,62 +37,6 @@ const formatExpiresAt = (value: string | Date) => {
 
   return `${year}.${month}.${day}`;
 };
-
-const ApiKeyConfirmDialog = ({
-  trigger,
-  title,
-  warning,
-  description,
-  confirmLabel,
-  confirmVariant,
-  onConfirm,
-  onOpenChange,
-  children,
-}: ApiKeyConfirmDialogProps) => (
-  <AlertDialog onOpenChange={onOpenChange}>
-    <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
-    <AlertDialogContent className={cn('gap-0 p-0 sm:max-w-[656px]')}>
-      <div
-        className={cn('bg-foreground text-background flex items-center justify-between px-4 py-3')}
-      >
-        <span className={cn('font-pixel text-[9px] leading-none')}>Alert</span>
-        <AlertDialogCancel
-          className={cn(
-            buttonVariants({ variant: 'pixel-primary' }),
-            'text-background h-6 border-0 px-2',
-          )}
-        >
-          X<span className={cn('sr-only')}>닫기</span>
-        </AlertDialogCancel>
-      </div>
-
-      <div className={cn('flex flex-col gap-1 px-5 pt-5')}>
-        <AlertDialogTitle className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
-          {title}
-        </AlertDialogTitle>
-        <AlertDialogDescription
-          className={cn(warning ? 'text-destructive text-[13px] leading-[1.6]' : 'sr-only')}
-        >
-          {warning ?? description}
-        </AlertDialogDescription>
-      </div>
-
-      {children && <div className={cn('flex flex-col gap-1.5 px-5 pt-4')}>{children}</div>}
-
-      <div className={cn('flex items-center gap-2.5 p-5')}>
-        <AlertDialogCancel className={cn(buttonVariants({ variant: 'pixel' }), 'h-9 flex-1 px-3')}>
-          취소
-        </AlertDialogCancel>
-        <AlertDialogAction
-          onClick={onConfirm}
-          className={cn(buttonVariants({ variant: confirmVariant }), 'h-9 flex-1 px-3')}
-        >
-          {confirmLabel}
-        </AlertDialogAction>
-      </div>
-    </AlertDialogContent>
-  </AlertDialog>
-);
 
 const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
   const queryClient = useQueryClient();
@@ -191,7 +114,7 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
                 <TableCell>{formatExpiresAt(apiKey.expiresAt)}</TableCell>
                 <TableCell>
                   <div className={cn('flex items-center gap-2 whitespace-nowrap')}>
-                    <ApiKeyConfirmDialog
+                    <ConfirmDialog
                       trigger={
                         <Button type="button" variant="pixel" className={cn('h-6 border px-2')}>
                           Renew
@@ -224,9 +147,9 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
                         }
                         className={cn('border-foreground h-9 rounded-none px-3 text-sm')}
                       />
-                    </ApiKeyConfirmDialog>
+                    </ConfirmDialog>
 
-                    <ApiKeyConfirmDialog
+                    <ConfirmDialog
                       trigger={
                         <Button
                           type="button"

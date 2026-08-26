@@ -6,11 +6,8 @@ import { ClubListData, Student } from '@repo/shared/types';
 import {
   Button,
   Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
   DialogTrigger,
+  DialogWindow,
   FormErrorMessage,
   Input,
   Label,
@@ -247,36 +244,7 @@ const StudentFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent
-        showCloseButton={false}
-        className={cn(
-          'border-foreground max-h-[90vh] gap-0 overflow-y-auto border-2 p-0 sm:max-w-[656px]',
-        )}
-      >
-        <div
-          className={cn(
-            'bg-foreground text-background flex items-center justify-between px-4 py-3',
-          )}
-        >
-          <DialogTitle className={cn('font-pixel text-[9px] font-normal leading-none')}>
-            {windowTitle}
-          </DialogTitle>
-          <DialogClose
-            className={cn(
-              'flex h-6 cursor-pointer items-center justify-center px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-70',
-            )}
-          >
-            X<span className={cn('sr-only')}>닫기</span>
-          </DialogClose>
-        </div>
-
-        <div className={cn('flex flex-col gap-1 px-5 pt-4')}>
-          <p className={cn('text-foreground text-base font-semibold leading-[1.45]')}>{heading}</p>
-          <DialogDescription className={cn('text-muted-foreground text-[13px] leading-[1.6]')}>
-            {description}
-          </DialogDescription>
-        </div>
-
+      <DialogWindow windowTitle={windowTitle} heading={heading} description={description}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={cn('grid grid-cols-2 gap-4 px-5 pb-2.5 pt-5')}>
             <FormField label="이름" htmlFor="name" error={errors.name}>
@@ -612,7 +580,7 @@ const StudentFormDialog = ({
             </Button>
           </div>
         </form>
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 };
