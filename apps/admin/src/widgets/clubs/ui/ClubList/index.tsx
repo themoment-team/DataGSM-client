@@ -5,8 +5,6 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
@@ -17,6 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  buttonVariants,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -160,25 +159,52 @@ const ClubList = ({ clubs, isLoading, onEdit }: ClubListProps) => {
                           Delete
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>동아리 삭제</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            정말로 {club.name} 동아리를 삭제하시겠습니까? 이 작업은 되돌릴 수
-                            없습니다.
+                      <AlertDialogContent className={cn('gap-0 p-0 sm:max-w-[656px]')}>
+                        <div
+                          className={cn(
+                            'bg-foreground text-background flex items-center justify-between px-4 py-3',
+                          )}
+                        >
+                          <span className={cn('font-pixel text-[9px] leading-none')}>Alert</span>
+                          <AlertDialogCancel
+                            className={cn(
+                              buttonVariants({ variant: 'pixel-primary' }),
+                              'text-background h-6 border-0 px-2',
+                            )}
+                          >
+                            X<span className={cn('sr-only')}>닫기</span>
+                          </AlertDialogCancel>
+                        </div>
+
+                        <div className={cn('flex flex-col gap-1 px-5 pt-5')}>
+                          <AlertDialogTitle
+                            className={cn('text-foreground text-xl font-semibold leading-[1.45]')}
+                          >
+                            정말 “{club.name}”동아리를 삭제할까요?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription
+                            className={cn('text-destructive text-[13px] leading-[1.6]')}
+                          >
+                            &gt; 중요: 이 작업은 되돌릴 수 없습니다!
                           </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>취소</AlertDialogCancel>
+                        </div>
+
+                        <div className={cn('flex items-center gap-2.5 p-5')}>
+                          <AlertDialogCancel
+                            className={cn(buttonVariants({ variant: 'pixel' }), 'h-9 flex-1 px-3')}
+                          >
+                            취소
+                          </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => deleteClub(club.id)}
                             className={cn(
-                              'bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 text-white',
+                              buttonVariants({ variant: 'pixel-destructive' }),
+                              'h-9 flex-1 px-3',
                             )}
                           >
-                            삭제
+                            확인
                           </AlertDialogAction>
-                        </AlertDialogFooter>
+                        </div>
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
