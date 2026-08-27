@@ -30,3 +30,5 @@ export { PageWindow } from './PageWindow';
 export { PageTitleBar } from './PageTitleBar';
 export { DialogWindow } from './DialogWindow';
 export { ConfirmDialog } from './ConfirmDialog';
+export { FilterSelect } from './FilterSelect';
+export type { FilterOption } from './FilterSelect';

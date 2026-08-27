@@ -1,55 +1,15 @@
 import { Club } from '@repo/shared/types';
-import { Input, Select, SelectContent, SelectItem, SelectTrigger } from '@repo/shared/ui';
+import { FilterOption, FilterSelect, Input } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { Search } from 'lucide-react';
 import { Control, Controller } from 'react-hook-form';
 
 import { ProjectFilterType } from '@/entities/project';
 
-interface FilterOption {
-  value: string;
-  label: string;
-}
-
 const STATUS_OPTIONS: FilterOption[] = [
   { value: 'ACTIVE', label: '운영 중' },
   { value: 'ENDED', label: '운영 종료' },
 ];
-
-interface FilterSelectProps {
-  label: string;
-  options: FilterOption[];
-  value?: string;
-  onChange: (value: string) => void;
-  className?: string;
-}
-
-const FilterSelect = ({ label, options, value, onChange, className }: FilterSelectProps) => {
-  const selected = options.find((option) => option.value === value);
-  const isPlaceholder = value === undefined || value === 'all';
-
-  return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger
-        aria-label={label}
-        className={cn('border-foreground h-9 justify-between px-3', className)}
-      >
-        <span
-          className={cn('truncate', isPlaceholder ? 'text-muted-foreground' : 'text-foreground')}
-        >
-          {label}: {isPlaceholder ? '' : selected?.label}
-        </span>
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-};
 
 interface ProjectFilterProps {
   control: Control<ProjectFilterType>;
