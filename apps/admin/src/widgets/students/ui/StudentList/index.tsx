@@ -26,6 +26,14 @@ const BODY_ROW_STYLE =
   'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
 
 const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
+  if (!isLoading && !students?.length) {
+    return (
+      <p className={cn('text-muted-foreground py-12 text-center font-mono text-xs')}>
+        조건에 맞는 학생이 없습니다.
+      </p>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
