@@ -15,3 +15,10 @@ package-lock.json
 .DS_Store
 
 apps/docs/**/*.mdx
+
+.claude/**/*.sh
+.claude/**/*.md
+.codex/**/*.sh
+.codex/**/*.md
+.agents/**/*.sh
+.agents/**/*.md
