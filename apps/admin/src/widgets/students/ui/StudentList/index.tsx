@@ -38,6 +38,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
           <TableHead className={cn('w-[140px]')}>구분</TableHead>
           <TableHead className={cn('w-[140px]')}>기숙사 호실</TableHead>
           <TableHead>전공동아리</TableHead>
+          <TableHead>자율동아리</TableHead>
           <TableHead className={cn('w-[70px]')}>
             <span className={cn('sr-only')}>작업</span>
           </TableHead>
@@ -72,6 +73,9 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
                   <Skeleton className={cn('h-4 w-20')} />
                 </TableCell>
                 <TableCell>
+                  <Skeleton className={cn('h-4 w-20')} />
+                </TableCell>
+                <TableCell>
                   <Skeleton className={cn('h-6 w-12')} />
                 </TableCell>
               </TableRow>
@@ -97,6 +101,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
                   {student.dormitoryRoom ? `${student.dormitoryRoom}호` : '없음'}
                 </TableCell>
                 <TableCell>{student.majorClub?.name ?? '없음'}</TableCell>
+                <TableCell>{student.autonomousClub?.name ?? '없음'}</TableCell>
                 <TableCell>
                   <Button
                     type="button"
