@@ -31,6 +31,7 @@ import {
   Badge,
   Button,
   Checkbox,
+  FORM_FIELD_STYLE,
   FormErrorMessage,
   Input,
   Label,
@@ -43,7 +44,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-const FIELD_STYLE = 'border-foreground h-9 rounded-none px-3 text-sm';
 const ACTION_STYLE = 'h-10 w-full px-3';
 
 interface ApiKeyFormProps {
@@ -292,7 +292,7 @@ const ApiKeyForm = ({ initialApiKeyData, initialAvailableScope, userRole }: ApiK
         <Input
           id="description"
           placeholder="API 키 설명을 입력하세요"
-          className={cn(FIELD_STYLE)}
+          className={cn(FORM_FIELD_STYLE)}
           {...register('description')}
         />
         <p className={cn('text-muted-foreground text-xs leading-4')}>

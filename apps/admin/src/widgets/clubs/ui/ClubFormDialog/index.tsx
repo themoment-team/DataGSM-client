@@ -11,7 +11,9 @@ import {
   Dialog,
   DialogTrigger,
   DialogWindow,
-  FormErrorMessage,
+  FORM_FIELD_STYLE,
+  FORM_TRIGGER_STYLE,
+  FormField,
   Input,
   Label,
   Popover,
@@ -26,34 +28,14 @@ import {
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
-import { Controller, FieldError, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { Controller, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { AddClubType } from '@/entities/club';
 import { useCreateClub, useUpdateClub } from '@/widgets/clubs';
 
-const FIELD_STYLE = 'border-foreground h-9 rounded-none px-3 text-sm';
-const TRIGGER_STYLE = 'border-foreground h-9 w-full justify-between px-3 text-sm';
 const COMBOBOX_STYLE =
   'border-foreground bg-background flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 text-left text-sm outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50';
-
-interface FormFieldProps {
-  label: string;
-  htmlFor?: string;
-  error?: FieldError | { message?: string };
-  className?: string;
-  children: React.ReactNode;
-}
-
-const FormField = ({ label, htmlFor, error, className, children }: FormFieldProps) => (
-  <div className={cn('flex flex-col gap-1.5', className)}>
-    <Label htmlFor={htmlFor} className={cn('text-foreground text-sm font-medium')}>
-      {label}
-    </Label>
-    {children}
-    <FormErrorMessage error={error} />
-  </div>
-);
 
 interface ClubFormDialogProps {
   mode: 'create' | 'edit';
@@ -259,7 +241,7 @@ const ClubFormDialog = ({
               <Input
                 id="name"
                 placeholder="동아리명을 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('name')}
               />
             </FormField>
@@ -270,7 +252,7 @@ const ClubFormDialog = ({
                 name="type"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="type" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="type" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="동아리 종류를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -288,7 +270,7 @@ const ClubFormDialog = ({
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="status" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="status" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="운영상태를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -305,7 +287,7 @@ const ClubFormDialog = ({
                 id="foundedYear"
                 type="number"
                 placeholder="설립 연도를 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('foundedYear', {
                   setValueAs: (value) => (value === '' ? undefined : Number(value)),
                 })}
@@ -319,7 +301,7 @@ const ClubFormDialog = ({
                   id="abolishedYear"
                   type="number"
                   placeholder="폐지 연도를 입력하세요"
-                  className={cn(FIELD_STYLE)}
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('abolishedYear', {
                     setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   })}

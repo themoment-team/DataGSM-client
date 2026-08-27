@@ -8,9 +8,10 @@ import {
   Dialog,
   DialogTrigger,
   DialogWindow,
-  FormErrorMessage,
+  FORM_FIELD_STYLE,
+  FORM_TRIGGER_STYLE,
+  FormField,
   Input,
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -19,33 +20,13 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Controller, FieldError, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { AddStudentSchema, AddStudentType } from '@/entities/student';
 import { useCreateStudent, useUpdateStudent, useUpdateStudentStatus } from '@/widgets/students';
 
-const FIELD_STYLE = 'border-foreground h-9 rounded-none px-3 text-sm';
-const TRIGGER_STYLE = 'border-foreground h-9 w-full justify-between px-3 text-sm';
 const DISABLED_STYLE = 'border-foreground/30 bg-muted h-9 w-full cursor-not-allowed border';
-
-interface FormFieldProps {
-  label: string;
-  htmlFor?: string;
-  error?: FieldError | { message?: string };
-  className?: string;
-  children: React.ReactNode;
-}
-
-const FormField = ({ label, htmlFor, error, className, children }: FormFieldProps) => (
-  <div className={cn('flex flex-col gap-1.5', className)}>
-    <Label htmlFor={htmlFor} className={cn('text-foreground text-sm font-medium')}>
-      {label}
-    </Label>
-    {children}
-    <FormErrorMessage error={error} />
-  </div>
-);
 
 interface StudentFormDialogProps {
   clubs?: ClubListData;
@@ -251,7 +232,7 @@ const StudentFormDialog = ({
               <Input
                 id="name"
                 placeholder="이름을 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('name')}
               />
             </FormField>
@@ -260,7 +241,7 @@ const StudentFormDialog = ({
               <Input
                 id="email"
                 placeholder="이메일을 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('email')}
               />
             </FormField>
@@ -271,7 +252,7 @@ const StudentFormDialog = ({
                 name="sex"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="sex" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="sex" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="성별을 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -289,7 +270,7 @@ const StudentFormDialog = ({
                 name="role"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="role" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="role" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="구분을 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -320,7 +301,7 @@ const StudentFormDialog = ({
                       value={field.value ? String(field.value) : undefined}
                       onValueChange={(val) => field.onChange(Number(val))}
                     >
-                      <SelectTrigger id="classNum" className={cn(TRIGGER_STYLE)}>
+                      <SelectTrigger id="classNum" className={cn(FORM_TRIGGER_STYLE)}>
                         <SelectValue placeholder="반을 선택하세요" />
                       </SelectTrigger>
                       <SelectContent>
@@ -347,7 +328,7 @@ const StudentFormDialog = ({
                       value={field.value ? String(field.value) : undefined}
                       onValueChange={(val) => field.onChange(Number(val))}
                     >
-                      <SelectTrigger id="grade" className={cn(TRIGGER_STYLE)}>
+                      <SelectTrigger id="grade" className={cn(FORM_TRIGGER_STYLE)}>
                         <SelectValue placeholder="학년을 선택하세요" />
                       </SelectTrigger>
                       <SelectContent>
@@ -373,7 +354,7 @@ const StudentFormDialog = ({
                   id="dormitoryRoomNumber"
                   type="number"
                   placeholder="호실을 입력하세요"
-                  className={cn(FIELD_STYLE)}
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('dormitoryRoomNumber', { valueAsNumber: true })}
                 />
               )}
@@ -388,7 +369,7 @@ const StudentFormDialog = ({
                   id="number"
                   type="number"
                   placeholder="번호를 입력하세요"
-                  className={cn(FIELD_STYLE)}
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('number', { valueAsNumber: true })}
                 />
               )}
@@ -416,7 +397,7 @@ const StudentFormDialog = ({
                       }
                       onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
                     >
-                      <SelectTrigger id="majorClubId" className={cn(TRIGGER_STYLE)}>
+                      <SelectTrigger id="majorClubId" className={cn(FORM_TRIGGER_STYLE)}>
                         <SelectValue placeholder="전공 동아리를 선택하세요" />
                       </SelectTrigger>
                       <SelectContent>
@@ -459,7 +440,7 @@ const StudentFormDialog = ({
                       }
                       onValueChange={(val) => field.onChange(val === 'none' ? null : Number(val))}
                     >
-                      <SelectTrigger id="autonomousClubId" className={cn(TRIGGER_STYLE)}>
+                      <SelectTrigger id="autonomousClubId" className={cn(FORM_TRIGGER_STYLE)}>
                         <SelectValue placeholder="자율 동아리를 선택하세요" />
                       </SelectTrigger>
                       <SelectContent>
@@ -500,7 +481,7 @@ const StudentFormDialog = ({
                           placeholder="전공을 입력하세요"
                           value={field.value ?? ''}
                           onChange={(e) => field.onChange(e.target.value || null)}
-                          className={cn(FIELD_STYLE, 'flex-1')}
+                          className={cn(FORM_FIELD_STYLE, 'flex-1')}
                           autoFocus
                         />
                         <Button
@@ -529,7 +510,7 @@ const StudentFormDialog = ({
                           }
                         }}
                       >
-                        <SelectTrigger id="specialty" className={cn(TRIGGER_STYLE)}>
+                        <SelectTrigger id="specialty" className={cn(FORM_TRIGGER_STYLE)}>
                           <SelectValue placeholder="전공을 선택하세요" />
                         </SelectTrigger>
                         <SelectContent>
@@ -562,7 +543,7 @@ const StudentFormDialog = ({
                 <Input
                   id="githubId"
                   placeholder="Git Hub 아이디를 입력하세요"
-                  className={cn(FIELD_STYLE)}
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('githubId', { setValueAs: (v) => (v === '' ? null : v) })}
                 />
               )}

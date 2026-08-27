@@ -11,7 +11,9 @@ import {
   Dialog,
   DialogTrigger,
   DialogWindow,
-  FormErrorMessage,
+  FORM_FIELD_STYLE,
+  FORM_TRIGGER_STYLE,
+  FormField,
   Input,
   Label,
   Popover,
@@ -27,7 +29,7 @@ import {
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
-import { Controller, FieldError, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
+import { Controller, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { AddProjectType } from '@/entities/project';
@@ -37,27 +39,6 @@ import {
   useReactivateProject,
   useUpdateProject,
 } from '@/views/projects/model';
-
-const FIELD_STYLE = 'border-foreground h-9 rounded-none px-3 text-sm';
-const TRIGGER_STYLE = 'border-foreground h-9 w-full justify-between px-3 text-sm';
-
-interface FormFieldProps {
-  label: string;
-  htmlFor?: string;
-  error?: FieldError | { message?: string };
-  className?: string;
-  children: React.ReactNode;
-}
-
-const FormField = ({ label, htmlFor, error, className, children }: FormFieldProps) => (
-  <div className={cn('flex flex-col gap-1.5', className)}>
-    <Label htmlFor={htmlFor} className={cn('text-foreground text-sm font-medium')}>
-      {label}
-    </Label>
-    {children}
-    <FormErrorMessage error={error} />
-  </div>
-);
 
 interface ProjectFormDialogProps {
   mode: 'create' | 'edit';
@@ -275,7 +256,7 @@ const ProjectFormDialog = ({
               <Input
                 id="name"
                 placeholder="프로젝트명을 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('name')}
               />
             </FormField>
@@ -289,7 +270,7 @@ const ProjectFormDialog = ({
                     value={field.value ? String(field.value) : 'none'}
                     onValueChange={(val) => field.onChange(val === 'none' ? 0 : Number(val))}
                   >
-                    <SelectTrigger id="clubId" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="clubId" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="동아리를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -313,7 +294,7 @@ const ProjectFormDialog = ({
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="status" className={cn(TRIGGER_STYLE)}>
+                    <SelectTrigger id="status" className={cn(FORM_TRIGGER_STYLE)}>
                       <SelectValue placeholder="운영상태를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
@@ -330,7 +311,7 @@ const ProjectFormDialog = ({
                 id="startYear"
                 type="number"
                 placeholder="시작 연도를 입력하세요"
-                className={cn(FIELD_STYLE)}
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('startYear', {
                   setValueAs: (value) => (value === '' ? undefined : Number(value)),
                 })}
@@ -344,7 +325,7 @@ const ProjectFormDialog = ({
                   id="endYear"
                   type="number"
                   placeholder="종료 연도를 입력하세요"
-                  className={cn(FIELD_STYLE)}
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('endYear', {
                     setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   })}

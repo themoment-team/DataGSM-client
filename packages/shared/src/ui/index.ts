@@ -32,3 +32,4 @@ export { DialogWindow } from './DialogWindow';
 export { ConfirmDialog } from './ConfirmDialog';
 export { FilterSelect } from './FilterSelect';
 export type { FilterOption } from './FilterSelect';
+export { FormField, FORM_FIELD_STYLE, FORM_TRIGGER_STYLE } from './FormField';
