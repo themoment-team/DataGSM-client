@@ -8,6 +8,8 @@ import {
   Input,
   Label,
   Skeleton,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -23,12 +25,6 @@ interface ApiKeyListProps {
   apiKeys?: ApiKey[];
   isLoading: boolean;
 }
-
-const HEAD_ROW_STYLE =
-  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
-
-const BODY_ROW_STYLE =
-  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
 
 const formatExpiresAt = (value: string | Date) => {
   const [year, month, day] = new Date(value)
@@ -73,7 +69,7 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
   return (
     <Table>
       <TableHeader>
-        <TableRow className={cn(HEAD_ROW_STYLE)}>
+        <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
           <TableHead className={cn('w-[100px]')}>ID</TableHead>
           <TableHead className={cn('w-[320px]')}>설명</TableHead>
           <TableHead>API Key</TableHead>
@@ -86,7 +82,7 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
       <TableBody>
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={index} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={index} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-8')} />
                 </TableCell>
@@ -105,7 +101,7 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
               </TableRow>
             ))
           : apiKeys?.map((apiKey) => (
-              <TableRow key={apiKey.id} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={apiKey.id} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>{apiKey.id}</TableCell>
                 <TableCell className={cn('truncate')} title={apiKey.description}>
                   {apiKey.description}

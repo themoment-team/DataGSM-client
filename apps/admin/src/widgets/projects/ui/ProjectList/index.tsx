@@ -3,6 +3,8 @@ import {
   Button,
   ConfirmDialog,
   Skeleton,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -18,12 +20,6 @@ interface ProjectListProps {
   onEdit?: (project: Project) => void;
   onDelete?: (projectId: number) => void;
 }
-
-const HEAD_ROW_STYLE =
-  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
-
-const BODY_ROW_STYLE =
-  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
 
 const STATUS_BADGE: Record<ProjectStatus, { label: string; badgeStyle: string; dotStyle: string }> =
   {
@@ -51,7 +47,7 @@ const ProjectList = ({ projects, isLoading, onEdit, onDelete }: ProjectListProps
   return (
     <Table>
       <TableHeader>
-        <TableRow className={cn(HEAD_ROW_STYLE)}>
+        <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
           <TableHead className={cn('w-[160px]')}>이름</TableHead>
           <TableHead className={cn('w-[140px]')}>상태</TableHead>
           <TableHead className={cn('w-[80px]')}>시작 연도</TableHead>
@@ -66,7 +62,7 @@ const ProjectList = ({ projects, isLoading, onEdit, onDelete }: ProjectListProps
       <TableBody>
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={index} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={index} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-32')} />
                 </TableCell>
@@ -94,7 +90,7 @@ const ProjectList = ({ projects, isLoading, onEdit, onDelete }: ProjectListProps
               const status = STATUS_BADGE[project.status];
 
               return (
-                <TableRow key={project.id} className={cn(BODY_ROW_STYLE)}>
+                <TableRow key={project.id} className={cn(TABLE_BODY_ROW_STYLE)}>
                   <TableCell>{project.name}</TableCell>
                   <TableCell>
                     <span

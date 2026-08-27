@@ -95,4 +95,13 @@ function TableCaption({ className, ...props }: React.ComponentProps<'caption'>) 
   );
 }
 
+/** 어드민 목록 테이블의 헤더 행 스타일. */
+const TABLE_HEAD_ROW_STYLE =
+  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
+
+/** 어드민 목록 테이블의 본문 행 스타일. */
+const TABLE_BODY_ROW_STYLE =
+  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
+
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
+export { TABLE_HEAD_ROW_STYLE, TABLE_BODY_ROW_STYLE };

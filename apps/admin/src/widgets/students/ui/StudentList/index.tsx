@@ -2,6 +2,8 @@ import { Student } from '@repo/shared/types';
 import {
   Button,
   Skeleton,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -19,12 +21,6 @@ interface StudentListProps {
   onEdit?: (student: Student) => void;
 }
 
-const HEAD_ROW_STYLE =
-  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
-
-const BODY_ROW_STYLE =
-  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
-
 const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
   if (!isLoading && !students?.length) {
     return (
@@ -37,7 +33,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
   return (
     <Table>
       <TableHeader>
-        <TableRow className={cn(HEAD_ROW_STYLE)}>
+        <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
           <TableHead className={cn('w-[100px]')}>이름</TableHead>
           <TableHead className={cn('w-[100px]')}>성별</TableHead>
           <TableHead className={cn('w-[100px]')}>학번</TableHead>
@@ -55,7 +51,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
       <TableBody>
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={index} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={index} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-16')} />
                 </TableCell>
@@ -89,7 +85,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
               </TableRow>
             ))
           : students?.map((student) => (
-              <TableRow key={student.id} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={student.id} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>{student.name}</TableCell>
                 <TableCell>{getSexLabel(student.sex)}</TableCell>
                 <TableCell>{student.studentNumber}</TableCell>

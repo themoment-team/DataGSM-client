@@ -3,6 +3,8 @@ import {
   Button,
   ConfirmDialog,
   Skeleton,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -21,12 +23,6 @@ interface TeacherApprovalListProps {
   onApprove?: (accountId: number) => void;
 }
 
-const HEAD_ROW_STYLE =
-  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
-
-const BODY_ROW_STYLE =
-  'border-foreground [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
-
 const TeacherApprovalList = ({
   accounts,
   isLoading,
@@ -44,7 +40,7 @@ const TeacherApprovalList = ({
   return (
     <Table>
       <TableHeader>
-        <TableRow className={cn(HEAD_ROW_STYLE)}>
+        <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
           <TableHead className={cn('w-[240px]')}>이메일</TableHead>
           <TableHead className={cn('w-[120px]')}>성함</TableHead>
           <TableHead className={cn('w-[120px]')}>소속부서</TableHead>
@@ -58,7 +54,7 @@ const TeacherApprovalList = ({
       <TableBody>
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={index} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={index} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>
                   <Skeleton className={cn('h-4 w-40')} />
                 </TableCell>
@@ -80,7 +76,7 @@ const TeacherApprovalList = ({
               </TableRow>
             ))
           : accounts?.map((account) => (
-              <TableRow key={account.id} className={cn(BODY_ROW_STYLE)}>
+              <TableRow key={account.id} className={cn(TABLE_BODY_ROW_STYLE)}>
                 <TableCell>{account.email}</TableCell>
                 <TableCell>{account.teacher?.name ?? '-'}</TableCell>
                 <TableCell>

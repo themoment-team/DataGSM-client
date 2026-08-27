@@ -13,6 +13,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -35,12 +37,6 @@ import {
 import { useGetMyAccountId } from '@/entities/signin';
 import { getMajorLabel, getRoleBadgeStyle, getRoleLabel } from '@/entities/student';
 import { useUpdateAccountRole } from '@/widgets/accounts';
-
-const HEAD_ROW_STYLE =
-  '[&>th]:px-5 [&>th]:py-1.5 [&>th]:font-sans [&>th]:text-[13px] [&>th]:font-normal [&>th]:normal-case [&>th]:tracking-normal';
-
-const BODY_ROW_STYLE =
-  'border-foreground border hover:bg-transparent [&>td]:px-5 [&>td]:py-3.5 [&>td]:font-mono [&>td]:text-xs [&>td]:text-muted-foreground';
 
 const BADGE_STYLE =
   'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]';
@@ -104,14 +100,14 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
       return (
         <Table>
           <TableHeader>
-            <TableRow className={cn(HEAD_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
               <TableHead className={cn('w-[180px]')}>이름</TableHead>
               <TableHead className={cn('w-[200px]')}>소속 부서</TableHead>
               <TableHead>설명</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className={cn(BODY_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
               <TableCell>{teacher.name}</TableCell>
               <TableCell>{getTeacherDepartmentLabel(teacher.department)}</TableCell>
               <TableCell className={cn('whitespace-normal')}>
@@ -131,7 +127,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
       <div className={cn('flex flex-col')}>
         <Table>
           <TableHeader>
-            <TableRow className={cn(HEAD_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
               <TableHead className={cn('w-[120px]')}>이름</TableHead>
               <TableHead className={cn('w-[80px]')}>학년</TableHead>
               <TableHead className={cn('w-[80px]')}>반</TableHead>
@@ -140,7 +136,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className={cn(BODY_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
               <TableCell>{student.name}</TableCell>
               <TableCell>{student.grade}학년</TableCell>
               <TableCell>{student.classNum}반</TableCell>
@@ -152,7 +148,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
 
         <Table className={cn('-mt-px')}>
           <TableHeader>
-            <TableRow className={cn(HEAD_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
               <TableHead className={cn('w-[200px]')}>기숙사</TableHead>
               <TableHead className={cn('w-[180px]')}>전공동아리</TableHead>
               <TableHead className={cn('w-[180px]')}>자율동아리</TableHead>
@@ -160,7 +156,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className={cn(BODY_ROW_STYLE)}>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
               <TableCell>
                 {student.dormitoryRoom
                   ? `${student.dormitoryFloor}층 ${student.dormitoryRoom}호`
@@ -197,7 +193,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
 
           <Table>
             <TableHeader>
-              <TableRow className={cn(HEAD_ROW_STYLE)}>
+              <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
                 <TableHead className={cn('w-[260px]')}>이메일</TableHead>
                 <TableHead className={cn('w-[160px]')}>현재 역할</TableHead>
                 <TableHead className={cn('w-[160px]')}>상태</TableHead>
@@ -205,7 +201,7 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow className={cn(BODY_ROW_STYLE)}>
+              <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
                 <TableCell>{account.email}</TableCell>
                 <TableCell>
                   <span className={cn(BADGE_STYLE, getAccountRoleBadgeStyle(account.role))}>
