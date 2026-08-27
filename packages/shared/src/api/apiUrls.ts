@@ -227,4 +227,6 @@ export const oauthUrl = {
   postOAuthCode: () => '/v1/oauth/code',
   postOAuthToken: () => '/oauth/token', // Next.js Route Handler (client_secret 숨김)
   postOAuthTokenRefresh: () => '/v1/oauth/token', // 토큰 갱신 (통합 엔드포인트)
+  getProfileUpdate: (ticket: string) => `/v1/oauth/profile-update/${ticket}`,
+  patchProfileUpdate: (ticket: string) => `/v1/oauth/profile-update/${ticket}`,
 } as const;
