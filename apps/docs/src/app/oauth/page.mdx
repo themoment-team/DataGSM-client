@@ -77,13 +77,13 @@ Access Token 만료 시 새로운 Access Token을 발급받기 위한 토큰입�
 
 ### 기본 권한 범위
 
-DataGSM OAuth는 사용자 기본 정보를 조회하기 위한 기본 권한 범위로 `self:read`를 사용합니다.
+DataGSM OAuth는 사용자 기본 정보를 조회하기 위한 기본 권한 범위로 `datagsm:self_read`를 사용합니다. **모든 권한 범위는 `{applicationId}:{scopeName}` 형식이며, 기본 권한 범위도 예외가 아닙니다.**
 
-`self:read` 권한 범위가 포함된 Access Token으로 [사용자 데이터 조회](/oauth/http/userinfo) 엔드포인트를 호출하면 사용자의 기본 데이터와 학생 상세 데이터를 조회할 수 있습니다.
+이 권한 범위가 포함된 Access Token으로 [사용자 데이터 조회](/oauth/http/userinfo) 엔드포인트를 호출하면 사용자의 기본 데이터와 학생 상세 데이터를 조회할 수 있습니다.
 
-OAuth 인증 요청에서 `scope` 파라미터를 생략하면 별도의 서드파티 권한 범위를 요청하지 않는 기본 사용자 정보 조회 흐름으로 처리됩니다. 신규 연동에서 사용자 본인 정보만 필요하다면 `scope`를 생략하거나 명시적으로 `scope=self:read`를 전달할 수 있습니다.
+OAuth 인증 요청에서 `scope` 파라미터를 **생략하는 것을 권장합니다.** 생략하면 클라이언트에 등록된 권한 범위 전체가 부여되므로, Application ID를 애플리케이션 코드에 넣지 않아도 됩니다.
 
-외부 애플리케이션이 직접 정의한 추가 권한 범위가 필요한 경우에만 `{applicationId}:{scopeName}` 형식의 서드파티 권한 범위를 `scope` 파라미터에 포함합니다. 자세한 내용은 [서드파티 권한 범위](/oauth/thirdparty-scope)를 참고하세요.
+명시적으로 전달할 경우 클라이언트에 등록된 권한 범위의 부분집합이어야 하며, 등록되지 않은 값이 포함되면 `400 invalid_scope`로 거부됩니다. 자세한 내용은 [서드파티 권한 범위](/oauth/thirdparty-scope)를 참고하세요.
 
 ### 인증 플로우
 

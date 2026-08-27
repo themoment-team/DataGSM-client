@@ -56,26 +56,26 @@ Content-Type: application/json
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "scope": "self:read"
+  "scope": "datagsm:self_read"
 }
 ```
 
-| 필드              | 타입       | 설명                                     |
-|-----------------|----------|----------------------------------------|
-| `access_token`  | `String` | JWT 형식의 Access Token (1시간 유효)          |
-| `token_type`    | `String` | 토큰 타입 (`Bearer` 고정)                    |
+| 필드            | 타입     | 설명                                             |
+|-----------------|----------|--------------------------------------------------|
+| `access_token`  | `String` | JWT 형식의 Access Token (1시간 유효)             |
+| `token_type`    | `String` | 토큰 타입 (`Bearer` 고정)                        |
 | `expires_in`    | `Int`    | Access Token의 만료 시간 (초 단위, 3600 = 1시간) |
-| `refresh_token` | `String` | Refresh Token (30일 유효)                 |
-| `scope`         | `String` | 발급된 권한 범위 (공백으로 구분)                    |
+| `refresh_token` | `String` | Refresh Token (30일 유효)                        |
+| `scope`         | `String` | 발급된 권한 범위 (공백으로 구분)                 |
 
 ### 사용 가능한 엔드포인트
 
-| 엔드포인트                 | 메서드    | 설명                                               | 기술 문서                                       |
-|-----------------------|--------|--------------------------------------------------|------------------------------------------|
-| `/v1/oauth/authorize` | `GET`  | OAuth 인증 흐름 시작 (사용자를 로그인 페이지로 리다이렉트)             | [상세 기술 문서](/oauth/http/authorize)      |
+| 엔드포인트            | 메서드 | 설명                                                         | 기술 문서                                    |
+|-----------------------|--------|--------------------------------------------------------------|----------------------------------------------|
+| `/v1/oauth/authorize` | `GET`  | OAuth 인증 흐름 시작 (사용자를 로그인 페이지로 리다이렉트)   | [상세 기술 문서](/oauth/http/authorize)      |
 | `/v1/oauth/token`     | `POST` | Authorization Code를 Access Token으로 교환 (통합 엔드포인트) | [상세 기술 문서](/oauth/http/token-exchange) |
 | `/v1/oauth/token`     | `POST` | Refresh Token으로 새 Access Token 발급 (통합 엔드포인트)     | [상세 기술 문서](/oauth/http/token-refresh)  |
-| `/userinfo`           | `GET`  | Access Token으로 사용자 데이터 조회                         | [상세 기술 문서](/oauth/http/userinfo)       |
+| `/userinfo`           | `GET`  | Access Token으로 사용자 데이터 조회                          | [상세 기술 문서](/oauth/http/userinfo)       |
 
 ### 에러 처리
 

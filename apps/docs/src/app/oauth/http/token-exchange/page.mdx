@@ -86,24 +86,24 @@ Authorization Code를 Access Token과 Refresh Token으로 교환합니다. 보�
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "scope": "self:read"
+  "scope": "datagsm:self_read"
 }
 ```
 
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `access_token` | `String` | JWT 형식의 Access Token (1시간 유효) |
-| `token_type` | `String` | 토큰 타입 (`Bearer` 고정) |
-| `expires_in` | `Int` | Access Token의 만료 시간 (초 단위, 3600 = 1시간) |
-| `refresh_token` | `String` | Refresh Token (30일 유효) |
-| `scope` | `String` | 발급된 권한 범위 (공백으로 구분) |
+| 필드            | 타입     | 설명                                             |
+|-----------------|----------|--------------------------------------------------|
+| `access_token`  | `String` | JWT 형식의 Access Token (1시간 유효)             |
+| `token_type`    | `String` | 토큰 타입 (`Bearer` 고정)                        |
+| `expires_in`    | `Int`    | Access Token의 만료 시간 (초 단위, 3600 = 1시간) |
+| `refresh_token` | `String` | Refresh Token (30일 유효)                        |
+| `scope`         | `String` | 발급된 권한 범위 (공백으로 구분)                 |
 
 ### 오류 응답
 
-| 상태 코드 | 설명 | 원인 |
-| --- | --- | --- |
-| `400 Bad Request` | 잘못된 요청 | 필수 파라미터 누락, 잘못된 형식, Authorization Code가 만료되었거나 유효하지 않음 |
-| `401 Unauthorized` | 인증 실패 | Client ID가 존재하지 않거나 Client Secret이 올바르지 않음 |
+| 상태 코드          | 설명        | 원인                                                                             |
+|--------------------|-------------|----------------------------------------------------------------------------------|
+| `400 Bad Request`  | 잘못된 요청 | 필수 파라미터 누락, 잘못된 형식, Authorization Code가 만료되었거나 유효하지 않음 |
+| `401 Unauthorized` | 인증 실패   | Client ID가 존재하지 않거나 Client Secret이 올바르지 않음                        |
 
 ### 요청 예시
 
@@ -131,7 +131,7 @@ curl -X POST "https://oauth.authorization.datagsm.kr/v1/oauth/token" \
   "token_type": "Bearer",
   "expires_in": 3600,
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-  "scope": "self:read"
+  "scope": "datagsm:self_read"
 }
 ```
 
