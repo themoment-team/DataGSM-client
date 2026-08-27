@@ -290,7 +290,7 @@ const ProjectFormDialog = ({
                     onValueChange={(val) => field.onChange(val === 'none' ? 0 : Number(val))}
                   >
                     <SelectTrigger id="clubId" className={cn(TRIGGER_STYLE)}>
-                      <SelectValue placeholder="동아리 종류를 선택하세요" />
+                      <SelectValue placeholder="동아리를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none" className={cn('text-muted-foreground')}>
