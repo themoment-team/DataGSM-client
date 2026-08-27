@@ -187,6 +187,8 @@ const StudentsPage = () => {
 
   const totalPages = studentsData?.data.totalPages ?? 0;
 
+  const isEmpty = !isLoadingStudents && !students?.length;
+
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
@@ -225,7 +227,7 @@ const StudentsPage = () => {
           </div>
 
           {/* Table */}
-          <div className={cn('border-foreground border')}>
+          <div className={cn(!isEmpty && 'border-foreground border')}>
             <StudentList
               students={students}
               isLoading={isLoadingStudents}
