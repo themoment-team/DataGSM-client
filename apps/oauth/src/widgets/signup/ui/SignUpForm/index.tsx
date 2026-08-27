@@ -9,6 +9,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EMAIL_DOMAIN } from '@repo/shared/constants';
 import { useDebounce } from '@repo/shared/hooks';
 import {
+  AuthWindow,
+  Button,
   Checkbox,
   Dialog,
   DialogClose,
@@ -207,35 +209,16 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
 
   return (
     <>
-      <div className={cn('border-foreground bg-background max-w-100 w-full border-2')}>
-        {/* Title bar */}
-        <div
-          className={cn(
-            'border-foreground bg-foreground flex items-center gap-3 border-b-2 px-4 py-3',
-          )}
-        >
-          <div
-            className={cn(
-              'bg-background text-foreground font-pixel flex size-6 flex-shrink-0 items-center justify-center text-[8px]',
-            )}
-          >
-            D
-          </div>
-          <span className={cn('text-background font-pixel text-[9px]')}>DataGSM</span>
-          <span className={cn('text-background font-pixel text-[9px]')}>Sign Up</span>
-        </div>
-
-        {/* Header */}
-        <div className={cn('border-border/50 flex flex-col gap-2 border-b p-5')}>
-          <h1 className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
-            {isTeacher ? '선생님 회원가입' : '회원가입'}
-          </h1>
-          <p className={cn('text-muted-foreground text-xs leading-[18px]')}>
+      <AuthWindow
+        windowLabel="Sign Up"
+        title={isTeacher ? '선생님 회원가입' : '회원가입'}
+        description={
+          <>
             <span className={cn('font-mono font-bold')}>{EMAIL_DOMAIN}</span> 도메인 계정만 사용
             가능합니다.
-          </p>
-        </div>
-
+          </>
+        }
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={cn('flex flex-col gap-5 px-5 pt-5')}>
             {/* 이메일 인증 */}
@@ -479,15 +462,15 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
               <FormErrorMessage error={errors.privacyAgreed} className={cn(ERROR_MESSAGE_CLASS)} />
             </div>
 
-            <button
+            <Button
               type="submit"
-              className={cn(
-                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-[1.2px] transition-all disabled:cursor-not-allowed disabled:opacity-60',
-              )}
+              variant="pixel-solid"
+              size="lg"
+              className={cn('w-full')}
               disabled={isSigningUp || !isCodeVerified}
             >
               {isSigningUp ? 'PROCESSING...' : 'SIGN UP'}
-            </button>
+            </Button>
 
             <Link
               href={isTeacher ? '/signup' : '/signup/teacher'}
@@ -497,7 +480,7 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
             </Link>
           </div>
         </form>
-      </div>
+      </AuthWindow>
 
       {/* Privacy dialog */}
       <Dialog open={isPrivacyDialogOpen} onOpenChange={setIsPrivacyDialogOpen}>
@@ -592,15 +575,15 @@ const SignUpForm = ({ objectType = 'STUDENT' }: SignUpFormProps) => {
                 내용을 끝까지 읽어주세요
               </p>
             )}
-            <button
+            <Button
               onClick={handlePrivacyAgree}
               disabled={!hasScrolledToBottom}
-              className={cn(
-                'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 text-xs font-bold tracking-[1.2px] transition-all disabled:cursor-not-allowed disabled:opacity-50',
-              )}
+              variant="pixel-solid"
+              size="lg"
+              className={cn('w-full font-sans')}
             >
               동의합니다
-            </button>
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

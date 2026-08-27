@@ -128,9 +128,10 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
         <div className={cn('p-5')}>
           <Button
             type="submit"
-            variant="pixel-primary"
+            variant="pixel-solid"
+            size="lg"
             disabled={isPending}
-            className={cn('border-foreground h-10 w-full border-2 font-bold')}
+            className={cn('w-full')}
           >
             Enter
           </Button>

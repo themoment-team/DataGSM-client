@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EMAIL_DOMAIN } from '@repo/shared/constants';
 import { useDebounce } from '@repo/shared/hooks';
-import { FormErrorMessage, Input } from '@repo/shared/ui';
+import { AuthWindow, Button, FormErrorMessage, Input } from '@repo/shared/ui';
 import { cn, formatEmailWithDomain, getApiErrorCode, minutesToMs } from '@repo/shared/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -212,35 +212,16 @@ const ResetPasswordForm = () => {
   };
 
   return (
-    <div className={cn('border-foreground bg-background max-w-100 w-full border-2')}>
-      {/* Title bar */}
-      <div
-        className={cn(
-          'border-foreground bg-foreground flex items-center gap-3 border-b-2 px-4 py-3',
-        )}
-      >
-        <div
-          className={cn(
-            'bg-background text-foreground font-pixel flex size-6 flex-shrink-0 items-center justify-center text-[8px]',
-          )}
-        >
-          D
-        </div>
-        <span className={cn('text-background font-pixel text-[9px]')}>DataGSM</span>
-        <span className={cn('text-background font-pixel text-[9px]')}>Reset Password</span>
-      </div>
-
-      {/* Header */}
-      <div className={cn('border-border/50 flex flex-col gap-2 border-b p-5')}>
-        <h1 className={cn('text-foreground text-xl font-semibold leading-[1.45]')}>
-          비밀번호 초기화
-        </h1>
-        <p className={cn('text-muted-foreground text-xs leading-[18px]')}>
+    <AuthWindow
+      windowLabel="Reset Password"
+      title="비밀번호 초기화"
+      description={
+        <>
           <span className={cn('font-mono font-bold')}>{EMAIL_DOMAIN}</span> 도메인 계정만 사용
           가능합니다.
-        </p>
-      </div>
-
+        </>
+      }
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className={cn('flex flex-col gap-5 px-5 pt-5')}>
           {/* 이메일 인증 */}
@@ -388,15 +369,15 @@ const ResetPasswordForm = () => {
         </div>
 
         <div className={cn('flex flex-col items-center gap-4 p-5')}>
-          <button
+          <Button
             type="submit"
-            className={cn(
-              'border-foreground bg-foreground text-background hover:bg-background hover:text-foreground w-full cursor-pointer border-2 py-3 font-mono text-xs font-bold uppercase tracking-[1.2px] transition-all disabled:cursor-not-allowed disabled:opacity-60',
-            )}
+            variant="pixel-solid"
+            size="lg"
+            className={cn('w-full')}
             disabled={isChangingPassword || !isCodeVerified || !isFormValid}
           >
             {isChangingPassword ? 'PROCESSING...' : 'RESET PASSWORD'}
-          </button>
+          </Button>
 
           <button
             type="button"
@@ -409,7 +390,7 @@ const ResetPasswordForm = () => {
           </button>
         </div>
       </form>
-    </div>
+    </AuthWindow>
   );
 };
 
