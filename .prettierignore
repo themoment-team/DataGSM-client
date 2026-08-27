@@ -16,9 +16,6 @@ package-lock.json
 
 apps/docs/**/*.mdx
 
-.claude/**/*.sh
-.claude/**/*.md
-.codex/**/*.sh
-.codex/**/*.md
-.agents/**/*.sh
-.agents/**/*.md
+.claude/
+.codex/
+.agents/
