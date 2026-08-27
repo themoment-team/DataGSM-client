@@ -1,12 +1,4 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  Skeleton,
-} from '@repo/shared/ui';
+import { Skeleton } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 
 interface CommonPaginationProps {
@@ -16,6 +8,19 @@ interface CommonPaginationProps {
   onPageChange: (page: number) => void;
 }
 
+const PAGE_BUTTON_STYLE =
+  'flex size-6 cursor-pointer items-center justify-center border border-foreground bg-background font-mono text-xs tracking-[0.1em] transition-colors hover:bg-foreground hover:text-background';
+
+const VISIBLE_PAGE_COUNT = 3;
+
+const PaginationEllipsis = () => (
+  <span aria-hidden className={cn('flex items-center gap-[2px]')}>
+    <span className={cn('bg-foreground size-[2px]')} />
+    <span className={cn('bg-foreground size-[2px]')} />
+    <span className={cn('bg-foreground size-[2px]')} />
+  </span>
+);
+
 const CommonPagination = ({
   isLoading,
   currentPage,
@@ -24,12 +29,12 @@ const CommonPagination = ({
 }: CommonPaginationProps) => {
   if (isLoading) {
     return (
-      <div className={cn('flex items-center justify-center gap-2')}>
-        <Skeleton className={cn('h-9 w-24')} />
-        <Skeleton className={cn('h-9 w-9')} />
-        <Skeleton className={cn('h-9 w-9')} />
-        <Skeleton className={cn('h-9 w-9')} />
-        <Skeleton className={cn('h-9 w-24')} />
+      <div className={cn('flex items-center justify-center gap-[10px]')}>
+        <Skeleton className={cn('size-6')} />
+        <Skeleton className={cn('size-6')} />
+        <Skeleton className={cn('size-6')} />
+        <Skeleton className={cn('size-6')} />
+        <Skeleton className={cn('size-6')} />
       </div>
     );
   }
@@ -40,12 +45,12 @@ const CommonPagination = ({
 
   const getPageNumbers = () => {
     const pages: number[] = [];
-    const maxVisiblePages = 3;
-    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2));
-    const endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
 
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    let startPage = Math.max(0, currentPage - Math.floor(VISIBLE_PAGE_COUNT / 2));
+    const endPage = Math.min(totalPages - 1, startPage + VISIBLE_PAGE_COUNT - 1);
+
+    if (endPage - startPage + 1 < VISIBLE_PAGE_COUNT) {
+      startPage = Math.max(0, endPage - VISIBLE_PAGE_COUNT + 1);
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -56,52 +61,51 @@ const CommonPagination = ({
   };
 
   const pageNumbers = getPageNumbers();
+  const firstVisiblePage = pageNumbers[0] ?? 0;
+  const lastVisiblePage = pageNumbers[pageNumbers.length - 1] ?? 0;
 
   return (
-    <div>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 0) onPageChange(currentPage - 1);
-              }}
-              className={cn(
-                currentPage === 0 ? 'pointer-events-none opacity-50' : 'cursor-pointer',
-              )}
-            />
-          </PaginationItem>
-          {pageNumbers.map((pageNum) => (
-            <PaginationItem key={pageNum}>
-              <PaginationLink
-                href="#"
-                isActive={pageNum === currentPage}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onPageChange(pageNum);
-                }}
-              >
-                {pageNum + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPages - 1) onPageChange(currentPage + 1);
-              }}
-              className={cn(
-                currentPage >= totalPages - 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer',
-              )}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-    </div>
+    <nav
+      role="navigation"
+      aria-label="pagination"
+      className={cn('flex items-center justify-center gap-[10px]')}
+    >
+      {firstVisiblePage > 0 && (
+        <button type="button" className={cn(PAGE_BUTTON_STYLE)} onClick={() => onPageChange(0)}>
+          1
+        </button>
+      )}
+      {firstVisiblePage > 1 && <PaginationEllipsis />}
+
+      <div className={cn('flex items-center')}>
+        {pageNumbers.map((pageNum) => (
+          <button
+            key={pageNum}
+            type="button"
+            aria-current={pageNum === currentPage ? 'page' : undefined}
+            className={cn(
+              PAGE_BUTTON_STYLE,
+              '-ml-px first:ml-0',
+              pageNum === currentPage && 'bg-foreground text-background',
+            )}
+            onClick={() => onPageChange(pageNum)}
+          >
+            {pageNum + 1}
+          </button>
+        ))}
+      </div>
+
+      {lastVisiblePage < totalPages - 2 && <PaginationEllipsis />}
+      {lastVisiblePage < totalPages - 1 && (
+        <button
+          type="button"
+          className={cn(PAGE_BUTTON_STYLE)}
+          onClick={() => onPageChange(totalPages - 1)}
+        >
+          {totalPages}
+        </button>
+      )}
+    </nav>
   );
 };
 

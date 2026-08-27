@@ -9,17 +9,17 @@ import {
   CommandItem,
   CommandList,
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  FormErrorMessage,
+  DialogWindow,
+  FORM_FIELD_STYLE,
+  FORM_TRIGGER_STYLE,
+  FormField,
+  GradeMemberPicker,
   Input,
   Label,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  SectionCard,
   Select,
   SelectContent,
   SelectItem,
@@ -29,7 +29,7 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Controller, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -194,7 +194,12 @@ const ProjectFormDialog = ({
     }
   };
 
-  const title = mode === 'create' ? '프로젝트 추가' : '프로젝트 데이터 수정';
+  const windowTitle = mode === 'create' ? 'Add Project' : 'Edit Project';
+  const heading = mode === 'create' ? '프로젝트 추가' : '프로젝트 데이터 수정';
+  const description =
+    mode === 'create'
+      ? '프로젝트명, 운영 상태, 시작 연도등을 작성해주세요.'
+      : '수정이 필요한 정보를 변경한 뒤 저장하세요.';
 
   const getPendingState = () => {
     if (mode === 'create') return isSubmitting || isCreating;
@@ -202,7 +207,7 @@ const ProjectFormDialog = ({
   };
 
   const getSubmitText = () => {
-    if (mode === 'create') return '추가';
+    if (mode === 'create') return '+ Add Project';
     return '수정';
   };
 
@@ -217,13 +222,22 @@ const ProjectFormDialog = ({
 
   const defaultTrigger =
     mode === 'create' ? (
-      <Button size="sm" className={cn('gap-2')} disabled={isLoadingStudents}>
-        <Plus className={cn('h-4 w-4')} />
-        프로젝트 추가
+      <Button
+        type="button"
+        variant="pixel-primary"
+        className={cn('px-3')}
+        disabled={isLoadingStudents}
+      >
+        + 프로젝트 추가
       </Button>
     ) : (
-      <Button variant="ghost" size="icon" disabled={isLoadingStudents}>
-        <Pencil className={cn('h-4 w-4')} />
+      <Button
+        type="button"
+        variant="pixel"
+        className={cn('h-6 border px-2')}
+        disabled={isLoadingStudents}
+      >
+        Edit
       </Button>
     );
 
@@ -236,43 +250,53 @@ const ProjectFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}>
-        <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
-          <DialogTitle className={cn('font-pixel text-foreground text-[14px] leading-none')}>
-            {title}
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className={cn('space-y-6 px-6 py-6')}>
-          <div className={cn('grid grid-cols-2 gap-4 pt-4')}>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="name"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                프로젝트명
-              </Label>
+      <DialogWindow windowTitle={windowTitle} heading={heading} description={description}>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+          <div className={cn('grid grid-cols-2 gap-4 px-5 pb-2.5 pt-5')}>
+            <FormField label="프로젝트명" htmlFor="name" error={errors.name}>
               <Input
                 id="name"
-                placeholder="프로젝트명 입력"
-                className={cn('border-foreground rounded-none font-mono')}
+                placeholder="프로젝트명을 입력하세요"
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('name')}
               />
-              <FormErrorMessage error={errors.name} />
-            </div>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="status"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                운영 상태
-              </Label>
+            </FormField>
+
+            <FormField label="동아리" htmlFor="clubId" error={errors.clubId}>
+              <Controller
+                control={control}
+                name="clubId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ? String(field.value) : 'none'}
+                    onValueChange={(val) => field.onChange(val === 'none' ? 0 : Number(val))}
+                  >
+                    <SelectTrigger id="clubId" className={cn(FORM_TRIGGER_STYLE)}>
+                      <SelectValue placeholder="동아리를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className={cn('text-muted-foreground')}>
+                        선택 안 함
+                      </SelectItem>
+                      {clubs.map((club) => (
+                        <SelectItem key={club.id} value={String(club.id)}>
+                          {club.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormField>
+
+            <FormField label="운영 상태" htmlFor="status" error={errors.status}>
               <Controller
                 control={control}
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
-                      <SelectValue placeholder="상태 선택" />
+                    <SelectTrigger id="status" className={cn(FORM_TRIGGER_STYLE)}>
+                      <SelectValue placeholder="운영상태를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ACTIVE">운영 중</SelectItem>
@@ -281,112 +305,56 @@ const ProjectFormDialog = ({
                   </Select>
                 )}
               />
-              <FormErrorMessage error={errors.status} />
-            </div>
-            <div
-              className={cn(
-                'col-span-2 grid gap-4',
-                currentStatus === 'ENDED' ? 'md:grid-cols-3' : 'md:grid-cols-2',
-              )}
-            >
-              <div className={cn('space-y-2')}>
-                <Label
-                  htmlFor="startYear"
-                  className={cn(
-                    'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                  )}
-                >
-                  시작 연도
-                </Label>
+            </FormField>
+
+            <FormField label="시작 연도" htmlFor="startYear" error={errors.startYear}>
+              <Input
+                id="startYear"
+                type="number"
+                placeholder="시작 연도를 입력하세요"
+                className={cn(FORM_FIELD_STYLE)}
+                {...register('startYear', {
+                  setValueAs: (value) => (value === '' ? undefined : Number(value)),
+                })}
+              />
+            </FormField>
+
+            {/* 종료 연도: Figma 시안에는 없지만 운영 종료 처리에 필요한 값이라 유지 */}
+            {currentStatus === 'ENDED' && (
+              <FormField label="종료 연도" htmlFor="endYear" error={errors.endYear}>
                 <Input
-                  id="startYear"
+                  id="endYear"
                   type="number"
-                  placeholder="시작 연도 입력"
-                  className={cn('border-foreground rounded-none font-mono')}
-                  {...register('startYear', {
+                  placeholder="종료 연도를 입력하세요"
+                  className={cn(FORM_FIELD_STYLE)}
+                  {...register('endYear', {
                     setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   })}
                 />
-                <FormErrorMessage error={errors.startYear} />
-              </div>
-              {currentStatus === 'ENDED' && (
-                <div className={cn('space-y-2')}>
-                  <Label
-                    htmlFor="endYear"
-                    className={cn(
-                      'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                    )}
-                  >
-                    종료 연도
-                  </Label>
-                  <Input
-                    id="endYear"
-                    type="number"
-                    placeholder="종료 연도 입력"
-                    className={cn('border-foreground rounded-none font-mono')}
-                    {...register('endYear', {
-                      setValueAs: (value) => (value === '' ? undefined : Number(value)),
-                    })}
-                  />
-                  <FormErrorMessage error={errors.endYear} />
-                </div>
-              )}
-              <div className={cn('space-y-2')}>
-                <Label
-                  htmlFor="clubId"
-                  className={cn(
-                    'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                  )}
-                >
-                  동아리
-                </Label>
-                <Controller
-                  control={control}
-                  name="clubId"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value ? String(field.value) : 'none'}
-                      onValueChange={(val) => field.onChange(val === 'none' ? 0 : Number(val))}
-                    >
-                      <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
-                        <SelectValue placeholder="동아리 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">선택 안 함</SelectItem>
-                        {clubs.map((club) => (
-                          <SelectItem key={club.id} value={String(club.id)}>
-                            {club.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                <FormErrorMessage error={errors.clubId} />
-              </div>
-            </div>
-            <div className={cn('col-span-2 space-y-2')}>
-              <Label
-                htmlFor="description"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                설명
-              </Label>
+              </FormField>
+            )}
+
+            <FormField
+              label="설명"
+              htmlFor="description"
+              error={errors.description}
+              className={cn('col-span-2')}
+            >
               <Textarea
                 id="description"
-                placeholder="프로젝트 설명 입력"
-                className={cn('border-foreground min-h-[100px] resize-none rounded-none font-mono')}
+                placeholder="프로젝트 설명을 입력하세요"
+                className={cn(
+                  'border-foreground min-h-[80px] resize-none rounded-none px-3 text-sm',
+                )}
                 {...register('description')}
               />
-              <FormErrorMessage error={errors.description} />
-            </div>
+            </FormField>
 
-            <div className={cn('col-span-2 space-y-2')}>
-              <Label
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                팀원 추가
-              </Label>
+            <FormField
+              label="팀원"
+              error={Array.isArray(errors.participantIds) ? undefined : errors.participantIds}
+              className={cn('col-start-1')}
+            >
               <Controller
                 control={control}
                 name="participantIds"
@@ -403,12 +371,11 @@ const ProjectFormDialog = ({
                         type="button"
                         role="combobox"
                         className={cn(
-                          'border-foreground bg-background flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 py-2 text-left font-mono text-xs outline-none transition-colors focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
-                          'text-muted-foreground',
+                          'border-foreground bg-background text-muted-foreground flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 text-left text-sm outline-none transition-colors focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
                         )}
                       >
-                        팀원 추가
-                        <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50')} />
+                        학생 이름을 직접 입력하세요
+                        <ChevronDown className={cn('size-4 shrink-0 opacity-50')} />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -424,7 +391,7 @@ const ProjectFormDialog = ({
                         <CommandInput
                           ref={memberSearchRef}
                           placeholder="이름 또는 학번 검색..."
-                          className={cn('font-mono')}
+                          className={cn('text-sm')}
                           value={searchTerm}
                           onValueChange={setSearchTerm}
                         />
@@ -458,119 +425,42 @@ const ProjectFormDialog = ({
                   </Popover>
                 )}
               />
-              <FormErrorMessage
-                error={Array.isArray(errors.participantIds) ? undefined : errors.participantIds}
-              />
-            </div>
+            </FormField>
           </div>
 
-          <SectionCard
-            shadow
-            title="Team Members"
-            headerAction="remove with click"
-            className={cn('bg-background')}
-          >
-            <div className={cn('flex flex-col gap-5 p-4')}>
-              <Controller
-                control={control}
-                name="participantIds"
-                render={({ field }) => {
-                  const selectedIds = Array.isArray(field.value) ? field.value : [];
-                  const selectedStudents =
-                    students?.filter((s) => selectedIds.includes(s.id)) || [];
+          <div className={cn('flex flex-col gap-1.5 px-5 pb-2.5 pt-2.5')}>
+            <Label className={cn('text-foreground text-sm font-medium')}>팀원 명단</Label>
+            <Controller
+              control={control}
+              name="participantIds"
+              render={({ field }) => {
+                const selectedIds = Array.isArray(field.value) ? field.value : [];
 
-                  const grades = [1, 2, 3];
+                return (
+                  <GradeMemberPicker
+                    students={students}
+                    selectedIds={selectedIds}
+                    onRemove={(studentId) =>
+                      field.onChange(field.value.filter((id: number) => id !== studentId))
+                    }
+                  />
+                );
+              }}
+            />
+          </div>
 
-                  return (
-                    <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
-                      {grades.map((grade) => (
-                        <div
-                          key={grade}
-                          className={cn(
-                            'border-foreground bg-background flex min-h-[240px] flex-col border',
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              'border-foreground flex items-center justify-between border-b px-3 py-2',
-                            )}
-                          >
-                            <span className={cn('font-pixel text-foreground text-[11px]')}>
-                              GRADE {grade}
-                            </span>
-                            <span className={cn('text-muted-foreground font-mono text-[11px]')}>
-                              {selectedStudents.filter((s) => s.grade === grade).length}
-                            </span>
-                          </div>
-                          <div
-                            className={cn(
-                              '[&::-webkit-scrollbar-thumb]:bg-foreground/30 max-h-75 flex flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
-                            )}
-                          >
-                            {selectedStudents
-                              .filter((s) => s.grade === grade)
-                              .map((student) => (
-                                <button
-                                  key={student.id}
-                                  type="button"
-                                  className={cn(
-                                    'border-foreground hover:bg-foreground hover:text-background group flex w-full items-center justify-between gap-3 border px-3 py-2 text-left transition-colors',
-                                  )}
-                                  onClick={() =>
-                                    field.onChange(
-                                      field.value.filter((id: number) => id !== student.id),
-                                    )
-                                  }
-                                >
-                                  <span className={cn('min-w-0 flex-1')}>
-                                    <span
-                                      className={cn(
-                                        'text-muted-foreground group-hover:text-background/80 block font-mono text-[11px] uppercase transition-colors',
-                                      )}
-                                    >
-                                      {student.studentNumber}
-                                    </span>
-                                    <span
-                                      className={cn(
-                                        'text-foreground group-hover:text-background block truncate font-mono text-xs transition-colors',
-                                      )}
-                                    >
-                                      {student.name}
-                                    </span>
-                                  </span>
-                                  <X
-                                    className={cn(
-                                      'group-hover:text-background h-4 w-4 shrink-0 transition-colors',
-                                    )}
-                                  />
-                                </button>
-                              ))}
-                            {selectedStudents.filter((s) => s.grade === grade).length === 0 && (
-                              <div
-                                className={cn(
-                                  'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
-                                )}
-                              >
-                                등록된 팀원 없음
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              />
-            </div>
-          </SectionCard>
-
-          <div className={cn('flex justify-end pt-2')}>
-            <Button type="submit" disabled={isPending}>
+          <div className={cn('flex flex-col items-end justify-center p-5')}>
+            <Button
+              type="submit"
+              variant="pixel-primary"
+              className={cn('h-10 w-full px-3')}
+              disabled={isPending}
+            >
               {isPending ? loadingText : submitText}
             </Button>
           </div>
         </form>
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 };

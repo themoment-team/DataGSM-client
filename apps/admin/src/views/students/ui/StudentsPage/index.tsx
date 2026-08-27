@@ -7,9 +7,8 @@ import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Student, StudentRole, StudentSex } from '@repo/shared/types';
-import { CommonPagination, PageHeader } from '@repo/shared/ui';
+import { Button, CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-
 import { useForm, useWatch } from 'react-hook-form';
 
 import { StudentFilterSchema, StudentFilterType } from '@/entities/student';
@@ -188,40 +187,63 @@ const StudentsPage = () => {
 
   const totalPages = studentsData?.data.totalPages ?? 0;
 
+  const isEmpty = !isLoadingStudents && !students?.length;
+
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        {/* Page header */}
-        <PageHeader
-          breadcrumb="DATAGSM / Admin"
-          title="학생 관리"
-          action={
-            <div className={cn('flex items-center gap-2')}>
-              <GraduateThirdGradeButton />
-              <StudentExcelActions />
-              <StudentFormDialog mode="create" clubs={clubsData?.data} isLoadingClubs={isLoadingClubs} />
-            </div>
-          }
+        <PageTitleBar
+          title="STUDENT MANAGEMENT"
+          description="DataGSM에 등록된 학생 정보를 관리합니다."
         />
 
-        {/* Filters */}
-        <div className={cn('mb-4')}>
-          <StudentFilter control={control} />
-        </div>
+        <PageWindow
+          windowTitle="Student Management"
+          title="학생 관리"
+          description="학생들의 정보를 확인하거나 수정하세요."
+          action={
+            <>
+              <GraduateThirdGradeButton />
+              {/* TODO: 컬럼 초기화 API 연동 (현재는 시안 반영용 UI) */}
+              <Button type="button" variant="pixel-destructive" className={cn('px-3')}>
+                컬럼 초기화
+              </Button>
+              {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
+              <Button type="button" variant="pixel" className={cn('px-3')}>
+                공지사항 전송
+              </Button>
+              <StudentExcelActions />
+              <StudentFormDialog
+                mode="create"
+                clubs={clubsData?.data}
+                isLoadingClubs={isLoadingClubs}
+              />
+            </>
+          }
+        >
+          {/* Filters */}
+          <div className={cn('mb-2')}>
+            <StudentFilter control={control} />
+          </div>
 
-        {/* Table */}
-        <div className={cn('border-2 border-foreground pixel-shadow')}>
-          <StudentList students={students} isLoading={isLoadingStudents} onEdit={handleEditStudent} />
-        </div>
+          {/* Table */}
+          <div className={cn(!isEmpty && 'border-foreground border')}>
+            <StudentList
+              students={students}
+              isLoading={isLoadingStudents}
+              onEdit={handleEditStudent}
+            />
+          </div>
 
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoadingStudents}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoadingStudents}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </PageWindow>
 
         {editingStudent && (
           <StudentFormDialog

@@ -4,7 +4,6 @@ import { clubUrl } from '@repo/shared/api';
 import { Button } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Download, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { downloadExcel } from '@/shared/utils';
@@ -38,9 +37,9 @@ const ClubExcelActions = () => {
   return (
     <>
       <Button
-        variant="outline"
-        size="sm"
-        className={cn('gap-2 bg-transparent')}
+        type="button"
+        variant="pixel"
+        className={cn('px-3')}
         onClick={() =>
           downloadExcel({
             url: clubUrl.getClubExport(),
@@ -48,16 +47,14 @@ const ClubExcelActions = () => {
           })
         }
       >
-        <Download className={cn('h-4 w-4')} />
         Excel 다운로드
       </Button>
       <Button
-        variant="outline"
-        size="sm"
-        className={cn('gap-2 bg-transparent')}
+        type="button"
+        variant="pixel"
+        className={cn('px-3')}
         onClick={() => fileInputRef.current?.click()}
       >
-        <Upload className={cn('h-4 w-4')} />
         Excel 업로드
       </Button>
       <input

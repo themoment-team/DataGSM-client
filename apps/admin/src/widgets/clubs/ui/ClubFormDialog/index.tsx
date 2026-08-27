@@ -9,17 +9,17 @@ import {
   CommandItem,
   CommandList,
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  FormErrorMessage,
+  DialogWindow,
+  FORM_FIELD_STYLE,
+  FORM_TRIGGER_STYLE,
+  FormField,
+  GradeMemberPicker,
   Input,
   Label,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  SectionCard,
   Select,
   SelectContent,
   SelectItem,
@@ -28,12 +28,15 @@ import {
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, Pencil, Plus, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Controller, FieldErrors, SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { AddClubType } from '@/entities/club';
 import { useCreateClub, useUpdateClub } from '@/widgets/clubs';
+
+const COMBOBOX_STYLE =
+  'border-foreground bg-background flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 text-left text-sm outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50';
 
 interface ClubFormDialogProps {
   mode: 'create' | 'edit';
@@ -186,7 +189,12 @@ const ClubFormDialog = ({
     }
   };
 
-  const title = mode === 'create' ? '동아리 추가' : '동아리 데이터 수정';
+  const windowTitle = mode === 'create' ? 'Add Club' : 'Edit Club';
+  const heading = mode === 'create' ? '동아리 추가' : '동아리 데이터 수정';
+  const description =
+    mode === 'create'
+      ? '동아리명, 동아리 종류, 운영 상태등을 작성해주세요.'
+      : '수정이 필요한 정보를 변경한 뒤 저장하세요.';
 
   const getPendingState = () => {
     if (mode === 'create') return isCreating;
@@ -194,7 +202,7 @@ const ClubFormDialog = ({
   };
 
   const getSubmitText = () => {
-    if (mode === 'create') return '추가';
+    if (mode === 'create') return '+ Add Club';
     return '수정';
   };
 
@@ -209,13 +217,12 @@ const ClubFormDialog = ({
 
   const defaultTrigger =
     mode === 'create' ? (
-      <Button size="sm" className={cn('gap-2')} disabled={isLoadingStudents}>
-        <Plus className={cn('h-4 w-4')} />
-        동아리 추가
+      <Button variant="pixel-primary" className={cn('px-3')} disabled={isLoadingStudents}>
+        + 동아리 추가
       </Button>
     ) : (
-      <Button variant="ghost" size="icon" disabled={isLoadingStudents}>
-        <Pencil className={cn('h-4 w-4')} />
+      <Button variant="pixel" className={cn('h-6 border px-2')} disabled={isLoadingStudents}>
+        Edit
       </Button>
     );
 
@@ -228,43 +235,26 @@ const ClubFormDialog = ({
       }}
     >
       {!isControlled && <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>}
-      <DialogContent className={cn('max-h-[90vh] max-w-2xl overflow-y-auto p-0')}>
-        <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
-          <DialogTitle className={cn('font-pixel text-foreground text-[14px] leading-none')}>
-            {title}
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className={cn('space-y-6 px-6 py-6')}>
-          <div className={cn('grid grid-cols-2 gap-4 pt-4')}>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="name"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                동아리명
-              </Label>
+      <DialogWindow windowTitle={windowTitle} heading={heading} description={description}>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+          <div className={cn('grid grid-cols-2 gap-4 px-5 pb-2.5 pt-5')}>
+            <FormField label="동아리명" htmlFor="name" error={errors.name}>
               <Input
                 id="name"
-                placeholder="동아리명 입력"
-                className={cn('border-foreground rounded-none font-mono')}
+                placeholder="동아리명을 입력하세요"
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('name')}
               />
-              <FormErrorMessage error={errors.name} />
-            </div>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="type"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                동아리 종류
-              </Label>
+            </FormField>
+
+            <FormField label="동아리 종류" htmlFor="type" error={errors.type}>
               <Controller
                 control={control}
                 name="type"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
-                      <SelectValue placeholder="타입 선택" />
+                    <SelectTrigger id="type" className={cn(FORM_TRIGGER_STYLE)}>
+                      <SelectValue placeholder="동아리 종류를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="MAJOR_CLUB">전공</SelectItem>
@@ -273,22 +263,16 @@ const ClubFormDialog = ({
                   </Select>
                 )}
               />
-              <FormErrorMessage error={errors.type} />
-            </div>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="status"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                운영 상태
-              </Label>
+            </FormField>
+
+            <FormField label="운영 상태" htmlFor="status" error={errors.status}>
               <Controller
                 control={control}
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className={cn('border-foreground rounded-none font-mono')}>
-                      <SelectValue placeholder="상태 선택" />
+                    <SelectTrigger id="status" className={cn(FORM_TRIGGER_STYLE)}>
+                      <SelectValue placeholder="운영상태를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ACTIVE">운영 중</SelectItem>
@@ -297,58 +281,37 @@ const ClubFormDialog = ({
                   </Select>
                 )}
               />
-              <FormErrorMessage error={errors.status} />
-            </div>
-            <div className={cn('space-y-2')}>
-              <Label
-                htmlFor="foundedYear"
-                className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-              >
-                설립연도
-              </Label>
+            </FormField>
+
+            <FormField label="설립연도" htmlFor="foundedYear" error={errors.foundedYear}>
               <Input
                 id="foundedYear"
                 type="number"
-                placeholder="설립연도 입력"
-                className={cn('border-foreground rounded-none font-mono')}
+                placeholder="설립 연도를 입력하세요"
+                className={cn(FORM_FIELD_STYLE)}
                 {...register('foundedYear', {
                   setValueAs: (value) => (value === '' ? undefined : Number(value)),
                 })}
               />
-              <FormErrorMessage error={errors.foundedYear} />
-            </div>
+            </FormField>
+
+            {/* 폐지연도: Figma 시안에는 없지만 폐지 상태 동아리 등록/수정에 필요한 값이라 유지 */}
             {currentStatus === 'ABOLISHED' && (
-              <div className={cn('space-y-2')}>
-                <Label
-                  htmlFor="abolishedYear"
-                  className={cn(
-                    'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                  )}
-                >
-                  폐지연도
-                </Label>
+              <FormField label="폐지연도" htmlFor="abolishedYear" error={errors.abolishedYear}>
                 <Input
                   id="abolishedYear"
                   type="number"
-                  placeholder="폐지연도 입력"
-                  className={cn('border-foreground rounded-none font-mono')}
+                  placeholder="폐지 연도를 입력하세요"
+                  className={cn(FORM_FIELD_STYLE)}
                   {...register('abolishedYear', {
                     setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   })}
                 />
-                <FormErrorMessage error={errors.abolishedYear} />
-              </div>
+              </FormField>
             )}
+
             {currentStatus !== 'ABOLISHED' && (
-              <div className={cn('space-y-2')}>
-                <Label
-                  htmlFor="leaderId"
-                  className={cn(
-                    'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                  )}
-                >
-                  부장
-                </Label>
+              <FormField label="부장" htmlFor="leaderId" error={errors.leaderId}>
                 <Controller
                   control={control}
                   name="leaderId"
@@ -367,17 +330,18 @@ const ClubFormDialog = ({
                       >
                         <PopoverTrigger asChild>
                           <button
+                            id="leaderId"
                             type="button"
                             role="combobox"
                             className={cn(
-                              'border-foreground bg-background flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 py-2 text-left font-mono text-xs outline-none transition-colors focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
+                              COMBOBOX_STYLE,
                               selectedLeader ? 'text-foreground' : 'text-muted-foreground',
                             )}
                           >
                             {selectedLeader
                               ? `${selectedLeader.studentNumber} ${selectedLeader.name}`
-                              : '부장 선택'}
-                            <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50')} />
+                              : '학생 이름을 직접 입력하세요'}
+                            <ChevronDown className={cn('size-4 shrink-0 opacity-50')} />
                           </button>
                         </PopoverTrigger>
                         <PopoverContent
@@ -431,213 +395,134 @@ const ClubFormDialog = ({
                     );
                   }}
                 />
-                <FormErrorMessage error={errors.leaderId} />
-              </div>
+              </FormField>
             )}
 
             {currentStatus !== 'ABOLISHED' && (
-              <div className={cn('space-y-2')}>
-                <Label
-                  className={cn(
-                    'text-muted-foreground font-mono text-xs uppercase tracking-widest',
-                  )}
-                >
-                  팀원 추가
-                </Label>
-                <Controller
-                  control={control}
-                  name="participantIds"
-                  render={({ field }) => (
-                    <Popover
-                      open={memberPopoverOpen}
-                      onOpenChange={(value) => {
-                        setMemberPopoverOpen(value);
-                        if (!value) setSearchTerm('');
-                      }}
-                    >
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          role="combobox"
-                          className={cn(
-                            'border-foreground bg-background flex h-10 w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-3 py-2 text-left font-mono text-xs outline-none transition-colors focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
-                            'text-muted-foreground',
-                          )}
-                        >
-                          팀원 추가
-                          <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50')} />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className={cn(
-                          'border-foreground w-(--radix-popover-trigger-width) rounded-none border-2 p-0',
-                        )}
-                        onOpenAutoFocus={(e) => {
-                          e.preventDefault();
-                          memberSearchRef.current?.focus();
-                        }}
-                      >
-                        <Command shouldFilter={false}>
-                          <CommandInput
-                            ref={memberSearchRef}
-                            placeholder="이름 또는 학번 검색..."
-                            className={cn('font-mono')}
-                            value={searchTerm}
-                            onValueChange={setSearchTerm}
-                          />
-                          <CommandList>
-                            <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
-                            {filteredStudents
-                              ?.filter(
-                                (student) =>
-                                  Array.isArray(field.value) &&
-                                  !field.value.includes(student.id) &&
-                                  student.id !== Number(currentLeaderId),
-                              )
-                              .map((student) => (
-                                <CommandItem
-                                  key={student.id}
-                                  value={student.id.toString()}
-                                  onSelect={() => {
-                                    if (
-                                      Array.isArray(field.value) &&
-                                      !field.value.includes(student.id)
-                                    ) {
-                                      field.onChange([...field.value, student.id]);
-                                    }
-
-                                    setSearchTerm('');
-                                    setMemberPopoverOpen(false);
-                                  }}
-                                >
-                                  {student.studentNumber} {student.name}
-                                </CommandItem>
-                              ))}
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                />
-                <FormErrorMessage
-                  error={!Array.isArray(errors.participantIds) ? errors.participantIds : undefined}
-                />
-              </div>
-            )}
-          </div>
-
-          {currentStatus !== 'ABOLISHED' && (
-            <SectionCard
-              shadow
-              title="Team Members"
-              headerAction="remove with click"
-              className={cn('bg-background')}
-            >
-              <div className={cn('flex flex-col gap-5 p-4')}>
+              <FormField
+                label="팀원"
+                htmlFor="participantIds"
+                error={!Array.isArray(errors.participantIds) ? errors.participantIds : undefined}
+              >
                 <Controller
                   control={control}
                   name="participantIds"
                   render={({ field }) => {
-                    const selectedIds = Array.isArray(field.value) ? field.value : [];
-                    const selectedStudents =
-                      students?.filter((student) => selectedIds.includes(student.id)) || [];
-                    const grades = [1, 2, 3];
+                    const selectedCount = Array.isArray(field.value) ? field.value.length : 0;
 
                     return (
-                      <div className={cn('grid grid-cols-1 gap-4 md:grid-cols-3')}>
-                        {grades.map((grade) => (
-                          <div
-                            key={grade}
+                      <Popover
+                        open={memberPopoverOpen}
+                        onOpenChange={(value) => {
+                          setMemberPopoverOpen(value);
+                          if (!value) setSearchTerm('');
+                        }}
+                      >
+                        <PopoverTrigger asChild>
+                          <button
+                            id="participantIds"
+                            type="button"
+                            role="combobox"
                             className={cn(
-                              'border-foreground bg-background flex min-h-[240px] flex-col border',
+                              COMBOBOX_STYLE,
+                              selectedCount ? 'text-foreground' : 'text-muted-foreground',
                             )}
                           >
-                            <div
-                              className={cn(
-                                'border-foreground flex items-center justify-between border-b px-3 py-2',
-                              )}
-                            >
-                              <span className={cn('font-pixel text-foreground text-[11px]')}>
-                                GRADE {grade}
-                              </span>
-                              <span className={cn('text-muted-foreground font-mono text-[11px]')}>
-                                {
-                                  selectedStudents.filter((student) => student.grade === grade)
-                                    .length
-                                }
-                              </span>
-                            </div>
-                            <div
-                              className={cn(
-                                '[&::-webkit-scrollbar-thumb]:bg-foreground/30 flex max-h-[300px] flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden p-3 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar]:w-1',
-                              )}
-                            >
-                              {selectedStudents
-                                .filter((student) => student.grade === grade)
+                            {selectedCount ? `${selectedCount}명 선택됨` : '팀원을 선택하세요'}
+                            <ChevronDown className={cn('size-4 shrink-0 opacity-50')} />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className={cn(
+                            'border-foreground w-(--radix-popover-trigger-width) rounded-none border-2 p-0',
+                          )}
+                          onOpenAutoFocus={(e) => {
+                            e.preventDefault();
+                            memberSearchRef.current?.focus();
+                          }}
+                        >
+                          <Command shouldFilter={false}>
+                            <CommandInput
+                              ref={memberSearchRef}
+                              placeholder="이름 또는 학번 검색..."
+                              className={cn('font-mono')}
+                              value={searchTerm}
+                              onValueChange={setSearchTerm}
+                            />
+                            <CommandList>
+                              <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
+                              {filteredStudents
+                                ?.filter(
+                                  (student) =>
+                                    Array.isArray(field.value) &&
+                                    !field.value.includes(student.id) &&
+                                    student.id !== Number(currentLeaderId),
+                                )
                                 .map((student) => (
-                                  <button
+                                  <CommandItem
                                     key={student.id}
-                                    type="button"
-                                    className={cn(
-                                      'border-foreground hover:bg-foreground hover:text-background group flex w-full items-center justify-between gap-3 border px-3 py-2 text-left transition-colors',
-                                    )}
-                                    onClick={() =>
-                                      field.onChange(
-                                        field.value.filter((id: number) => id !== student.id),
-                                      )
-                                    }
+                                    value={student.id.toString()}
+                                    onSelect={() => {
+                                      if (
+                                        Array.isArray(field.value) &&
+                                        !field.value.includes(student.id)
+                                      ) {
+                                        field.onChange([...field.value, student.id]);
+                                      }
+
+                                      setSearchTerm('');
+                                      setMemberPopoverOpen(false);
+                                    }}
                                   >
-                                    <span className={cn('min-w-0 flex-1')}>
-                                      <span
-                                        className={cn(
-                                          'text-muted-foreground group-hover:text-background/80 block font-mono text-[11px] uppercase transition-colors',
-                                        )}
-                                      >
-                                        {student.studentNumber}
-                                      </span>
-                                      <span
-                                        className={cn(
-                                          'text-foreground group-hover:text-background block truncate font-mono text-xs transition-colors',
-                                        )}
-                                      >
-                                        {student.name}
-                                      </span>
-                                    </span>
-                                    <X
-                                      className={cn(
-                                        'group-hover:text-background h-4 w-4 shrink-0 transition-colors',
-                                      )}
-                                    />
-                                  </button>
+                                    {student.studentNumber} {student.name}
+                                  </CommandItem>
                                 ))}
-                              {selectedStudents.filter((student) => student.grade === grade)
-                                .length === 0 && (
-                                <div
-                                  className={cn(
-                                    'border-foreground/30 bg-muted/10 text-muted-foreground border border-dashed px-3 py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em]',
-                                  )}
-                                >
-                                  등록된 팀원 없음
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     );
                   }}
                 />
-              </div>
-            </SectionCard>
+              </FormField>
+            )}
+          </div>
+
+          {currentStatus !== 'ABOLISHED' && (
+            <div className={cn('flex flex-col gap-1.5 px-5 pb-2.5 pt-2.5')}>
+              <Label className={cn('text-foreground text-sm font-medium')}>팀원 명단</Label>
+              <Controller
+                control={control}
+                name="participantIds"
+                render={({ field }) => {
+                  const selectedIds = Array.isArray(field.value) ? field.value : [];
+
+                  return (
+                    <GradeMemberPicker
+                      students={students}
+                      selectedIds={selectedIds}
+                      onRemove={(studentId) =>
+                        field.onChange(field.value.filter((id: number) => id !== studentId))
+                      }
+                    />
+                  );
+                }}
+              />
+            </div>
           )}
 
-          <div className={cn('flex justify-end pt-2')}>
-            <Button type="submit" disabled={isPending}>
+          <div className={cn('flex flex-col items-end justify-center p-5')}>
+            <Button
+              type="submit"
+              disabled={isPending}
+              variant="pixel-primary"
+              className={cn('h-11 w-full px-3')}
+            >
               {isPending ? loadingText : submitText}
             </Button>
           </div>
         </form>
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 };

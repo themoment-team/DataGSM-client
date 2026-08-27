@@ -13,9 +13,8 @@ import {
   AccountStatus,
   UserRoleType,
 } from '@repo/shared/types';
-import { CommonPagination, PageHeader } from '@repo/shared/ui';
+import { CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
-
 import { useForm, useWatch } from 'react-hook-form';
 
 import { AccountFilterSchema, AccountFilterType } from '@/entities/account';
@@ -146,32 +145,41 @@ const AccountsPage = () => {
 
   const accounts = accountsData?.data.accounts;
   const totalPages = accountsData?.data.totalPages ?? 0;
+  const isEmpty = !isLoadingAccounts && !accounts?.length;
 
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        <PageHeader breadcrumb="DATAGSM / Admin" title="계정 관리" />
+        <PageTitleBar title="ACCOUNT MANAGEMENT" description="DataGSM 계정과 권한을 관리합니다." />
 
-        <div className={cn('mb-4')}>
-          <AccountFilter control={control} />
-        </div>
+        <PageWindow
+          windowTitle="Account Management"
+          title="계정 관리"
+          description="계정들의 정보를 확인하거나 수정하세요."
+        >
+          {/* Filters */}
+          <div className={cn('mb-2')}>
+            <AccountFilter control={control} />
+          </div>
 
-        <div className={cn('border-2 border-foreground pixel-shadow')}>
-          <AccountList
-            accounts={accounts}
-            isLoading={isLoadingAccounts}
-            onSelect={handleSelectAccount}
-          />
-        </div>
+          {/* Table */}
+          <div className={cn(!isEmpty && 'border-foreground border')}>
+            <AccountList
+              accounts={accounts}
+              isLoading={isLoadingAccounts}
+              onSelect={handleSelectAccount}
+            />
+          </div>
 
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoadingAccounts}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoadingAccounts}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        </PageWindow>
 
         <AccountDetailDialog
           account={selectedAccount}
