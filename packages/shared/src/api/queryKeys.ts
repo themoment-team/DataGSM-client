@@ -149,5 +149,4 @@ export const oauthQueryKeys = {
   postOAuthTokenRefresh: () => ['oauth', 'token', 'refresh'] as const,
   postOAuthToken: () => ['oauth', 'token'] as const,
   postOAuthCode: () => ['oauth', 'code'] as const,
-  getProfileUpdate: (ticket: string) => ['oauth', 'profile-update', ticket] as const,
 } as const;

@@ -18,23 +18,25 @@ import { cn } from '@repo/shared/utils';
 import { Controller, useForm } from 'react-hook-form';
 
 import {
-  NO_SELECTION_VALUE,
-  PROFILE_UPDATE_FIELD_META,
-  ProfileUpdateFieldSpec,
-  ProfileUpdateFormType,
-  ProfileUpdateRequest,
-  buildProfileUpdateSchema,
-  toProfileUpdateRequest,
-} from '@/entities/profile-update';
+  DATA_EDIT_FIELD_META,
+  DataEditFieldSpec,
+  DataEditFormType,
+  DataEditPayload,
+  buildDataEditSchema,
+  toDataEditPayload,
+} from '@/entities/data-edit';
 
-interface ProfileUpdateFormProps {
+interface DataEditFormProps {
   /** 어드민이 수정을 요청한 항목. 여기 없는 항목은 렌더하지 않는다. */
-  fields: ProfileUpdateFieldSpec[];
+  fields: DataEditFieldSpec[];
   isPending?: boolean;
-  onSubmit: (request: ProfileUpdateRequest) => void;
+  onSubmit: (payload: DataEditPayload) => void;
 }
 
-const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdateFormProps) => {
+const isSelectField = (spec: DataEditFieldSpec) =>
+  spec.name === 'MAJOR_CLUB' || spec.name === 'AUTONOMOUS_CLUB';
+
+const DataEditForm = ({ fields, isPending = false, onSubmit }: DataEditFormProps) => {
   const fieldNames = fields.map((field) => field.name);
 
   const {
@@ -42,12 +44,12 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProfileUpdateFormType>({
-    resolver: zodResolver(buildProfileUpdateSchema(fieldNames)),
+  } = useForm<DataEditFormType>({
+    resolver: zodResolver(buildDataEditSchema(fieldNames)),
   });
 
   const handleFormSubmit = handleSubmit((values) => {
-    onSubmit(toProfileUpdateRequest(fieldNames, values));
+    onSubmit(toDataEditPayload(fieldNames, values));
   });
 
   return (
@@ -66,9 +68,11 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
     >
       <form onSubmit={handleFormSubmit}>
         <div className={cn('flex flex-col gap-5 px-5 pt-5')}>
-          {fields.map(({ name, options }) => {
-            const { label, placeholder, maxLength } = PROFILE_UPDATE_FIELD_META[name];
+          {fields.map((spec) => {
+            const { name, options } = spec;
+            const { label, placeholder, maxLength } = DATA_EDIT_FIELD_META[name];
             const error = errors[name];
+            const hasNoOptions = isSelectField(spec) && !options?.length;
 
             return (
               <FormField
@@ -78,7 +82,7 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
                 error={error}
                 className={cn('gap-2')}
               >
-                {options ? (
+                {isSelectField(spec) ? (
                   <Controller
                     control={control}
                     name={name}
@@ -87,19 +91,17 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
                         <SelectTrigger
                           id={name}
                           aria-invalid={!!error}
-                          disabled={isPending}
+                          disabled={isPending || hasNoOptions}
                           className={cn(FORM_TRIGGER_STYLE)}
                         >
-                          <SelectValue placeholder={placeholder} />
+                          <SelectValue
+                            placeholder={
+                              hasNoOptions ? '동아리 목록을 불러올 수 없습니다' : placeholder
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem
-                            value={NO_SELECTION_VALUE}
-                            className={cn('text-muted-foreground')}
-                          >
-                            선택 안 함
-                          </SelectItem>
-                          {options.map((option) => (
+                          {options?.map((option) => (
                             <SelectItem key={option.value} value={String(option.value)}>
                               {option.label}
                             </SelectItem>
@@ -141,4 +143,4 @@ const ProfileUpdateForm = ({ fields, isPending = false, onSubmit }: ProfileUpdat
   );
 };
 
-export default ProfileUpdateForm;
+export default DataEditForm;

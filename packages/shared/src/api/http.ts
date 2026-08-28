@@ -26,6 +26,3 @@ export const oauthGet = async <T>(...args: Parameters<typeof oauthAxiosInstance.
 
 export const oauthDel = async <T>(...args: Parameters<typeof oauthAxiosInstance.delete>) =>
   await oauthAxiosInstance.delete<T, T>(...args);
-
-export const oauthPatch = async <T>(...args: Parameters<typeof oauthAxiosInstance.patch>) =>
-  await oauthAxiosInstance.patch<T, T>(...args);

@@ -9,13 +9,16 @@ import { SignInForm } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { toast } from 'sonner';
 
-import { useGetOAuthSession } from '@/widgets/oauth';
+import { DataEditFieldSpec, DataEditPayload, StudentDataEditField } from '@/entities/data-edit';
+import { DataEditForm, useGetOAuthSession } from '@/widgets/oauth';
 
 const BUFFER_TIME_MS = 30000;
 const STORAGE_KEY = 'oauth_session_timestamp';
 
 const OAuthAuthorizeForm = () => {
   const [isPending, setIsPending] = useState(false);
+  const [credentials, setCredentials] = useState<SignInFormType | null>(null);
+  const [dataEditFields, setDataEditFields] = useState<DataEditFieldSpec[] | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [isExpired, setIsExpired] = useState(false);
   const searchParams = useSearchParams();
@@ -103,7 +106,8 @@ const OAuthAuthorizeForm = () => {
     };
   }, [isExpired, updateRemainingTime]);
 
-  const handleSubmit = async (data: SignInFormType) => {
+  /** authorize 제출. 정보 수정 값이 있으면 함께 실어 보낸다. */
+  const submitAuthorize = async (credentials: SignInFormType, dataEdit?: DataEditPayload) => {
     if (isExpired) {
       toast.error('세션이 만료되었습니다. 다시 시도해주세요.');
       return;
@@ -124,9 +128,10 @@ const OAuthAuthorizeForm = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: data.email,
-          password: data.password,
+          email: credentials.email,
+          password: credentials.password,
           token: token,
+          ...dataEdit,
         }),
         credentials: 'same-origin',
       });
@@ -142,6 +147,12 @@ const OAuthAuthorizeForm = () => {
       }
 
       if (!response.ok) {
+        // 미해소된 정보 수정 요청이 있으면 서버가 422로 로그인을 막는다.
+        if (response.status === 422) {
+          await enterDataEditStep(credentials);
+          return;
+        }
+
         setIsPending(false);
         switch (response.status) {
           case 400:
@@ -168,18 +179,57 @@ const OAuthAuthorizeForm = () => {
     }
   };
 
+  /** 입력받아야 할 필드를 조회하고 정보 변경 단계로 넘어간다. */
+  const enterDataEditStep = async (credentials: SignInFormType) => {
+    const response = await fetch('/api/oauth/data-edit-requirements', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+      credentials: 'same-origin',
+    });
+
+    setIsPending(false);
+
+    if (!response.ok) {
+      toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+
+    const { data } = await response.json();
+    const fields: StudentDataEditField[] = data?.fields ?? [];
+
+    if (fields.length === 0) {
+      toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+
+    // 비밀번호는 재제출에 필요해 메모리로만 들고 간다. 새로고침하면 로그인부터 다시 한다.
+    setCredentials(credentials);
+    setDataEditFields(fields.map((name) => ({ name })));
+  };
+
   return (
     <div className="max-w-180 relative flex w-full flex-col items-center gap-6">
-      <SignInForm
-        onSubmit={handleSubmit}
-        isPending={isPending}
-        signupHref="/signup"
-        resetHref="/signin/reset-password"
-        serviceName={serviceName || undefined}
-        serviceScope={serviceScope}
-        isLoadingServiceInfo={isLoadingServiceInfo}
-        remainingTime={remainingTime}
-      />
+      {dataEditFields && credentials ? (
+        <DataEditForm
+          fields={dataEditFields}
+          isPending={isPending}
+          onSubmit={(payload) => submitAuthorize(credentials, payload)}
+        />
+      ) : (
+        <SignInForm
+          onSubmit={(data) => submitAuthorize(data)}
+          isPending={isPending}
+          signupHref="/signup"
+          resetHref="/signin/reset-password"
+          serviceName={serviceName || undefined}
+          serviceScope={serviceScope}
+          isLoadingServiceInfo={isLoadingServiceInfo}
+          remainingTime={remainingTime}
+        />
+      )}
 
       {isExpired && (
         <div
