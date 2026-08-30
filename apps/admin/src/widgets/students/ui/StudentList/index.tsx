@@ -1,6 +1,7 @@
 import { Student } from '@repo/shared/types';
 import {
   Button,
+  Checkbox,
   Skeleton,
   TABLE_BODY_ROW_STYLE,
   TABLE_HEAD_ROW_STYLE,
@@ -19,9 +20,21 @@ interface StudentListProps {
   students?: Student[];
   isLoading?: boolean;
   onEdit?: (student: Student) => void;
+  /** 컬럼 초기화 모드. 켜면 마지막 열의 Edit 버튼이 선택 체크박스로 바뀐다. */
+  selectable?: boolean;
+  /** 선택된 학생 ID. 페이지를 넘겨도 유지되도록 부모가 들고 있는다. */
+  selectedIds?: number[];
+  onToggleSelect?: (studentId: number) => void;
 }
 
-const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
+const StudentList = ({
+  students,
+  isLoading,
+  onEdit,
+  selectable = false,
+  selectedIds = [],
+  onToggleSelect,
+}: StudentListProps) => {
   if (!isLoading && !students?.length) {
     return (
       <p className={cn('text-muted-foreground py-12 text-center font-mono text-xs')}>
@@ -44,7 +57,7 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
           <TableHead>전공동아리</TableHead>
           <TableHead>자율동아리</TableHead>
           <TableHead className={cn('w-[70px]')}>
-            <span className={cn('sr-only')}>작업</span>
+            <span className={cn('sr-only')}>{selectable ? '선택' : '작업'}</span>
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -84,40 +97,64 @@ const StudentList = ({ students, isLoading, onEdit }: StudentListProps) => {
                 </TableCell>
               </TableRow>
             ))
-          : students?.map((student) => (
-              <TableRow key={student.id} className={cn(TABLE_BODY_ROW_STYLE)}>
-                <TableCell>{student.name}</TableCell>
-                <TableCell>{getSexLabel(student.sex)}</TableCell>
-                <TableCell>{student.studentNumber}</TableCell>
-                <TableCell>{student.email}</TableCell>
-                <TableCell>{getMajorLabel(student.major)}</TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]',
-                      getRoleBadgeStyle(student.role),
+          : students?.map((student) => {
+              const isSelected = selectable && selectedIds.includes(student.id);
+
+              return (
+                <TableRow
+                  key={student.id}
+                  data-state={isSelected ? 'selected' : undefined}
+                  className={cn(
+                    TABLE_BODY_ROW_STYLE,
+                    // 선택된 행은 명암을 뒤집어 한눈에 구분되게 한다.
+                    isSelected && 'bg-foreground hover:bg-foreground [&>td]:text-background',
+                  )}
+                >
+                  <TableCell>{student.name}</TableCell>
+                  <TableCell>{getSexLabel(student.sex)}</TableCell>
+                  <TableCell>{student.studentNumber}</TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{getMajorLabel(student.major)}</TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]',
+                        // 뒤집힌 행에서는 배지도 같이 뒤집어야 읽힌다.
+                        isSelected
+                          ? 'border-background text-background'
+                          : getRoleBadgeStyle(student.role),
+                      )}
+                    >
+                      {getRoleLabel(student.role)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {student.dormitoryRoom ? `${student.dormitoryRoom}호` : '없음'}
+                  </TableCell>
+                  <TableCell>{student.majorClub?.name ?? '없음'}</TableCell>
+                  <TableCell>{student.autonomousClub?.name ?? '없음'}</TableCell>
+                  <TableCell>
+                    {selectable ? (
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => onToggleSelect?.(student.id)}
+                        aria-label={`${student.name} 선택`}
+                        className={cn('size-5', isSelected && 'border-background')}
+                      />
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="pixel"
+                        className={cn('h-6 border px-2')}
+                        onClick={() => onEdit?.(student)}
+                      >
+                        Edit
+                      </Button>
                     )}
-                  >
-                    {getRoleLabel(student.role)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {student.dormitoryRoom ? `${student.dormitoryRoom}호` : '없음'}
-                </TableCell>
-                <TableCell>{student.majorClub?.name ?? '없음'}</TableCell>
-                <TableCell>{student.autonomousClub?.name ?? '없음'}</TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="pixel"
-                    className={cn('h-6 border px-2')}
-                    onClick={() => onEdit?.(student)}
-                  >
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
       </TableBody>
     </Table>
   );

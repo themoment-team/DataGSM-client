@@ -31,9 +31,31 @@ const StudentsPage = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  /** 컬럼 초기화 모드에서는 목록이 학생 선택용으로 바뀐다. */
+  const [isColumnRefreshMode, setIsColumnRefreshMode] = useState(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
+
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
     setIsEditDialogOpen(true);
+  };
+
+  const startColumnRefresh = () => {
+    setSelectedStudentIds([]);
+    setIsColumnRefreshMode(true);
+  };
+
+  const cancelColumnRefresh = () => {
+    setSelectedStudentIds([]);
+    setIsColumnRefreshMode(false);
+  };
+
+  const toggleStudentSelection = (studentId: number) => {
+    setSelectedStudentIds((previous) =>
+      previous.includes(studentId)
+        ? previous.filter((id) => id !== studentId)
+        : [...previous, studentId],
+    );
   };
 
   const initialValues = useMemo(
@@ -198,27 +220,57 @@ const StudentsPage = () => {
         />
 
         <PageWindow
-          windowTitle="Student Management"
-          title="학생 관리"
-          description="학생들의 정보를 확인하거나 수정하세요."
+          windowTitle={isColumnRefreshMode ? 'Column Refresh' : 'Student Management'}
+          title={isColumnRefreshMode ? '컬럼 초기화' : '학생 관리'}
+          description={
+            isColumnRefreshMode
+              ? '선택한 학생들의 컬럼을 초기화하고 로그인 과정 때 정보를 받도록 설정합니다.'
+              : '학생들의 정보를 확인하거나 수정하세요.'
+          }
           action={
-            <>
-              <GraduateThirdGradeButton />
-              {/* TODO: 컬럼 초기화 API 연동 (현재는 시안 반영용 UI) */}
-              <Button type="button" variant="pixel-destructive" className={cn('px-3')}>
-                컬럼 초기화
-              </Button>
-              {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
-              <Button type="button" variant="pixel" className={cn('px-3')}>
-                공지사항 전송
-              </Button>
-              <StudentExcelActions />
-              <StudentFormDialog
-                mode="create"
-                clubs={clubsData?.data}
-                isLoadingClubs={isLoadingClubs}
-              />
-            </>
+            isColumnRefreshMode ? (
+              <>
+                <Button
+                  type="button"
+                  variant="pixel-destructive"
+                  className={cn('px-3')}
+                  onClick={cancelColumnRefresh}
+                >
+                  컬럼 초기화 취소
+                </Button>
+                {/* TODO: POST /v1/students/data-edit-requests 연동. 초기화할 컬럼 선택 방식 확정 후 작업 */}
+                <Button
+                  type="button"
+                  variant="pixel-primary"
+                  className={cn('px-3')}
+                  disabled={!selectedStudentIds.length}
+                >
+                  컬럼 초기화 진행
+                </Button>
+              </>
+            ) : (
+              <>
+                <GraduateThirdGradeButton />
+                <Button
+                  type="button"
+                  variant="pixel-destructive"
+                  className={cn('px-3')}
+                  onClick={startColumnRefresh}
+                >
+                  컬럼 초기화
+                </Button>
+                {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
+                <Button type="button" variant="pixel" className={cn('px-3')}>
+                  공지사항 전송
+                </Button>
+                <StudentExcelActions />
+                <StudentFormDialog
+                  mode="create"
+                  clubs={clubsData?.data}
+                  isLoadingClubs={isLoadingClubs}
+                />
+              </>
+            )
           }
         >
           {/* Filters */}
@@ -232,6 +284,9 @@ const StudentsPage = () => {
               students={students}
               isLoading={isLoadingStudents}
               onEdit={handleEditStudent}
+              selectable={isColumnRefreshMode}
+              selectedIds={selectedStudentIds}
+              onToggleSelect={toggleStudentSelection}
             />
           </div>
 
