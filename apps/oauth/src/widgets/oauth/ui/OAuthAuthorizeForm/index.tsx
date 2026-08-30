@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
-import { SignInFormType } from '@repo/shared/types';
+import { ApiResponse, SignInFormType } from '@repo/shared/types';
 import { SignInForm } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { toast } from 'sonner';
@@ -201,7 +201,9 @@ const OAuthAuthorizeForm = () => {
       return;
     }
 
-    const { fields } = (await response.json()) as Partial<DataEditRequirementsResponse>;
+    // 서버는 모든 응답을 { status, code, message, data }로 감싼다.
+    const { data } = (await response.json()) as Partial<ApiResponse<DataEditRequirementsResponse>>;
+    const fields = data?.fields;
 
     if (!fields?.length) {
       toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
