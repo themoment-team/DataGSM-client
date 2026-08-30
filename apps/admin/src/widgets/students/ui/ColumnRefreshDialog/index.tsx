@@ -8,7 +8,14 @@ import {
   StudentDataEditField,
 } from '@repo/shared/constants';
 import { Student } from '@repo/shared/types';
-import { Button, Checkbox, Dialog, DialogWindow, GradeMemberPicker } from '@repo/shared/ui';
+import {
+  Button,
+  Checkbox,
+  ConfirmDialog,
+  Dialog,
+  DialogWindow,
+  GradeMemberPicker,
+} from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 
 /** 대상 학생을 확인한 뒤 초기화할 컬럼을 고른다. */
@@ -143,16 +150,23 @@ const ColumnRefreshDialog = ({
               Column Refresh
             </Button>
           ) : (
-            <Button
-              type="button"
-              variant="pixel-solid"
-              size="lg"
-              className={cn('flex-1')}
-              disabled={!selectedFields.length}
-              onClick={() => onConfirm(selectedFields)}
-            >
-              Next
-            </Button>
+            /* 되돌릴 수 없는 작업이라 실행 직전에 한 번 더 확인받는다. */
+            <ConfirmDialog
+              trigger={
+                <Button
+                  type="button"
+                  variant="pixel-solid"
+                  size="lg"
+                  className={cn('flex-1')}
+                  disabled={!selectedFields.length}
+                >
+                  Next
+                </Button>
+              }
+              title="선택된 학생들의 컬럼 초기화를 진행할까요?"
+              warning="> 중요: 이 작업은 되돌릴 수 없습니다! 학생과 컬럼을 제대로 선택했는지 다시 한 번 확인하세요."
+              onConfirm={() => onConfirm(selectedFields)}
+            />
           )}
         </div>
       </DialogWindow>
