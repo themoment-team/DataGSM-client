@@ -1,14 +1,12 @@
+import {
+  STUDENT_DATA_EDIT_FIELDS,
+  STUDENT_DATA_EDIT_FIELD_LABEL,
+  StudentDataEditField,
+} from '@repo/shared/constants';
 import { z } from 'zod';
 
-/** 어드민이 수정을 요청할 수 있는 항목. 서버 StudentDataEditField와 이름이 같아야 한다. */
-export const STUDENT_DATA_EDIT_FIELDS = [
-  'STUDENT_NUMBER',
-  'DORMITORY_ROOM_NUMBER',
-  'MAJOR_CLUB',
-  'AUTONOMOUS_CLUB',
-] as const;
-
-export type StudentDataEditField = (typeof STUDENT_DATA_EDIT_FIELDS)[number];
+export { STUDENT_DATA_EDIT_FIELDS };
+export type { StudentDataEditField };
 
 export interface DataEditOption {
   value: number;
@@ -76,14 +74,24 @@ export const DATA_EDIT_FIELD_META: Record<
   StudentDataEditField,
   { label: string; placeholder: string; maxLength?: number }
 > = {
-  STUDENT_NUMBER: { label: '학번', placeholder: '학번을 입력하세요', maxLength: 4 },
+  STUDENT_NUMBER: {
+    label: STUDENT_DATA_EDIT_FIELD_LABEL.STUDENT_NUMBER,
+    placeholder: '학번을 입력하세요',
+    maxLength: 4,
+  },
   DORMITORY_ROOM_NUMBER: {
-    label: '기숙사 호실',
+    label: STUDENT_DATA_EDIT_FIELD_LABEL.DORMITORY_ROOM_NUMBER,
     placeholder: '기숙사 호실을 입력하세요',
     maxLength: 3,
   },
-  MAJOR_CLUB: { label: '전공 동아리', placeholder: '전공 동아리를 선택하세요' },
-  AUTONOMOUS_CLUB: { label: '자율 동아리', placeholder: '자율 동아리를 선택하세요' },
+  MAJOR_CLUB: {
+    label: STUDENT_DATA_EDIT_FIELD_LABEL.MAJOR_CLUB,
+    placeholder: '전공 동아리를 선택하세요',
+  },
+  AUTONOMOUS_CLUB: {
+    label: STUDENT_DATA_EDIT_FIELD_LABEL.AUTONOMOUS_CLUB,
+    placeholder: '자율 동아리를 선택하세요',
+  },
 };
 
 /** 폼 값. 키는 요청된 StudentDataEditField이고, 값은 입력 문자열이다. */

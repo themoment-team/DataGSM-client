@@ -66,8 +66,8 @@ const StudentsPage = () => {
     );
   };
 
+  // TODO: POST /v1/students/data-edit-requests 연동 (selectedStudentIds + 고른 fields)
   const handleColumnRefreshConfirm = () => {
-    // TODO: POST /v1/students/data-edit-requests 연동
     setIsColumnRefreshDialogOpen(false);
   };
 

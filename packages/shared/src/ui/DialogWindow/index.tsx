@@ -9,7 +9,7 @@ interface DialogWindowProps extends Omit<React.ComponentProps<typeof DialogConte
   /** 본문 상단 제목. 없으면 제목 블록을 그리지 않는다. */
   heading?: string;
   /** 본문 상단 설명. heading 없이 전달하면 스크린리더 전용으로만 제공된다. */
-  description?: string;
+  description?: React.ReactNode;
   children: React.ReactNode;
 }
 
