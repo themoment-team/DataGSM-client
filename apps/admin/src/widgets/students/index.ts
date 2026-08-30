@@ -6,4 +6,5 @@ export { default as StudentList } from './ui/StudentList';
 export { default as StudentFilter } from './ui/StudentFilter';
 export { default as StudentFormDialog } from './ui/StudentFormDialog';
 export { default as StudentExcelActions } from './ui/StudentExcelActions';
+export { default as ColumnRefreshDialog } from './ui/ColumnRefreshDialog';
 export { default as GraduateThirdGradeButton } from './ui/GraduateThirdGradeButton';

@@ -23,7 +23,7 @@ const buttonVariants = cva(
           'border border-foreground bg-foreground font-mono text-xs tracking-[0.1em] text-background hover:bg-foreground/90',
         'pixel-destructive':
           'border-2 border-destructive bg-background font-mono text-xs tracking-[0.1em] text-destructive hover:bg-destructive hover:text-white',
-        /** 로그인·회원가입 등 인증 화면의 제출 버튼. size="lg" + w-full과 함께 쓴다. */
+        /** 화면·모달의 주요 확정 버튼. size="lg"와 함께 폭을 채워 쓴다. */
         'pixel-solid':
           'border-2 border-foreground bg-foreground text-background font-mono text-xs font-bold tracking-[1.2px] hover:bg-background hover:text-foreground disabled:opacity-60',
       },

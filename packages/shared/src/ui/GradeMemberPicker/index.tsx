@@ -8,11 +8,12 @@ const GRADES = [1, 2, 3];
 interface GradeMemberPickerProps {
   students?: Student[];
   selectedIds: number[];
-  onRemove: (studentId: number) => void;
+  /** 넘기지 않으면 제거 버튼 없이 읽기 전용 명단이 된다. */
+  onRemove?: (studentId: number) => void;
   className?: string;
 }
 
-/** 선택된 팀원을 학년별 카드로 나눠 보여주고 개별 제거를 지원한다. */
+/** 선택된 학생을 학년별 카드로 나눠 보여준다. onRemove를 주면 개별 제거도 지원한다. */
 const GradeMemberPicker = ({
   students,
   selectedIds,
@@ -65,15 +66,17 @@ const GradeMemberPicker = ({
                   >
                     {student.name}
                   </span>
-                  <button
-                    type="button"
-                    className={cn(
-                      'text-foreground shrink-0 cursor-pointer px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-60',
-                    )}
-                    onClick={() => onRemove(student.id)}
-                  >
-                    X<span className={cn('sr-only')}>{student.name} 제외</span>
-                  </button>
+                  {onRemove && (
+                    <button
+                      type="button"
+                      className={cn(
+                        'text-foreground shrink-0 cursor-pointer px-2 font-mono text-xs leading-4 tracking-[0.1em] transition-opacity hover:opacity-60',
+                      )}
+                      onClick={() => onRemove(student.id)}
+                    >
+                      X<span className={cn('sr-only')}>{student.name} 제외</span>
+                    </button>
+                  )}
                 </div>
               ))}
           </div>

@@ -24,7 +24,7 @@ interface StudentListProps {
   selectable?: boolean;
   /** 선택된 학생 ID. 페이지를 넘겨도 유지되도록 부모가 들고 있는다. */
   selectedIds?: number[];
-  onToggleSelect?: (studentId: number) => void;
+  onToggleSelect?: (student: Student) => void;
 }
 
 const StudentList = ({
@@ -137,7 +137,7 @@ const StudentList = ({
                     {selectable ? (
                       <Checkbox
                         checked={isSelected}
-                        onCheckedChange={() => onToggleSelect?.(student.id)}
+                        onCheckedChange={() => onToggleSelect?.(student)}
                         aria-label={`${student.name} 선택`}
                         className={cn('size-5', isSelected && 'border-background')}
                       />

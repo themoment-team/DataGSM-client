@@ -15,6 +15,7 @@ import { StudentFilterSchema, StudentFilterType } from '@/entities/student';
 import { useGetClubs } from '@/views/clubs';
 import { useGetStudents } from '@/views/students';
 import {
+  ColumnRefreshDialog,
   GraduateThirdGradeButton,
   StudentExcelActions,
   StudentFilter,
@@ -33,7 +34,14 @@ const StudentsPage = () => {
 
   /** 컬럼 초기화 모드에서는 목록이 학생 선택용으로 바뀐다. */
   const [isColumnRefreshMode, setIsColumnRefreshMode] = useState(false);
-  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
+  /** 확인 모달이 학년·학번·이름을 써야 해서 ID가 아니라 학생을 통째로 들고 있는다. */
+  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [isColumnRefreshDialogOpen, setIsColumnRefreshDialogOpen] = useState(false);
+
+  const selectedStudentIds = useMemo(
+    () => selectedStudents.map((student) => student.id),
+    [selectedStudents],
+  );
 
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
@@ -41,21 +49,26 @@ const StudentsPage = () => {
   };
 
   const startColumnRefresh = () => {
-    setSelectedStudentIds([]);
+    setSelectedStudents([]);
     setIsColumnRefreshMode(true);
   };
 
   const cancelColumnRefresh = () => {
-    setSelectedStudentIds([]);
+    setSelectedStudents([]);
     setIsColumnRefreshMode(false);
   };
 
-  const toggleStudentSelection = (studentId: number) => {
-    setSelectedStudentIds((previous) =>
-      previous.includes(studentId)
-        ? previous.filter((id) => id !== studentId)
-        : [...previous, studentId],
+  const toggleStudentSelection = (student: Student) => {
+    setSelectedStudents((previous) =>
+      previous.some(({ id }) => id === student.id)
+        ? previous.filter(({ id }) => id !== student.id)
+        : [...previous, student],
     );
+  };
+
+  const handleColumnRefreshConfirm = () => {
+    // TODO: POST /v1/students/data-edit-requests 연동
+    setIsColumnRefreshDialogOpen(false);
   };
 
   const initialValues = useMemo(
@@ -238,12 +251,12 @@ const StudentsPage = () => {
                 >
                   컬럼 초기화 취소
                 </Button>
-                {/* TODO: POST /v1/students/data-edit-requests 연동. 초기화할 컬럼 선택 방식 확정 후 작업 */}
                 <Button
                   type="button"
                   variant="pixel-primary"
                   className={cn('px-3')}
-                  disabled={!selectedStudentIds.length}
+                  disabled={!selectedStudents.length}
+                  onClick={() => setIsColumnRefreshDialogOpen(true)}
                 >
                   컬럼 초기화 진행
                 </Button>
@@ -299,6 +312,13 @@ const StudentsPage = () => {
             />
           </div>
         </PageWindow>
+
+        <ColumnRefreshDialog
+          open={isColumnRefreshDialogOpen}
+          onOpenChange={setIsColumnRefreshDialogOpen}
+          students={selectedStudents}
+          onConfirm={handleColumnRefreshConfirm}
+        />
 
         {editingStudent && (
           <StudentFormDialog
