@@ -5,11 +5,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { StudentDataEditField } from '@repo/shared/constants';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Student, StudentRole, StudentSex } from '@repo/shared/types';
 import { Button, CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
+import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { StudentFilterSchema, StudentFilterType } from '@/entities/student';
 import { useGetClubs } from '@/views/clubs';
@@ -21,6 +24,7 @@ import {
   StudentFilter,
   StudentFormDialog,
   StudentList,
+  useRequestStudentDataEdit,
 } from '@/widgets/students';
 
 const PAGE_SIZE = 10;
@@ -28,6 +32,7 @@ const PAGE_SIZE = 10;
 const StudentsPage = () => {
   const searchParams = useSearchParams();
   const { updateURL } = useURLFilters<StudentFilterType>();
+  const queryClient = useQueryClient();
 
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -66,9 +71,20 @@ const StudentsPage = () => {
     );
   };
 
-  // TODO: POST /v1/students/data-edit-requests 연동 (selectedStudentIds + 고른 fields)
-  const handleColumnRefreshConfirm = () => {
-    setIsColumnRefreshDialogOpen(false);
+  const { mutate: requestStudentDataEdit } = useRequestStudentDataEdit({
+    onSuccess: () => {
+      toast.success('선택한 학생들의 컬럼을 초기화했습니다.');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      setIsColumnRefreshDialogOpen(false);
+      cancelColumnRefresh();
+    },
+    onError: () => {
+      toast.error('컬럼 초기화에 실패했습니다. 다시 시도해주세요.');
+    },
+  });
+
+  const handleColumnRefreshConfirm = (fields: StudentDataEditField[]) => {
+    requestStudentDataEdit({ studentIds: selectedStudentIds, fields });
   };
 
   const initialValues = useMemo(
