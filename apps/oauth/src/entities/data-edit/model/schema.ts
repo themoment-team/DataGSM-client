@@ -16,13 +16,17 @@ export interface DataEditOption {
 }
 
 /**
- * 화면이 렌더할 항목 하나.
- * 동아리처럼 선택지가 필요한 항목은 options가 있어야 하는데,
- * 지금 서버는 필드 이름만 내려주므로 동아리는 options가 비어 있다.
+ * 화면이 렌더할 항목 하나. data-edit-requirements 응답과 형태가 같다.
+ * 동아리 항목에는 서버가 운영 중인 동아리 목록을 options로 실어 보낸다.
  */
 export interface DataEditFieldSpec {
   name: StudentDataEditField;
   options?: DataEditOption[];
+}
+
+/** data-edit-requirements 응답 본문. */
+export interface DataEditRequirementsResponse {
+  fields: DataEditFieldSpec[];
 }
 
 const GRADE_RANGE = { min: 1, max: 3 };

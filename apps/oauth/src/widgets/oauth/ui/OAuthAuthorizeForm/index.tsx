@@ -9,7 +9,11 @@ import { SignInForm } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { toast } from 'sonner';
 
-import { DataEditFieldSpec, DataEditPayload, StudentDataEditField } from '@/entities/data-edit';
+import {
+  DataEditFieldSpec,
+  DataEditPayload,
+  DataEditRequirementsResponse,
+} from '@/entities/data-edit';
 import { DataEditForm, useGetOAuthSession } from '@/widgets/oauth';
 
 const BUFFER_TIME_MS = 30000;
@@ -197,17 +201,16 @@ const OAuthAuthorizeForm = () => {
       return;
     }
 
-    const { data } = await response.json();
-    const fields: StudentDataEditField[] = data?.fields ?? [];
+    const { fields } = (await response.json()) as Partial<DataEditRequirementsResponse>;
 
-    if (fields.length === 0) {
+    if (!fields?.length) {
       toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
       return;
     }
 
     // 비밀번호는 재제출에 필요해 메모리로만 들고 간다. 새로고침하면 로그인부터 다시 한다.
     setCredentials(credentials);
-    setDataEditFields(fields.map((name) => ({ name })));
+    setDataEditFields(fields);
   };
 
   return (
