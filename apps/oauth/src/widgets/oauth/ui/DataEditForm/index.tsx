@@ -54,7 +54,7 @@ const DataEditForm = ({ fields, isPending = false, onSubmit }: DataEditFormProps
 
   return (
     <AuthWindow
-      windowLabel="Sign Up"
+      windowLabel="Update Info"
       title="정보 변경"
       description={
         <>
