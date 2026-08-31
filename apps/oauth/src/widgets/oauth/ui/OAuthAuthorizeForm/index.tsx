@@ -220,12 +220,20 @@ const OAuthAuthorizeForm = () => {
 
     // 서버는 모든 응답을 { status, code, message, data }로 감싼다.
     const { data } = (await response.json()) as Partial<ApiResponse<DataEditRequirementsResponse>>;
-    // 필드 목록은 서버와 손으로 맞추는 enum이라, 아직 화면이 모르는 항목이 올 수 있다.
-    // 모르는 항목을 그대로 넘기면 라벨 조회와 스키마 조립이 함께 무너지므로 여기서 걸러낸다.
-    const fields = data?.fields?.filter(({ name }) => STUDENT_DATA_EDIT_FIELDS.includes(name));
+    const fields = data?.fields;
 
     if (!fields?.length) {
       toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
+      return;
+    }
+
+    // 필드 목록은 서버와 손으로 맞추는 enum이라, 화면이 아직 모르는 항목이 올 수 있다.
+    // 아는 항목만 골라 제출하면 요청이 해소되지 않아 서버가 다시 422로 막고,
+    // 사용자는 같은 화면을 오가며 로그인을 끝내지 못한다. 하나라도 모르면 진입하지 않는다.
+    const hasUnknownField = fields.some(({ name }) => !STUDENT_DATA_EDIT_FIELDS.includes(name));
+
+    if (hasUnknownField) {
+      toast.error('현재 지원하지 않는 정보 변경 항목입니다. 관리자에게 문의하세요.');
       return;
     }
 
