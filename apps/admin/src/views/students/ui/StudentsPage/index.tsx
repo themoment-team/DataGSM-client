@@ -71,19 +71,23 @@ const StudentsPage = () => {
     );
   };
 
-  const { mutate: requestStudentDataEdit } = useRequestStudentDataEdit({
-    onSuccess: () => {
-      toast.success('선택한 학생들의 컬럼을 초기화했습니다.');
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      setIsColumnRefreshDialogOpen(false);
-      cancelColumnRefresh();
-    },
-    onError: () => {
-      toast.error('컬럼 초기화에 실패했습니다. 다시 시도해주세요.');
-    },
-  });
+  const { mutate: requestStudentDataEdit, isPending: isRequestingDataEdit } =
+    useRequestStudentDataEdit({
+      onSuccess: () => {
+        toast.success('선택한 학생들의 컬럼을 초기화했습니다.');
+        queryClient.invalidateQueries({ queryKey: ['students'] });
+        setIsColumnRefreshDialogOpen(false);
+        cancelColumnRefresh();
+      },
+      onError: () => {
+        toast.error('컬럼 초기화에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
 
   const handleColumnRefreshConfirm = (fields: StudentDataEditField[]) => {
+    // 학생 정보를 즉시 초기화하는 요청이라 중복 전송을 막는다.
+    if (isRequestingDataEdit) return;
+
     requestStudentDataEdit({ studentIds: selectedStudentIds, fields });
   };
 
@@ -333,6 +337,7 @@ const StudentsPage = () => {
           open={isColumnRefreshDialogOpen}
           onOpenChange={setIsColumnRefreshDialogOpen}
           students={selectedStudents}
+          isPending={isRequestingDataEdit}
           onConfirm={handleColumnRefreshConfirm}
         />
 

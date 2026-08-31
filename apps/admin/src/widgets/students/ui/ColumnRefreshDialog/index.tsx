@@ -26,6 +26,8 @@ interface ColumnRefreshDialogProps {
   onOpenChange: (open: boolean) => void;
   /** 초기화 대상으로 고른 학생. 페이지를 넘겨가며 고른 학생까지 모두 담긴다. */
   students: Student[];
+  /** 요청이 나가는 중. 같은 초기화를 두 번 보내지 못하도록 실행을 막는다. */
+  isPending?: boolean;
   onConfirm: (fields: StudentDataEditField[]) => void;
 }
 
@@ -33,6 +35,7 @@ const ColumnRefreshDialog = ({
   open,
   onOpenChange,
   students,
+  isPending = false,
   onConfirm,
 }: ColumnRefreshDialogProps) => {
   const [step, setStep] = useState<ColumnRefreshStep>('students');
@@ -158,7 +161,7 @@ const ColumnRefreshDialog = ({
                   variant="pixel-solid"
                   size="lg"
                   className={cn('flex-1')}
-                  disabled={!selectedFields.length}
+                  disabled={!selectedFields.length || isPending}
                 >
                   Next
                 </Button>
