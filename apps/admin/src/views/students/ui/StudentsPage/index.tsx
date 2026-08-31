@@ -5,21 +5,26 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { StudentDataEditField } from '@repo/shared/constants';
 import { useDebounce, useURLFilters } from '@repo/shared/hooks';
 import { Student, StudentRole, StudentSex } from '@repo/shared/types';
 import { Button, CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
+import { useQueryClient } from '@tanstack/react-query';
 import { useForm, useWatch } from 'react-hook-form';
+import { toast } from 'sonner';
 
 import { StudentFilterSchema, StudentFilterType } from '@/entities/student';
 import { useGetClubs } from '@/views/clubs';
 import { useGetStudents } from '@/views/students';
 import {
+  ColumnRefreshDialog,
   GraduateThirdGradeButton,
   StudentExcelActions,
   StudentFilter,
   StudentFormDialog,
   StudentList,
+  useRequestStudentDataEdit,
 } from '@/widgets/students';
 
 const PAGE_SIZE = 10;
@@ -27,13 +32,63 @@ const PAGE_SIZE = 10;
 const StudentsPage = () => {
   const searchParams = useSearchParams();
   const { updateURL } = useURLFilters<StudentFilterType>();
+  const queryClient = useQueryClient();
 
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  /** 컬럼 초기화 모드에서는 목록이 학생 선택용으로 바뀐다. */
+  const [isColumnRefreshMode, setIsColumnRefreshMode] = useState(false);
+  /** 확인 모달이 학년·학번·이름을 써야 해서 ID가 아니라 학생을 통째로 들고 있는다. */
+  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [isColumnRefreshDialogOpen, setIsColumnRefreshDialogOpen] = useState(false);
+
+  const selectedStudentIds = useMemo(
+    () => selectedStudents.map((student) => student.id),
+    [selectedStudents],
+  );
+
   const handleEditStudent = (student: Student) => {
     setEditingStudent(student);
     setIsEditDialogOpen(true);
+  };
+
+  const startColumnRefresh = () => {
+    setSelectedStudents([]);
+    setIsColumnRefreshMode(true);
+  };
+
+  const cancelColumnRefresh = () => {
+    setSelectedStudents([]);
+    setIsColumnRefreshMode(false);
+  };
+
+  const toggleStudentSelection = (student: Student) => {
+    setSelectedStudents((previous) =>
+      previous.some(({ id }) => id === student.id)
+        ? previous.filter(({ id }) => id !== student.id)
+        : [...previous, student],
+    );
+  };
+
+  const { mutate: requestStudentDataEdit, isPending: isRequestingDataEdit } =
+    useRequestStudentDataEdit({
+      onSuccess: () => {
+        toast.success('선택한 학생들의 컬럼을 초기화했습니다.');
+        queryClient.invalidateQueries({ queryKey: ['students'] });
+        setIsColumnRefreshDialogOpen(false);
+        cancelColumnRefresh();
+      },
+      onError: () => {
+        toast.error('컬럼 초기화에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
+
+  const handleColumnRefreshConfirm = (fields: StudentDataEditField[]) => {
+    // 학생 정보를 즉시 초기화하는 요청이라 중복 전송을 막는다.
+    if (isRequestingDataEdit) return;
+
+    requestStudentDataEdit({ studentIds: selectedStudentIds, fields });
   };
 
   const initialValues = useMemo(
@@ -198,27 +253,57 @@ const StudentsPage = () => {
         />
 
         <PageWindow
-          windowTitle="Student Management"
-          title="학생 관리"
-          description="학생들의 정보를 확인하거나 수정하세요."
+          windowTitle={isColumnRefreshMode ? 'Column Refresh' : 'Student Management'}
+          title={isColumnRefreshMode ? '컬럼 초기화' : '학생 관리'}
+          description={
+            isColumnRefreshMode
+              ? '선택한 학생들의 컬럼을 초기화하고 로그인 과정 때 정보를 받도록 설정합니다.'
+              : '학생들의 정보를 확인하거나 수정하세요.'
+          }
           action={
-            <>
-              <GraduateThirdGradeButton />
-              {/* TODO: 컬럼 초기화 API 연동 (현재는 시안 반영용 UI) */}
-              <Button type="button" variant="pixel-destructive" className={cn('px-3')}>
-                컬럼 초기화
-              </Button>
-              {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
-              <Button type="button" variant="pixel" className={cn('px-3')}>
-                공지사항 전송
-              </Button>
-              <StudentExcelActions />
-              <StudentFormDialog
-                mode="create"
-                clubs={clubsData?.data}
-                isLoadingClubs={isLoadingClubs}
-              />
-            </>
+            isColumnRefreshMode ? (
+              <>
+                <Button
+                  type="button"
+                  variant="pixel-destructive"
+                  className={cn('px-3')}
+                  onClick={cancelColumnRefresh}
+                >
+                  컬럼 초기화 취소
+                </Button>
+                <Button
+                  type="button"
+                  variant="pixel-primary"
+                  className={cn('px-3')}
+                  disabled={!selectedStudents.length}
+                  onClick={() => setIsColumnRefreshDialogOpen(true)}
+                >
+                  컬럼 초기화 진행
+                </Button>
+              </>
+            ) : (
+              <>
+                <GraduateThirdGradeButton />
+                <Button
+                  type="button"
+                  variant="pixel-destructive"
+                  className={cn('px-3')}
+                  onClick={startColumnRefresh}
+                >
+                  컬럼 초기화
+                </Button>
+                {/* TODO: 공지사항 전송 API 연동 (현재는 시안 반영용 UI) */}
+                <Button type="button" variant="pixel" className={cn('px-3')}>
+                  공지사항 전송
+                </Button>
+                <StudentExcelActions />
+                <StudentFormDialog
+                  mode="create"
+                  clubs={clubsData?.data}
+                  isLoadingClubs={isLoadingClubs}
+                />
+              </>
+            )
           }
         >
           {/* Filters */}
@@ -232,6 +317,9 @@ const StudentsPage = () => {
               students={students}
               isLoading={isLoadingStudents}
               onEdit={handleEditStudent}
+              selectable={isColumnRefreshMode}
+              selectedIds={selectedStudentIds}
+              onToggleSelect={toggleStudentSelection}
             />
           </div>
 
@@ -244,6 +332,14 @@ const StudentsPage = () => {
             />
           </div>
         </PageWindow>
+
+        <ColumnRefreshDialog
+          open={isColumnRefreshDialogOpen}
+          onOpenChange={setIsColumnRefreshDialogOpen}
+          students={selectedStudents}
+          isPending={isRequestingDataEdit}
+          onConfirm={handleColumnRefreshConfirm}
+        />
 
         {editingStudent && (
           <StudentFormDialog

@@ -38,6 +38,7 @@ export const studentQueryKeys = {
   postStudentImport: () => ['students', 'imports'] as const,
   getStudentExport: () => ['students', 'exports', 'excel'] as const,
   postGraduateThirdGrade: () => ['students', 'graduate', 'third-grade'] as const,
+  postStudentDataEditRequests: () => ['students', 'data-edit-requests'] as const,
   patchMySpecialty: () => ['students', 'me', 'specialty', 'update'] as const,
   patchMyGithubId: () => ['students', 'me', 'github-id', 'update'] as const,
 } as const;
@@ -75,8 +76,7 @@ export const projectQueryKeys = {
     projectName?: string;
     clubId?: number;
     status?: string;
-  }) =>
-    ['projects', 'list', params] as const,
+  }) => ['projects', 'list', params] as const,
   postProject: () => ['projects', 'create'] as const,
 } as const;
 

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { passThroughUpstream } from '@/shared/lib';
 
+/**
+ * 정보 수정이 필요해 로그인이 막힌 계정의, 입력받아야 할 필드 목록을 조회한다.
+ * 자격증명을 다시 검증하는 엔드포인트라 authorize와 동일하게 서버로 프록시한다.
+ */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -15,33 +19,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`${oauthBaseUrl}/v1/oauth/authorize`, {
+    const response = await fetch(`${oauthBaseUrl}/v1/oauth/authorize/data-edit-requirements`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
-      redirect: 'manual',
     });
 
-    if (response.status === 302) {
-      const location = response.headers.get('Location');
-
-      if (!location) {
-        return NextResponse.json(
-          { error: 'invalid_response', error_description: 'Redirect location missing' },
-          { status: 500 },
-        );
-      }
-
-      return NextResponse.json({ redirect_url: location }, { status: 200 });
-    }
-
-    if (!response.ok) {
-      return passThroughUpstream(response);
-    }
-
-    return NextResponse.json({ success: true });
+    return passThroughUpstream(response);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     return NextResponse.json(

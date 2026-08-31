@@ -34,3 +34,4 @@ export { FilterSelect } from './FilterSelect';
 export type { FilterOption } from './FilterSelect';
 export { FormField, FORM_FIELD_STYLE, FORM_TRIGGER_STYLE } from './FormField';
 export { GradeMemberPicker } from './GradeMemberPicker';
+export { AuthWindow } from './AuthWindow';
