@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { passThroughUpstream } from '@/shared/lib';
+
 /**
  * 정보 수정이 필요해 로그인이 막힌 계정의, 입력받아야 할 필드 목록을 조회한다.
  * 자격증명을 다시 검증하는 엔드포인트라 authorize와 동일하게 서버로 프록시한다.
@@ -25,9 +27,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
-
-    return NextResponse.json(data, { status: response.status });
+    return passThroughUpstream(response);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     return NextResponse.json(

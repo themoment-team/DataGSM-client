@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { passThroughUpstream } from '@/shared/lib';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -36,8 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
+      return passThroughUpstream(response);
     }
 
     return NextResponse.json({ success: true });

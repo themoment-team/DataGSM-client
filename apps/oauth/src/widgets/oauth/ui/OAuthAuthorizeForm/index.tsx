@@ -13,6 +13,7 @@ import {
   DataEditFieldSpec,
   DataEditPayload,
   DataEditRequirementsResponse,
+  STUDENT_DATA_EDIT_FIELDS,
 } from '@/entities/data-edit';
 import { DataEditForm, useGetOAuthSession } from '@/widgets/oauth';
 
@@ -112,6 +113,9 @@ const OAuthAuthorizeForm = () => {
 
   /** authorize 제출. 정보 수정 값이 있으면 함께 실어 보낸다. */
   const submitAuthorize = async (credentials: SignInFormType, dataEdit?: DataEditPayload) => {
+    // 정보 변경 값을 실어 보내는 재제출인지. 오류 해석이 최초 로그인과 다르다.
+    const isDataEditSubmit = Boolean(dataEdit);
+
     if (isExpired) {
       toast.error('세션이 만료되었습니다. 다시 시도해주세요.');
       return;
@@ -148,6 +152,12 @@ const OAuthAuthorizeForm = () => {
           window.location.href = responseData.redirect_url;
           return;
         }
+
+        // 2xx인데 이동할 주소가 없으면 더 진행할 수 없다.
+        // 여기서 끝내지 않으면 isPending이 켜진 채로 폼이 영구히 잠긴다.
+        setIsPending(false);
+        toast.error('로그인 응답이 올바르지 않습니다. 다시 시도해주세요.');
+        return;
       }
 
       if (!response.ok) {
@@ -160,6 +170,13 @@ const OAuthAuthorizeForm = () => {
         setIsPending(false);
         switch (response.status) {
           case 400:
+            // 재제출의 400은 세션이 아니라 입력값 문제다.
+            // 만료로 처리하면 입력 중이던 정보 변경 폼이 통째로 사라진다.
+            if (isDataEditSubmit) {
+              toast.error('입력한 정보를 저장하지 못했습니다. 값을 확인하고 다시 시도해주세요.');
+              break;
+            }
+
             toast.error('세션이 만료되었습니다. 다시 시도해주세요.');
             setIsExpired(true);
             break;
@@ -203,7 +220,9 @@ const OAuthAuthorizeForm = () => {
 
     // 서버는 모든 응답을 { status, code, message, data }로 감싼다.
     const { data } = (await response.json()) as Partial<ApiResponse<DataEditRequirementsResponse>>;
-    const fields = data?.fields;
+    // 필드 목록은 서버와 손으로 맞추는 enum이라, 아직 화면이 모르는 항목이 올 수 있다.
+    // 모르는 항목을 그대로 넘기면 라벨 조회와 스키마 조립이 함께 무너지므로 여기서 걸러낸다.
+    const fields = data?.fields?.filter(({ name }) => STUDENT_DATA_EDIT_FIELDS.includes(name));
 
     if (!fields?.length) {
       toast.error('정보 변경 항목을 불러오지 못했습니다. 다시 시도해주세요.');
