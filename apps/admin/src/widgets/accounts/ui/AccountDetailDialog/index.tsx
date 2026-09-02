@@ -6,14 +6,21 @@ import { AccountListItem } from '@repo/shared/types';
 import {
   Button,
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+  DialogWindow,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,12 +30,26 @@ import {
   getAccountRoleBadgeStyle,
   getAccountRoleLabel,
   getAccountStatusBadgeStyle,
+  getAccountStatusDotStyle,
   getAccountStatusLabel,
   getTeacherDepartmentLabel,
 } from '@/entities/account';
 import { useGetMyAccountId } from '@/entities/signin';
-import { getMajorLabel, getRoleBadgeStyle, getRoleLabel, getSexLabel } from '@/entities/student';
+import { getMajorLabel, getRoleBadgeStyle, getRoleLabel } from '@/entities/student';
 import { useUpdateAccountRole } from '@/widgets/accounts';
+
+const BADGE_STYLE =
+  'inline-flex h-6 items-center border px-2 font-mono text-[11px] font-medium tracking-[0.1em]';
+
+const STATUS_BADGE_STYLE =
+  'inline-flex h-6 items-center gap-1.5 border px-2 font-sans text-xs font-medium';
+
+const SECTION_TITLE_STYLE = 'text-foreground text-base font-semibold leading-[1.45]';
+
+const SECTION_DESCRIPTION_STYLE = 'text-muted-foreground text-[13px] leading-[1.6]';
+
+const EMPTY_STYLE =
+  'border-foreground/25 text-muted-foreground border border-dashed p-4 text-center font-mono text-xs';
 
 interface AccountDetailDialogProps {
   account: AccountListItem | null;
@@ -65,153 +86,199 @@ const AccountDetailDialog = ({ account, open, onOpenChange }: AccountDetailDialo
   const isTeacherAccount = objectType === 'TEACHER';
   const isRoleChangeDisabled = account.role === 'ROOT' || account.id === myAccountId;
 
+  const linkedTitle = isTeacherAccount ? '연동된 선생님 정보' : '연동된 학생 정보';
+  const linkedDescription = isTeacherAccount
+    ? '계정에 연결된 선생님 정보를 확인하세요.'
+    : '계정에 연결된 학생 정보를 확인하세요.';
+
+  const renderLinkedInfo = () => {
+    if (isTeacherAccount) {
+      if (!teacher) {
+        return <div className={cn(EMPTY_STYLE)}>연동된 선생님 정보가 없습니다.</div>;
+      }
+
+      return (
+        <Table>
+          <TableHeader>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
+              <TableHead className={cn('w-[180px]')}>이름</TableHead>
+              <TableHead className={cn('w-[200px]')}>소속 부서</TableHead>
+              <TableHead>설명</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
+              <TableCell>{teacher.name}</TableCell>
+              <TableCell>{getTeacherDepartmentLabel(teacher.department)}</TableCell>
+              <TableCell className={cn('whitespace-normal')}>
+                {teacher.description || '없음'}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      );
+    }
+
+    if (!student) {
+      return <div className={cn(EMPTY_STYLE)}>연동된 학생 정보가 없습니다.</div>;
+    }
+
+    return (
+      <div className={cn('flex flex-col')}>
+        <Table>
+          <TableHeader>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
+              <TableHead className={cn('w-[120px]')}>이름</TableHead>
+              <TableHead className={cn('w-[80px]')}>학년</TableHead>
+              <TableHead className={cn('w-[80px]')}>반</TableHead>
+              <TableHead className={cn('w-[80px]')}>번호</TableHead>
+              <TableHead>학과</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
+              <TableCell>{student.name}</TableCell>
+              <TableCell>{student.grade}학년</TableCell>
+              <TableCell>{student.classNum}반</TableCell>
+              <TableCell>{student.number}번</TableCell>
+              <TableCell>{getMajorLabel(student.major)}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <Table className={cn('-mt-px')}>
+          <TableHeader>
+            <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
+              <TableHead className={cn('w-[200px]')}>기숙사</TableHead>
+              <TableHead className={cn('w-[180px]')}>전공동아리</TableHead>
+              <TableHead className={cn('w-[180px]')}>자율동아리</TableHead>
+              <TableHead>구분</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
+              <TableCell>
+                {student.dormitoryRoom
+                  ? `${student.dormitoryFloor}층 ${student.dormitoryRoom}호`
+                  : '없음'}
+              </TableCell>
+              <TableCell>{student.majorClub?.name ?? '없음'}</TableCell>
+              <TableCell>{student.autonomousClub?.name ?? '없음'}</TableCell>
+              <TableCell>
+                <span className={cn(BADGE_STYLE, getRoleBadgeStyle(student.role))}>
+                  {getRoleLabel(student.role)}
+                </span>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-h-[90vh] max-w-lg overflow-y-auto p-0')}>
-        <DialogHeader className={cn('border-foreground border-b-2 px-6 py-5')}>
-          <DialogTitle className={cn('font-pixel text-[14px] leading-none')}>ACCOUNT DETAIL</DialogTitle>
-        </DialogHeader>
-
-        <div className={cn('space-y-6 px-6 py-6')}>
-          <div className={cn('space-y-2')}>
-            <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
-                이메일
-              </span>
-              <span className={cn('font-mono text-sm')}>{account.email}</span>
-            </div>
-            <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
-                현재 역할
-              </span>
-              <span
-                className={cn(
-                  'border px-1.5 py-0.5 text-xs font-mono uppercase',
-                  getAccountRoleBadgeStyle(account.role),
-                )}
-              >
-                {getAccountRoleLabel(account.role)}
-              </span>
-            </div>
-            <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
-                상태
-              </span>
-              <span
-                className={cn(
-                  'border px-1.5 py-0.5 text-xs font-mono uppercase',
-                  getAccountStatusBadgeStyle(account.status),
-                )}
-              >
-                {getAccountStatusLabel(account.status)}
-              </span>
-            </div>
-            <div className={cn('flex items-center justify-between')}>
-              <span className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}>
-                생성일
-              </span>
-              <span className={cn('font-mono text-sm')}>
-                {new Date(account.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
-              </span>
-            </div>
+      <DialogWindow
+        windowTitle="Account Detail"
+        description="계정에 연결된 정보를 확인하고 권한을 관리하세요."
+        className={cn('sm:max-w-[860px]')}
+      >
+        <div className={cn('flex flex-col gap-4 px-5 pt-4')}>
+          <div className={cn('flex flex-col gap-1')}>
+            <p className={cn(SECTION_TITLE_STYLE)}>계정 정보</p>
+            <p className={cn(SECTION_DESCRIPTION_STYLE)}>
+              계정에 연결된 정보를 확인하고 권한을 관리하세요.
+            </p>
           </div>
 
-          <div className={cn('border-foreground/20 border-t pt-4')}>
-            <p className={cn('text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest')}>
-              {isTeacherAccount ? '연동된 선생님 정보' : '연동된 학생 정보'}
-            </p>
-            {isTeacherAccount ? (
-              teacher ? (
-                <div
-                  className={cn(
-                    'border-foreground grid grid-cols-2 gap-x-4 gap-y-2 border p-4 font-mono text-sm',
-                  )}
-                >
-                  <span>이름: {teacher.name}</span>
-                  <span>소속 부서: {getTeacherDepartmentLabel(teacher.department)}</span>
-                  <span className={cn('col-span-2')}>설명: {teacher.description || '없음'}</span>
-                </div>
-              ) : (
-                <div
-                  className={cn(
-                    'border-foreground/25 text-muted-foreground border border-dashed p-4 text-center font-mono text-sm',
-                  )}
-                >
-                  연동된 선생님 정보가 없습니다.
-                </div>
-              )
-            ) : student ? (
-              <div
-                className={cn(
-                  'border-foreground grid grid-cols-2 gap-x-4 gap-y-2 border p-4 font-mono text-sm',
-                )}
-              >
-                <span>이름: {student.name}</span>
-                <span>성별: {getSexLabel(student.sex)}</span>
-                <span>학번: {student.studentNumber}</span>
-                <span>학과: {getMajorLabel(student.major)}</span>
-                <span className={cn('col-span-2')}>
-                  구분:{' '}
-                  <span
-                    className={cn(
-                      'border px-1.5 py-0.5 text-xs font-mono uppercase',
-                      getRoleBadgeStyle(student.role),
-                    )}
-                  >
-                    {getRoleLabel(student.role)}
+          <Table>
+            <TableHeader>
+              <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
+                <TableHead className={cn('w-[260px]')}>이메일</TableHead>
+                <TableHead className={cn('w-[160px]')}>현재 역할</TableHead>
+                <TableHead className={cn('w-[160px]')}>상태</TableHead>
+                <TableHead>생성일</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow className={cn(TABLE_BODY_ROW_STYLE, 'border hover:bg-transparent')}>
+                <TableCell>{account.email}</TableCell>
+                <TableCell>
+                  <span className={cn(BADGE_STYLE, getAccountRoleBadgeStyle(account.role))}>
+                    {getAccountRoleLabel(account.role)}
                   </span>
-                </span>
-                <span>기숙사: {student.dormitoryRoom ? `${student.dormitoryRoom}호` : '없음'}</span>
-                <span>전공 동아리: {student.majorClub?.name ?? '없음'}</span>
-                <span>자율 동아리: {student.autonomousClub?.name ?? '없음'}</span>
-              </div>
-            ) : (
-              <div
-                className={cn(
-                  'border-foreground/25 text-muted-foreground border border-dashed p-4 text-center font-mono text-sm',
-                )}
-              >
-                연동된 학생 정보가 없습니다.
-              </div>
-            )}
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={cn(STATUS_BADGE_STYLE, getAccountStatusBadgeStyle(account.status))}
+                  >
+                    <span
+                      className={cn(
+                        'size-2.5 shrink-0 rounded-full',
+                        getAccountStatusDotStyle(account.status),
+                      )}
+                    />
+                    {getAccountStatusLabel(account.status)}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {new Date(account.createdAt).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className={cn('flex flex-col gap-4 px-5 pt-5')}>
+          <div className={cn('flex flex-col gap-1')}>
+            <p className={cn(SECTION_TITLE_STYLE)}>{linkedTitle}</p>
+            <p className={cn(SECTION_DESCRIPTION_STYLE)}>{linkedDescription}</p>
           </div>
 
-          <div className={cn('border-foreground/20 border-t pt-4')}>
-            <p className={cn('text-muted-foreground mb-2 font-mono text-xs uppercase tracking-widest')}>
+          {renderLinkedInfo()}
+
+          <div className={cn('flex w-[300px] flex-col gap-1.5')}>
+            <Label htmlFor="account-role" className={cn('text-foreground text-sm font-medium')}>
               권한 변경
-            </p>
+            </Label>
             {isRoleChangeDisabled ? (
-              <p className={cn('text-muted-foreground font-mono text-xs')}>
+              <p className={cn('text-muted-foreground font-mono text-xs leading-9')}>
                 {account.role === 'ROOT'
                   ? '루트 계정의 권한은 변경할 수 없습니다.'
                   : '본인의 권한은 변경할 수 없습니다.'}
               </p>
             ) : (
-              <div className={cn('flex items-center gap-2')}>
-                <Select
-                  value={selectedRole}
-                  onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}
+              <Select
+                value={selectedRole}
+                onValueChange={(v) => setSelectedRole(v as 'ADMIN' | 'USER')}
+              >
+                <SelectTrigger
+                  id="account-role"
+                  className={cn('border-foreground h-9 w-full justify-between px-3 text-sm')}
                 >
-                  <SelectTrigger className={cn('border-foreground w-32 rounded-none')}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USER">유저</SelectItem>
-                    <SelectItem value="ADMIN">어드민</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  type="button"
-                  disabled={isPending || selectedRole === account.role}
-                  onClick={() => updateRole({ accountId: account.id, role: selectedRole })}
-                >
-                  {isPending ? '변경 중...' : '변경'}
-                </Button>
-              </div>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USER">유저</SelectItem>
+                  <SelectItem value="ADMIN">어드민</SelectItem>
+                </SelectContent>
+              </Select>
             )}
           </div>
         </div>
-      </DialogContent>
+
+        <div className={cn('flex flex-col items-end justify-center p-5')}>
+          <Button
+            type="button"
+            variant="pixel-primary"
+            className={cn('h-10 w-full px-3')}
+            disabled={isPending || isRoleChangeDisabled || selectedRole === account.role}
+            onClick={() => updateRole({ accountId: account.id, role: selectedRole })}
+          >
+            {isPending ? '변경 중...' : 'Confirm'}
+          </Button>
+        </div>
+      </DialogWindow>
     </Dialog>
   );
 };

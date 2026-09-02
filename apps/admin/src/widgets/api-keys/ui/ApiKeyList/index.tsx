@@ -3,19 +3,13 @@ import { useState } from 'react';
 import { useDeleteApiKeyById, useUpdateApiKeyExpirationById } from '@repo/shared/hooks';
 import { ApiKey } from '@repo/shared/types';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  Button,
+  ConfirmDialog,
   Input,
   Label,
-  PixelIconButton,
   Skeleton,
+  TABLE_BODY_ROW_STYLE,
+  TABLE_HEAD_ROW_STYLE,
   Table,
   TableBody,
   TableCell,
@@ -23,15 +17,22 @@ import {
   TableHeader,
   TableRow,
 } from '@repo/shared/ui';
-import { cn, formatDate } from '@repo/shared/utils';
+import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ApiKeyListProps {
   apiKeys?: ApiKey[];
   isLoading: boolean;
 }
+
+const formatExpiresAt = (value: string | Date) => {
+  const [year, month, day] = new Date(value)
+    .toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' })
+    .split('-');
+
+  return `${year}.${month}.${day}`;
+};
 
 const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
   const queryClient = useQueryClient();
@@ -57,120 +58,114 @@ const ApiKeyList = ({ apiKeys, isLoading }: ApiKeyListProps) => {
     },
   });
 
-  if (isLoading) {
+  if (!isLoading && !apiKeys?.length) {
     return (
-      <div className={cn('space-y-2')}>
-        <Skeleton className={cn('h-10 w-full')} />
-        <Skeleton className={cn('h-24 w-full')} />
-        <Skeleton className={cn('h-24 w-full')} />
-      </div>
-    );
-  }
-
-  if (!apiKeys || apiKeys.length === 0) {
-    return (
-      <div className={cn('text-muted-foreground py-10 text-center')}>
+      <p className={cn('text-muted-foreground py-12 text-center font-mono text-xs')}>
         등록된 API Key가 없습니다.
-      </div>
+      </p>
     );
   }
 
   return (
     <Table>
       <TableHeader>
-        <TableRow>
-          <TableHead className={cn('w-[80px]')}>ID</TableHead>
-          <TableHead className={cn('w-[200px]')}>설명</TableHead>
+        <TableRow className={cn(TABLE_HEAD_ROW_STYLE)}>
+          <TableHead className={cn('w-[100px]')}>ID</TableHead>
+          <TableHead className={cn('w-[320px]')}>설명</TableHead>
           <TableHead>API Key</TableHead>
-          <TableHead className={cn('w-[180px]')}>만료일</TableHead>
-          <TableHead className={cn('w-[100px]')}>작업</TableHead>
+          <TableHead className={cn('w-[120px]')}>만료일</TableHead>
+          <TableHead className={cn('w-[180px]')}>
+            <span className={cn('sr-only')}>작업</span>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {apiKeys.map((apiKey) => (
-          <TableRow key={apiKey.id}>
-            <TableCell className={cn('font-medium')}>{apiKey.id}</TableCell>
-            <TableCell className={cn('w-[200px] truncate')} title={apiKey.description}>
-              {apiKey.description}
-            </TableCell>
-            <TableCell className={cn('break-all font-mono text-[11px]')}>{apiKey.apiKey}</TableCell>
-            <TableCell>{formatDate(apiKey.expiresAt)}</TableCell>
-            <TableCell>
-              <div className={cn('flex items-center gap-2 whitespace-nowrap')}>
-                <AlertDialog onOpenChange={() => setExtendDays(30)}>
-                  <AlertDialogTrigger asChild>
-                    <PixelIconButton>
-                      <RefreshCw className={cn('h-3.5 w-3.5')} />
-                    </PixelIconButton>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Api Key 기한 연장</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        &apos;{apiKey.description}&apos;의 기한을 연장하시겠습니까?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <div className={cn('my-4 space-y-2')}>
+        {isLoading
+          ? Array.from({ length: 10 }).map((_, index) => (
+              <TableRow key={index} className={cn(TABLE_BODY_ROW_STYLE)}>
+                <TableCell>
+                  <Skeleton className={cn('h-4 w-8')} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className={cn('h-4 w-24')} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className={cn('h-4 w-64')} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className={cn('h-4 w-20')} />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className={cn('h-6 w-36')} />
+                </TableCell>
+              </TableRow>
+            ))
+          : apiKeys?.map((apiKey) => (
+              <TableRow key={apiKey.id} className={cn(TABLE_BODY_ROW_STYLE)}>
+                <TableCell>{apiKey.id}</TableCell>
+                <TableCell className={cn('truncate')} title={apiKey.description}>
+                  {apiKey.description}
+                </TableCell>
+                <TableCell className={cn('break-all')}>{apiKey.apiKey}</TableCell>
+                <TableCell>{formatExpiresAt(apiKey.expiresAt)}</TableCell>
+                <TableCell>
+                  <div className={cn('flex items-center gap-2 whitespace-nowrap')}>
+                    <ConfirmDialog
+                      trigger={
+                        <Button type="button" variant="pixel" className={cn('h-6 border px-2')}>
+                          Renew
+                        </Button>
+                      }
+                      title={`“${apiKey.description}”키의 만료 기한을 연장할까요?`}
+                      description={`“${apiKey.description}”키의 만료 기한을 연장합니다.`}
+                      confirmLabel="확인"
+                      confirmVariant="pixel-primary"
+                      onOpenChange={() => setExtendDays(30)}
+                      onConfirm={() =>
+                        updateApiKeyExpiration({ apiKeyId: apiKey.id, days: extendDays })
+                      }
+                    >
                       <Label
-                        className={cn(
-                          'font-mono text-xs uppercase tracking-widest text-muted-foreground',
-                        )}
+                        htmlFor={`extend-days-${apiKey.id}`}
+                        className={cn('text-foreground text-sm font-medium')}
                       >
-                        연장 일수 (1~365)
+                        연장 일수
                       </Label>
                       <Input
+                        id={`extend-days-${apiKey.id}`}
                         type="number"
                         min={1}
                         max={365}
+                        placeholder="(1 ~ 365) 사이의 숫자를 입력하세요"
                         value={extendDays}
                         onChange={(e) =>
                           setExtendDays(Math.min(365, Math.max(1, Number(e.target.value))))
                         }
-                        className={cn('w-32')}
+                        className={cn('border-foreground h-9 rounded-none px-3 text-sm')}
                       />
-                    </div>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>취소</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() =>
-                          updateApiKeyExpiration({ apiKeyId: apiKey.id, days: extendDays })
-                        }
-                        className={cn('bg-black text-white hover:bg-black/50')}
-                      >
-                        연장
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <PixelIconButton variant="destructive">
-                      <Trash2 className={cn('h-3.5 w-3.5')} />
-                    </PixelIconButton>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Api Key 삭제</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        정말로 &apos;{apiKey.description}&apos;를 삭제하시겠습니까? 이 작업은 되돌릴 수
-                        없습니다.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>취소</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => deleteApiKey(apiKey.id)}
-                        className={cn('bg-destructive hover:bg-destructive/90 text-white')}
-                      >
-                        삭제
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
+                    </ConfirmDialog>
+
+                    <ConfirmDialog
+                      trigger={
+                        <Button
+                          type="button"
+                          variant="pixel-destructive"
+                          className={cn('h-6 border px-2')}
+                        >
+                          Delete
+                        </Button>
+                      }
+                      title={`정말 “${apiKey.description}”키를 삭제할까요?`}
+                      warning="> 중요: 이 작업은 되돌릴 수 없습니다!"
+                      description="이 작업은 되돌릴 수 없습니다."
+                      confirmLabel="확인"
+                      confirmVariant="pixel-destructive"
+                      onConfirm={() => deleteApiKey(apiKey.id)}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
       </TableBody>
     </Table>
   );

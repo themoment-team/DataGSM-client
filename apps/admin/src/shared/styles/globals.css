@@ -2,3 +2,12 @@
 @import '../../../../../packages/shared/src/styles/globals.css';
 
 @source "../../../../../packages/shared/src";
+
+/* 어드민은 시안에 맞춰 우하단 픽셀 그림자를 사용하지 않는다 */
+@layer utilities {
+  .pixel-shadow,
+  .pixel-shadow-sm,
+  .pixel-shadow-lg {
+    box-shadow: none;
+  }
+}

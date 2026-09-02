@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { useURLFilters } from '@repo/shared/hooks';
-import { CommonPagination, PageHeader } from '@repo/shared/ui';
+import { CommonPagination, PageTitleBar, PageWindow } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -51,29 +51,37 @@ const TeacherApprovalsPage = () => {
 
   const accounts = accountsData?.data.accounts;
   const totalPages = accountsData?.data.totalPages ?? 0;
+  const isEmpty = !isLoading && !accounts?.length;
 
   return (
     <div className={cn('bg-background min-h-[calc(100vh-3.5rem)]')}>
       <main className={cn('container mx-auto px-4 py-8')}>
-        <PageHeader breadcrumb="DATAGSM / Admin" title="선생님 승인 요청" />
+        <PageTitleBar title="TEACHER APPROVE" description="DataGSM의 선생님 역할을 승인합니다." />
 
-        <div className={cn('border-2 border-foreground pixel-shadow')}>
-          <TeacherApprovalList
-            accounts={accounts}
-            isLoading={isLoading}
-            isApproving={isApproving || isFetching}
-            onApprove={(accountId) => approveTeacher({ accountId })}
-          />
-        </div>
+        <PageWindow
+          windowTitle="Teacher Approve"
+          title="선생님 역할 승인"
+          description="선생님 역할이 요청된 계정들을 관리하세요"
+        >
+          {/* Table */}
+          <div className={cn(!isEmpty && 'border-foreground border')}>
+            <TeacherApprovalList
+              accounts={accounts}
+              isLoading={isLoading}
+              isApproving={isApproving || isFetching}
+              onApprove={(accountId) => approveTeacher({ accountId })}
+            />
+          </div>
 
-        <div className={cn('mt-5')}>
-          <CommonPagination
-            isLoading={isLoading}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => updateURL({}, page)}
-          />
-        </div>
+          <div className={cn('mt-5')}>
+            <CommonPagination
+              isLoading={isLoading}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => updateURL({}, page)}
+            />
+          </div>
+        </PageWindow>
       </main>
     </div>
   );

@@ -1,3 +1,4 @@
+import { StudentDataEditField } from '@repo/shared/constants';
 import { z } from 'zod';
 
 export const StudentFilterSchema = z.object({
@@ -39,3 +40,9 @@ export const AddStudentSchema = z.object({
 });
 
 export type AddStudentType = z.infer<typeof AddStudentSchema>;
+
+/** 선택한 학생들의 지정 컬럼을 초기화하고 로그인 때 다시 입력받도록 요청한다. */
+export interface RequestStudentDataEditType {
+  studentIds: number[];
+  fields: StudentDataEditField[];
+}

@@ -17,6 +17,15 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
+        pixel:
+          'border-2 border-foreground bg-background font-mono text-xs tracking-[0.1em] hover:bg-foreground hover:text-background',
+        'pixel-primary':
+          'border border-foreground bg-foreground font-mono text-xs tracking-[0.1em] text-background hover:bg-foreground/90',
+        'pixel-destructive':
+          'border-2 border-destructive bg-background font-mono text-xs tracking-[0.1em] text-destructive hover:bg-destructive hover:text-white',
+        /** 화면·모달의 주요 확정 버튼. size="lg"와 함께 폭을 채워 쓴다. */
+        'pixel-solid':
+          'border-2 border-foreground bg-foreground text-background font-mono text-xs font-bold tracking-[1.2px] hover:bg-background hover:text-foreground disabled:opacity-60',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

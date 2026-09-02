@@ -1,18 +1,15 @@
 import { Club } from '@repo/shared/types';
-import {
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/shared/ui';
+import { FilterOption, FilterSelect, Input } from '@repo/shared/ui';
 import { cn } from '@repo/shared/utils';
 import { Search } from 'lucide-react';
 import { Control, Controller } from 'react-hook-form';
 
 import { ProjectFilterType } from '@/entities/project';
+
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'ACTIVE', label: '운영 중' },
+  { value: 'ENDED', label: '운영 종료' },
+];
 
 interface ProjectFilterProps {
   control: Control<ProjectFilterType>;
@@ -20,9 +17,14 @@ interface ProjectFilterProps {
 }
 
 const ProjectFilter = ({ control, clubs }: ProjectFilterProps) => {
+  const clubOptions: FilterOption[] = [
+    { value: 'all', label: '전체' },
+    ...clubs.map((club) => ({ value: String(club.id), label: club.name })),
+  ];
+
   return (
-    <div className={cn('mt-4 flex flex-col justify-center gap-4')}>
-      <div className={cn('relative flex-1')}>
+    <div className={cn('flex flex-wrap items-center gap-2')}>
+      <div className={cn('relative w-[320px] max-w-full')}>
         <Search
           className={cn('text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2')}
         />
@@ -32,8 +34,8 @@ const ProjectFilter = ({ control, clubs }: ProjectFilterProps) => {
           render={({ field }) => (
             <Input
               {...field}
-              placeholder="프로젝트 이름으로 검색"
-              className={cn('border-foreground rounded-none pl-9 font-mono')}
+              placeholder="프로젝트 이름으로 검색하세요"
+              className={cn('border-foreground rounded-none pl-9')}
               onChange={field.onChange}
               value={field.value ?? ''}
             />
@@ -41,58 +43,34 @@ const ProjectFilter = ({ control, clubs }: ProjectFilterProps) => {
         />
       </div>
 
-      <div className={cn('flex items-center gap-4')}>
-        <div className={cn('flex items-center gap-2')}>
-          <Label
-            className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-          >
-            상태:
-          </Label>
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <Select value={field.value ?? 'ACTIVE'} onValueChange={field.onChange}>
-                <SelectTrigger className={cn('border-foreground w-28 rounded-none')}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACTIVE">운영 중</SelectItem>
-                  <SelectItem value="ENDED">종료</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-        <div className={cn('flex items-center gap-2')}>
-          <Label
-            className={cn('text-muted-foreground font-mono text-xs uppercase tracking-widest')}
-          >
-            동아리:
-          </Label>
-          <Controller
-            control={control}
-            name="clubId"
-            render={({ field }) => (
-              <Select
-                value={field.value ? String(field.value) : 'all'}
-                onValueChange={(val) => field.onChange(val === 'all' ? undefined : Number(val))}
-              >
-                <SelectTrigger className={cn('border-foreground w-40 rounded-none')}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">전체</SelectItem>
-                  {clubs.map((club) => (
-                    <SelectItem key={club.id} value={String(club.id)}>
-                      {club.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
+      <div className={cn('ml-auto flex flex-wrap items-center justify-end gap-2')}>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <FilterSelect
+              label="상태"
+              options={STATUS_OPTIONS}
+              value={field.value ?? 'ACTIVE'}
+              onChange={field.onChange}
+              className={cn('w-[200px]')}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="clubId"
+          render={({ field }) => (
+            <FilterSelect
+              label="동아리"
+              options={clubOptions}
+              value={field.value ? String(field.value) : 'all'}
+              onChange={(value) => field.onChange(value === 'all' ? undefined : Number(value))}
+              className={cn('w-[240px]')}
+            />
+          )}
+        />
       </div>
     </div>
   );
