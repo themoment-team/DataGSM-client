@@ -369,6 +369,7 @@ const ProjectFormDialog = ({
                     id="repositories"
                     placeholder="리포지토리 URL을 입력하고 Enter를 누르세요"
                     maxItems={20}
+                    maxLength={300}
                     value={field.value ?? []}
                     onChange={field.onChange}
                   />
@@ -390,6 +391,7 @@ const ProjectFormDialog = ({
                     id="techStacks"
                     placeholder="기술 스택을 입력하고 Enter를 누르세요"
                     maxItems={20}
+                    maxLength={50}
                     value={field.value ?? []}
                     onChange={field.onChange}
                   />

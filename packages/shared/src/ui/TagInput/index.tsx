@@ -12,6 +12,8 @@ interface TagInputProps {
   placeholder?: string;
   /** 넘기면 이 개수를 채웠을 때 더 이상 추가되지 않는다. */
   maxItems?: number;
+  /** 넘기면 항목 하나가 이 길이를 넘도록 입력할 수 없다. */
+  maxLength?: number;
   disabled?: boolean;
   className?: string;
 }
@@ -23,6 +25,7 @@ const TagInput = ({
   id,
   placeholder,
   maxItems,
+  maxLength,
   disabled,
   className,
 }: TagInputProps) => {
@@ -67,6 +70,7 @@ const TagInput = ({
         id={id}
         value={draft}
         placeholder={isFull ? `최대 ${maxItems}개까지 추가할 수 있습니다` : placeholder}
+        maxLength={maxLength}
         disabled={disabled || isFull}
         className={cn(FORM_FIELD_STYLE)}
         onChange={(event) => setDraft(event.target.value)}
