@@ -48,6 +48,10 @@ const TagInput = ({
     if (event.key === 'Enter') {
       // 폼 안에서 Enter가 submit으로 새지 않도록 막는다.
       event.preventDefault();
+
+      // 한글 조합을 확정하는 Enter는 입력을 끝내려는 뜻이 아니므로 태그로 만들지 않는다.
+      if (event.nativeEvent.isComposing) return;
+
       addTag();
       return;
     }
