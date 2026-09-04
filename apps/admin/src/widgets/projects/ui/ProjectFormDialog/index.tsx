@@ -112,8 +112,8 @@ const ProjectFormDialog = ({
           participantIds: project.participants.map((p) => p.id),
           status: project.status,
           endYear: project.endYear ?? undefined,
-          repositories: project.repositories,
-          techStacks: project.techStacks,
+          repositories: project.repositories ?? [],
+          techStacks: project.techStacks ?? [],
         });
       } else if (mode === 'create') {
         reset({
